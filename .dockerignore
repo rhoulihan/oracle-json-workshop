@@ -1,0 +1,12 @@
+node_modules
+coverage
+.git
+.github
+.husky
+.claude
+docs
+test
+oracle-data
+*.tar.gz
+*.md
+!package.json

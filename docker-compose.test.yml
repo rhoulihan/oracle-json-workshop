@@ -1,0 +1,25 @@
+version: '3.8'
+
+# Oracle-only stack for integration tests (CI and local dev)
+services:
+  oracle:
+    build:
+      context: .
+      dockerfile: Dockerfile.oracle
+    container_name: workshop-oracle-test
+    ports:
+      - '1521:1521'
+      - '8181:8181'
+      - '27017:27017'
+    environment:
+      ORACLE_PASSWORD: 'TestAdmin2026'
+      APP_USER: 'WORKSHOP_ADMIN'
+      APP_USER_PASSWORD: 'TestApp2026'
+      ORDS_PASSWORD: 'TestOrds2026'
+    healthcheck:
+      test:
+        ['CMD-SHELL', 'healthcheck.sh && curl -sf http://localhost:8181/ords/_/health || exit 1']
+      interval: 15s
+      timeout: 10s
+      retries: 20
+      start_period: 90s

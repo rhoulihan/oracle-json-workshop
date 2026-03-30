@@ -1,0 +1,7 @@
+node_modules/
+coverage/
+oracle-data/
+.env
+*.tar.gz
+*.log
+.DS_Store

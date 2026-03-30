@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  oracle:
+    build:
+      context: .
+      dockerfile: Dockerfile.oracle
+    container_name: workshop-oracle
+    ports:
+      - '1521:1521'
+      - '8181:8181'
+      - '27017:27017'
+    environment:
+      ORACLE_PASSWORD: '${ORACLE_PASSWORD:-WorkshopAdmin2026}'
+      APP_USER: 'WORKSHOP_ADMIN'
+      APP_USER_PASSWORD: '${APP_USER_PASSWORD:-WorkshopApp2026}'
+      ORDS_PASSWORD: '${ORDS_PASSWORD:-OrdsPwd2026}'
+    volumes:
+      - oracle-data:/opt/oracle/oradata
+    healthcheck:
+      test:
+        ['CMD-SHELL', 'healthcheck.sh && curl -sf http://localhost:8181/ords/_/health || exit 1']
+      interval: 15s
+      timeout: 10s
+      retries: 20
+      start_period: 90s
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 4G
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: workshop-app
+    ports:
+      - '3000:3000'
+    environment:
+      DB_USER: 'WORKSHOP_ADMIN'
+      DB_PASSWORD: '${APP_USER_PASSWORD:-WorkshopApp2026}'
+      DB_CONNECT_STRING: 'workshop-oracle:1521/FREEPDB1'
+      ORDS_BASE_URL: 'http://workshop-oracle:8181/ords'
+      MONGODB_URI: 'mongodb://workshop-oracle:27017'
+      SESSION_SECRET: '${SESSION_SECRET:-workshop-secret-change-me}'
+      ADMIN_PASSWORD: '${INSTRUCTOR_PASSWORD:-instructor2026}'
+      NODE_ENV: 'production'
+    depends_on:
+      oracle:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  oracle-data:
