@@ -1,0 +1,11 @@
+-- 03-create-collections.sql
+-- Creates JSON collection tables.
+
+ALTER SESSION SET CONTAINER = FREEPDB1;
+ALTER SESSION SET CURRENT_SCHEMA = WORKSHOP_ADMIN;
+
+CREATE JSON COLLECTION TABLE client_interactions;
+
+CREATE JSON COLLECTION TABLE advisory_entities;
+
+COMMIT;
