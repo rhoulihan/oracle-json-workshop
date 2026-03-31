@@ -169,6 +169,9 @@ async function init() {
     }
 
     await refreshWorkspaces();
+
+    // Auto-refresh every 15 seconds
+    setInterval(refreshWorkspaces, 15000);
   }
 
   // Module definitions for heatmap (hardcoded to avoid requiring user auth)
