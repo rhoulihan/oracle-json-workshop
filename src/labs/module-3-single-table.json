@@ -1,0 +1,54 @@
+{
+  "id": "module-3",
+  "title": "Single-Table Design & Multi-Value Indexes",
+  "description": "The single-table design pattern invented for DynamoDB — made dramatically more powerful with Oracle's multi-value indexes, SQL joins, and cost-based optimizer.",
+  "estimatedTime": 20,
+  "checkpoint": "One collection. Four entity types. Partition-key query returns an advisor with all their clients in a single round trip — plus SQL joins, aggregation, and multi-value indexes that DynamoDB and MongoDB cannot match.",
+  "exercises": [
+    {
+      "id": "3.1",
+      "title": "Explore the Single-Table Collection",
+      "description": "See all entity types in one collection, query by partition key, and use sort key prefixes.",
+      "codeType": "sql",
+      "code": "-- See all entity types in one collection\nSELECT data.entityType.string() AS entity_type,\n       COUNT(*) AS count\nFROM advisory_entities\nGROUP BY data.entityType.string()\nORDER BY count DESC;\n\n-- Query by partition key — get an advisor and all their entities\nSELECT data.entityType.string() AS type,\n       data.sk.string() AS sort_key,\n       json_serialize(data.data PRETTY) AS payload\nFROM advisory_entities\nWHERE data.pk.string() = 'ADVISOR#5'\nORDER BY data.sk.string();\n\n-- Query by sort key prefix — get just the clients for an advisor\nSELECT data.data.firstName.string() || ' ' || data.data.lastName.string() AS client_name,\n       data.data.riskProfile.string() AS risk_profile,\n       data.data.totalValue.number() AS total_value\nFROM advisory_entities\nWHERE data.pk.string() = 'ADVISOR#5'\n  AND data.sk.string() LIKE 'CLIENT#%'\nORDER BY data.data.totalValue.number() DESC;",
+      "validationQuery": "SELECT COUNT(DISTINCT data.entityType.string()) AS type_count FROM advisory_entities",
+      "expectedResultPattern": "rowCount:>0"
+    },
+    {
+      "id": "3.2",
+      "title": "Create Functional Indexes for Access Patterns",
+      "description": "Create primary and GSI-equivalent indexes on the single-table collection and verify index usage.",
+      "codeType": "sql",
+      "code": "-- Primary access pattern: pk + sk (entity co-location)\nCREATE INDEX idx_pk_sk ON advisory_entities (\n    data.pk.string(),\n    data.sk.string()\n);\n\n-- GSI equivalent: alternate access pattern\nCREATE INDEX idx_gsi1 ON advisory_entities (\n    data.gsi1pk.string(),\n    data.gsi1sk.string()\n);\n\n-- Use the GSI to find all holdings for a symbol across all accounts\nSELECT data.pk.string() AS account,\n       data.data.quantity.number() AS quantity,\n       data.data.marketValue.number() AS market_value\nFROM advisory_entities\nWHERE data.gsi1pk.string() = 'SYMBOL#AAPL'\n  AND data.entityType.string() = 'holding';",
+      "validationQuery": "SELECT COUNT(*) AS cnt FROM user_indexes WHERE index_name IN ('IDX_PK_SK', 'IDX_GSI1')",
+      "expectedResultPattern": "rowCount:>0"
+    },
+    {
+      "id": "3.3",
+      "title": "Multi-Value Indexes — Index Into Arrays",
+      "description": "Create multi-value indexes on tags and sectors arrays, then query across both — something impossible on MongoDB due to the parallel arrays prohibition.",
+      "codeType": "sql",
+      "code": "-- Create a multi-value index on the tags array\nCREATE MULTIVALUE INDEX idx_tags ON advisory_entities ae\n    (ae.data.data.tags.string());\n\n-- Create a multi-value index on the sectors array\nCREATE MULTIVALUE INDEX idx_sectors ON advisory_entities ae\n    (ae.data.data.sectors.string());\n\n-- Find all holdings tagged \"dividend\"\nSELECT data.data.symbol.string() AS symbol,\n       data.data.quantity.number() AS quantity,\n       data.data.marketValue.number() AS market_value,\n       json_serialize(data.data.tags) AS tags\nFROM advisory_entities ae\nWHERE JSON_EXISTS(ae.data, '$.data.tags?(@ == \"dividend\")')\n  AND ae.data.entityType.string() = 'holding';\n\n-- Combine: find all S&P 500 holdings in the technology sector\nSELECT data.data.symbol.string() AS symbol,\n       data.data.marketValue.number() AS market_value\nFROM advisory_entities ae\nWHERE JSON_EXISTS(ae.data, '$.data.tags?(@ == \"sp500\")')\n  AND JSON_EXISTS(ae.data, '$.data.sectors?(@ == \"technology\")')\n  AND ae.data.entityType.string() = 'holding';",
+      "validationQuery": "SELECT COUNT(*) AS cnt FROM user_indexes WHERE index_name IN ('IDX_TAGS', 'IDX_SECTORS')",
+      "expectedResultPattern": "rowCount:>0"
+    },
+    {
+      "id": "3.4",
+      "title": "SQL Superpowers on Single-Table Data",
+      "description": "Cross-entity aggregation, tag analytics, and sector exposure reports — queries that single-table design on DynamoDB could never support.",
+      "codeType": "sql",
+      "code": "-- TAG ANALYTICS: Holdings count by tag (across entire book)\nSELECT jt.tag,\n       COUNT(*) AS holding_count,\n       SUM(ae.data.data.marketValue.number()) AS total_value\nFROM advisory_entities ae,\nJSON_TABLE(ae.data, '$.data.tags[*]' COLUMNS (tag VARCHAR2(50) PATH '$')) jt\nWHERE ae.data.entityType.string() = 'holding'\nGROUP BY jt.tag\nORDER BY total_value DESC;\n\n-- SECTOR EXPOSURE REPORT: Market value by sector with percentage\nWITH sector_values AS (\n    SELECT jt.sector,\n           SUM(ae.data.data.marketValue.number()) AS sector_value\n    FROM advisory_entities ae,\n    JSON_TABLE(ae.data, '$.data.sectors[*]' COLUMNS (sector VARCHAR2(50) PATH '$')) jt\n    WHERE ae.data.entityType.string() = 'holding'\n    GROUP BY jt.sector\n)\nSELECT sector,\n       sector_value,\n       ROUND(sector_value / SUM(sector_value) OVER () * 100, 1) AS pct_of_portfolio\nFROM sector_values\nORDER BY sector_value DESC;",
+      "validationQuery": "SELECT COUNT(*) AS cnt FROM (SELECT jt.tag FROM advisory_entities ae, JSON_TABLE(ae.data, '$.data.tags[*]' COLUMNS (tag VARCHAR2(50) PATH '$')) jt WHERE ae.data.entityType.string() = 'holding' GROUP BY jt.tag)",
+      "expectedResultPattern": "rowCount:>0"
+    },
+    {
+      "id": "3.5",
+      "title": "Multi-Value Index + Duality View — Best of All Worlds",
+      "description": "Combine single-table design with duality views — multi-value index identifies matches, SQL JOIN navigates relationships, duality view shapes the output.",
+      "codeType": "sql",
+      "code": "-- Query: Find clients whose holdings include \"dividend\" tagged securities\n-- using the multi-value index on the single-table collection,\n-- then join to the relational model for the full client document\nSELECT json_serialize(cp.data PRETTY) AS client_portfolio\nFROM advisory_entities ae\nJOIN clients c ON c.client_id = TO_NUMBER(\n    REPLACE(ae.data.pk.string(), 'ACCOUNT#', '')\n)\nJOIN client_portfolio_dv cp ON cp.data.\"_id\".number() = c.client_id\nWHERE JSON_EXISTS(ae.data, '$.data.tags?(@ == \"dividend\")')\n  AND ae.data.entityType.string() = 'holding';",
+      "validationQuery": "SELECT COUNT(*) AS cnt FROM advisory_entities ae WHERE JSON_EXISTS(ae.data, '$.data.tags?(@ == \"dividend\")') AND ae.data.entityType.string() = 'holding'",
+      "expectedResultPattern": "rowCount:>0"
+    }
+  ]
+}

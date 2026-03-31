@@ -199,15 +199,20 @@ oracle-json-workshop/
 │   ├── routes/
 │   │   ├── auth.js              # POST /api/auth/{register,login,logout}, GET /me
 │   │   ├── admin.js             # POST /api/admin/login, GET/DELETE workspaces
+│   │   ├── labs.js              # GET /api/labs, POST check, GET progress
 │   │   └── query.js             # POST /api/query/{sql,js,mongo}
+│   ├── labs/                    # Lab module JSON content (M0-M5)
 │   └── services/
 │       ├── database.js          # Connection pool manager
 │       ├── workspace.js         # Schema clone/teardown service
 │       ├── queryExecutor.js     # SQL execution with timeout + row limits
 │       ├── jsExecutor.js        # Sandboxed JS execution (vm.createContext)
-│       └── mongoExecutor.js     # mongosh → SQL translator
+│       ├── mongoExecutor.js     # mongosh → SQL translator
+│       ├── labLoader.js         # Lab module JSON loader + cache
+│       ├── validator.js         # Exercise answer validation
+│       └── progressService.js   # Per-user progress tracking
 ├── test/
-│   ├── unit/                   # No DB required (~132 tests)
+│   ├── unit/                   # No DB required (~213 tests)
 │   └── integration/            # Real Oracle required (~48 tests)
 ├── docs/
 │   ├── workshop-specification.md
@@ -225,20 +230,21 @@ oracle-json-workshop/
 | **Phase 2** | Database init scripts, seed data, duality views, indexes, workspace cloning     | 7 unit + 48 integration |
 | **Phase 3** | Query execution engine (SQL, JS, MongoDB) with security + rate limiting         | 75 unit                 |
 | **Phase 4** | Authentication + workspace management API                                       | 30 unit                 |
+| **Phase 5** | Lab content engine — 6 modules, answer validation, progress tracking            | 81 unit                 |
 
-**Total: 180 tests (132 unit + 48 integration), all passing**
+**Total: 261 tests (213 unit + 48 integration), all passing**
 
-#### Phase 4 Details
+#### Phase 5 Details
 
-- **Auth middleware** — `requireAuth` (401 for unauthenticated) and `requireAdmin` (403 for non-admin). Shared across query and admin routes.
-- **Auth routes** — `POST /api/auth/register` (creates workspace + session), `/login` (validates credentials via DB connection), `/logout` (destroys session), `GET /api/auth/me` (returns current user). Passwords never exposed in responses.
-- **Admin routes** — `POST /api/admin/login` (shared password auth), `GET /api/admin/workspaces` (list all), `DELETE /api/admin/workspaces/:schemaName` (teardown one, validates WS\_ pattern), `DELETE /api/admin/workspaces` (bulk teardown).
-- **Integration tests** — Full lifecycle: register → query → logout → login. Admin lifecycle: login → list → teardown → logout.
+- **6 lab modules** (M0-M5) — 24 exercises total covering JSON collections, duality views, single-table design, multi-value indexes, hybrid queries, and multi-protocol access. All exercise SQL sourced from the workshop specification.
+- **Validator service** — Runs validation queries against user schemas, supports `rowCount`, `exact`, `contains`, and `columnExists` patterns.
+- **Lab loader** — Reads module JSON from `src/labs/` at startup, serves from memory. Lists modules with summaries, gets individual modules/exercises.
+- **Progress service** — Reads/writes `workshop_users.progress` JSON column. Tracks per-exercise completion timestamps.
+- **Lab routes** — `GET /api/labs` (module list), `GET /api/labs/:moduleId` (full content), `POST /api/labs/:moduleId/check/:exerciseId` (validate + update progress), `GET /api/labs/progress` (completion state).
 
 ### Remaining
 
 | Phase | Description | Status |
-| Phase 5 | Lab content JSON files + answer validation | Not started |
 | Phase 6 | Frontend — landing page, dashboard, lab viewer (Oracle branded) | Not started |
 | Phase 7 | Frontend — query editor (CodeMirror 6, SQL/JS/mongosh tabs) | Not started |
 | Phase 8 | Instructor dashboard + admin features | Not started |

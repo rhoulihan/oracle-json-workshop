@@ -1,0 +1,72 @@
+{
+  "id": "module-2",
+  "title": "JSON Duality Views",
+  "description": "Bidirectional document-relational mapping. Write through documents, read through SQL, and vice versa — with full ACID guarantees.",
+  "estimatedTime": 20,
+  "checkpoint": "Same data. Two access patterns. One source of truth. No sync. No ETL. No eventual consistency.",
+  "exercises": [
+    {
+      "id": "2.1",
+      "title": "Read Through the Document Lens",
+      "description": "View clients, advisors, and transactions as rich JSON documents through duality views.",
+      "codeType": "sql",
+      "code": "-- View a client as a rich document (with nested accounts and holdings)\nSELECT json_serialize(data PRETTY)\nFROM client_portfolio_dv\nWHERE data.\"_id\" = 1001;\n\n-- View an advisor's book\nSELECT json_serialize(data PRETTY)\nFROM advisor_book_dv\nWHERE data.\"_id\" = 5;\n\n-- View a transaction with account context (unnested)\nSELECT json_serialize(data PRETTY)\nFROM transaction_feed_dv\nWHERE data.\"_id\" = 1;",
+      "validationQuery": "SELECT COUNT(*) AS cnt FROM client_portfolio_dv WHERE data.\"_id\" = 1001",
+      "expectedResultPattern": "rowCount:1"
+    },
+    {
+      "id": "2.2",
+      "title": "Read Through the Relational Lens",
+      "description": "Access the same data relationally with SQL JOINs — same data, different access pattern.",
+      "codeType": "sql",
+      "code": "-- The SAME data, accessed relationally\nSELECT c.first_name, c.last_name, c.risk_profile,\n       a.account_type, a.account_name,\n       h.symbol, h.quantity, h.market_value\nFROM clients c\nJOIN accounts a ON a.client_id = c.client_id\nJOIN holdings h ON h.account_id = a.account_id\nWHERE c.client_id = 1001\nORDER BY a.account_type, h.market_value DESC;",
+      "validationQuery": "SELECT COUNT(*) AS cnt FROM clients c JOIN accounts a ON a.client_id = c.client_id JOIN holdings h ON h.account_id = a.account_id WHERE c.client_id = 1001",
+      "expectedResultPattern": "rowCount:>0"
+    },
+    {
+      "id": "2.3",
+      "title": "Write Through the Document API",
+      "description": "Insert a new client with accounts and holdings through the duality view — one document insert populates three relational tables.",
+      "codeType": "sql",
+      "code": "-- Insert a new client WITH accounts and holdings — through the document API\nINSERT INTO client_portfolio_dv (data) VALUES (JSON('{\n    \"firstName\": \"Sarah\",\n    \"lastName\": \"Chen\",\n    \"email\": \"sarah.chen@example.com\",\n    \"riskProfile\": \"aggressive\",\n    \"status\": \"active\",\n    \"accounts\": [\n        {\n            \"accountType\": \"brokerage\",\n            \"accountName\": \"Sarah Growth Portfolio\",\n            \"status\": \"active\",\n            \"holdings\": [\n                {\"symbol\": \"NVDA\", \"quantity\": 100, \"costBasis\": 85000, \"marketValue\": 120000},\n                {\"symbol\": \"MSFT\", \"quantity\": 50, \"costBasis\": 20000, \"marketValue\": 22500}\n            ]\n        }\n    ]\n}'));\nCOMMIT;\n\n-- Verify: the relational tables were populated automatically\nSELECT * FROM clients WHERE email = 'sarah.chen@example.com';",
+      "validationQuery": "SELECT COUNT(*) AS cnt FROM clients WHERE email = 'sarah.chen@example.com'",
+      "expectedResultPattern": "rowCount:1"
+    },
+    {
+      "id": "2.4",
+      "title": "Update Through the Document API",
+      "description": "Update a holding's market value through the duality view and verify the relational table reflects the change.",
+      "codeType": "sql",
+      "code": "-- Update using JSON_TRANSFORM through the duality view\nUPDATE client_portfolio_dv dv\nSET dv.data = json_transform(dv.data,\n    SET '$.accounts[0].holdings[0].marketValue' = 135000\n)\nWHERE dv.data.email.string() = 'sarah.chen@example.com';\nCOMMIT;\n\n-- Verify the relational table reflects the change\nSELECT h.symbol, h.market_value\nFROM holdings h\nJOIN accounts a ON h.account_id = a.account_id\nJOIN clients c ON a.client_id = c.client_id\nWHERE c.email = 'sarah.chen@example.com';",
+      "validationQuery": "SELECT h.market_value AS mv FROM holdings h JOIN accounts a ON h.account_id = a.account_id JOIN clients c ON a.client_id = c.client_id WHERE c.email = 'sarah.chen@example.com' AND h.symbol = 'NVDA'",
+      "expectedResultPattern": "exact:{\"MV\":135000}"
+    },
+    {
+      "id": "2.5",
+      "title": "Delete Through the Document API",
+      "description": "Delete a client through the duality view and verify the cascade cleanup.",
+      "codeType": "sql",
+      "code": "-- Delete a client — cascades through the duality view directives\nDELETE FROM client_portfolio_dv\nWHERE data.email.string() = 'sarah.chen@example.com';\nCOMMIT;\n\n-- Verify: relational tables cleaned up\nSELECT COUNT(*) AS cnt FROM clients WHERE email = 'sarah.chen@example.com';",
+      "validationQuery": "SELECT COUNT(*) AS cnt FROM clients WHERE email = 'sarah.chen@example.com'",
+      "expectedResultPattern": "rowCount:1"
+    },
+    {
+      "id": "2.6",
+      "title": "Examine the Duality View Definition",
+      "description": "Inspect the metadata that describes how the duality view maps between document and relational shapes.",
+      "codeType": "sql",
+      "code": "-- See what tables back the duality view\nSELECT * FROM user_json_duality_view_tabs\nWHERE view_name = 'CLIENT_PORTFOLIO_DV';\n\n-- See column mappings\nSELECT * FROM user_json_duality_view_tab_cols\nWHERE view_name = 'CLIENT_PORTFOLIO_DV';\n\n-- See relationships\nSELECT * FROM user_json_duality_view_links\nWHERE view_name = 'CLIENT_PORTFOLIO_DV';",
+      "validationQuery": "SELECT COUNT(*) AS cnt FROM user_json_duality_view_tabs WHERE view_name = 'CLIENT_PORTFOLIO_DV'",
+      "expectedResultPattern": "rowCount:>0"
+    },
+    {
+      "id": "2.7",
+      "title": "Create Your Own Duality View",
+      "description": "Challenge: Create a holdings summary duality view that shows each holding with its account and client context using UNNEST.",
+      "codeType": "sql",
+      "code": "-- Create a \"holdings summary\" duality view\n-- Expected shape: { _id, symbol, quantity, marketValue, accountName, clientName }\n\nCREATE OR REPLACE JSON RELATIONAL DUALITY VIEW my_holdings_dv AS\nSELECT JSON {\n    '_id'         : h.holding_id,\n    'symbol'      : h.symbol,\n    'quantity'    : h.quantity,\n    'costBasis'   : h.cost_basis,\n    'marketValue' : h.market_value,\n    UNNEST(\n        SELECT JSON {\n            'accountName' : a.account_name,\n            'accountType' : a.account_type,\n            UNNEST(\n                SELECT JSON {\n                    'clientName' : c.first_name || ' ' || c.last_name,\n                    'riskProfile': c.risk_profile\n                }\n                FROM clients c WITH NOCHECK\n                WHERE c.client_id = a.client_id\n            )\n        }\n        FROM accounts a WITH NOCHECK\n        WHERE a.account_id = h.account_id\n    )\n}\nFROM holdings h WITH UPDATE;",
+      "validationQuery": "SELECT COUNT(*) AS cnt FROM user_json_duality_views WHERE view_name = 'MY_HOLDINGS_DV'",
+      "expectedResultPattern": "rowCount:1"
+    }
+  ]
+}

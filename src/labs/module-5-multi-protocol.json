@@ -1,0 +1,27 @@
+{
+  "id": "module-5",
+  "title": "Multi-Protocol Access",
+  "description": "Access the same data through MongoDB wire protocol and JavaScript. Prove protocol convergence — a MongoDB app can connect to Oracle without changing a single line of driver code.",
+  "estimatedTime": 7,
+  "checkpoint": "You just wrote to relational tables using the MongoDB wire protocol. A MongoDB application can connect to Oracle without changing a single line of driver code.",
+  "exercises": [
+    {
+      "id": "5.1",
+      "title": "MongoDB API via mongosh",
+      "description": "List collections, query documents, insert through MongoDB API, and verify via SQL.",
+      "codeType": "mongo",
+      "code": "// List collections (includes both JSON collections and Duality Views)\nshow collections\n\n// Query a collection\ndb.CLIENT_INTERACTIONS.find({\"client_id\": 1001}).limit(3)\n\n// Query a Duality View as if it were a MongoDB collection\ndb.CLIENT_PORTFOLIO_DV.find({\"_id\": 1001})\n\n// Insert through MongoDB API — writes to relational tables via Duality View\ndb.CLIENT_PORTFOLIO_DV.insertOne({\n    \"firstName\": \"Workshop\",\n    \"lastName\": \"Developer\",\n    \"email\": \"dev@workshop.local\",\n    \"riskProfile\": \"moderate\",\n    \"status\": \"active\",\n    \"accounts\": []\n})\n\n// Clean up\ndb.CLIENT_PORTFOLIO_DV.deleteOne({\"email\": \"dev@workshop.local\"})",
+      "validationQuery": "SELECT COUNT(*) AS cnt FROM client_interactions ci WHERE ci.data.client_id.number() = 1001",
+      "expectedResultPattern": "rowCount:>0"
+    },
+    {
+      "id": "5.2",
+      "title": "JavaScript with node-oracledb",
+      "description": "Query duality views, insert with JSON type binding, and use the SODA API — all from JavaScript.",
+      "codeType": "js",
+      "code": "// 1. Query a Duality View — returns native JavaScript objects\nconst result = await connection.execute(\n    `SELECT data FROM client_portfolio_dv WHERE data.\"_id\" = :id`,\n    { id: 1001 },\n    { outFormat: oracledb.OUT_FORMAT_OBJECT }\n);\nconst clientDoc = result.rows[0].DATA;\nconsole.log('Client:', clientDoc.firstName, clientDoc.lastName);\nconsole.log('Accounts:', clientDoc.accounts.length);\n\n// 2. Insert via JSON type binding\nconst newInteraction = {\n    client_id: 1001,\n    advisor_id: 5,\n    type: \"workshop_test\",\n    date: new Date().toISOString(),\n    channel: \"api\",\n    summary: \"Inserted from JavaScript via node-oracledb\",\n    action_items: [],\n    sentiment: \"excited\",\n    follow_up_required: false\n};\n\nawait connection.execute(\n    `INSERT INTO client_interactions (data) VALUES (:doc)`,\n    { doc: { val: newInteraction, type: oracledb.DB_TYPE_JSON } }\n);\nawait connection.commit();\nconsole.log('Inserted interaction successfully');\n\n// 3. Verify and clean up\nawait connection.execute(\n    `DELETE FROM client_interactions WHERE data.type.string() = 'workshop_test'`\n);\nawait connection.commit();\nconsole.log('Cleanup complete');",
+      "validationQuery": "SELECT COUNT(*) AS cnt FROM client_portfolio_dv WHERE data.\"_id\" = 1001",
+      "expectedResultPattern": "rowCount:1"
+    }
+  ]
+}

@@ -1,0 +1,63 @@
+{
+  "id": "module-1",
+  "title": "JSON Collections & Document API",
+  "description": "Work with Oracle as a pure document database. Insert, query, transform, search, and aggregate JSON documents — all with SQL.",
+  "estimatedTime": 15,
+  "checkpoint": "You just used Oracle as a document database — no tables, no schema, no DDL for the documents themselves. But you also ran SQL aggregations over those documents. That's convergence.",
+  "exercises": [
+    {
+      "id": "1.1",
+      "title": "Explore the Collection",
+      "description": "View documents in the interactions collection and count them.",
+      "codeType": "sql",
+      "code": "-- View documents in the interactions collection\nSELECT json_serialize(data PRETTY) FROM client_interactions\nFETCH FIRST 3 ROWS ONLY;\n\n-- Count documents\nSELECT COUNT(*) AS doc_count FROM client_interactions;",
+      "validationQuery": "SELECT COUNT(*) AS cnt FROM client_interactions",
+      "expectedResultPattern": "rowCount:>0"
+    },
+    {
+      "id": "1.2",
+      "title": "Query by Example",
+      "description": "Find meetings with follow-up required and interactions for a specific client using dot notation.",
+      "codeType": "sql",
+      "code": "-- Find all meetings with follow-up required\nSELECT json_serialize(data PRETTY)\nFROM client_interactions ci\nWHERE ci.data.type.string() = 'meeting'\n  AND ci.data.follow_up_required.boolean() = TRUE;\n\n-- Find interactions for a specific client\nSELECT json_serialize(data PRETTY)\nFROM client_interactions ci\nWHERE ci.data.client_id.number() = 1001;",
+      "validationQuery": "SELECT COUNT(*) AS cnt FROM client_interactions ci WHERE ci.data.type.string() = 'meeting' AND ci.data.follow_up_required.boolean() = TRUE",
+      "expectedResultPattern": "rowCount:>0"
+    },
+    {
+      "id": "1.3",
+      "title": "Insert a Document",
+      "description": "Insert a new interaction document and verify it was stored.",
+      "codeType": "sql",
+      "code": "-- Insert a new interaction\nINSERT INTO client_interactions (data) VALUES (JSON('{\n    \"client_id\": 1001,\n    \"advisor_id\": 5,\n    \"type\": \"email\",\n    \"date\": \"2026-03-30T14:00:00Z\",\n    \"channel\": \"email\",\n    \"summary\": \"Follow-up on rebalancing discussion.\",\n    \"action_items\": [],\n    \"sentiment\": \"positive\",\n    \"follow_up_required\": false\n}'));\nCOMMIT;\n\n-- Verify it's there\nSELECT json_serialize(data PRETTY)\nFROM client_interactions ci\nWHERE ci.data.type.string() = 'email'\n  AND ci.data.client_id.number() = 1001;",
+      "validationQuery": "SELECT COUNT(*) AS cnt FROM client_interactions ci WHERE ci.data.type.string() = 'email' AND ci.data.client_id.number() = 1001",
+      "expectedResultPattern": "rowCount:>0"
+    },
+    {
+      "id": "1.4",
+      "title": "Update with JSON_TRANSFORM",
+      "description": "Add an action item to an existing interaction and change its sentiment using JSON_TRANSFORM.",
+      "codeType": "sql",
+      "code": "-- Add an action item to an existing interaction\nUPDATE client_interactions ci\nSET ci.data = json_transform(ci.data,\n    APPEND '$.action_items' = JSON('{\"task\":\"Schedule Q2 review\",\"due\":\"2026-04-15\",\"status\":\"pending\"}')\n)\nWHERE ci.data.client_id.number() = 1001\n  AND ci.data.type.string() = 'meeting';\nCOMMIT;\n\n-- Change sentiment\nUPDATE client_interactions ci\nSET ci.data = json_transform(ci.data,\n    SET '$.sentiment' = 'optimistic'\n)\nWHERE ci.data.client_id.number() = 1001\n  AND ci.data.type.string() = 'meeting';\nCOMMIT;",
+      "validationQuery": "SELECT COUNT(*) AS cnt FROM client_interactions ci WHERE ci.data.client_id.number() = 1001 AND ci.data.type.string() = 'meeting' AND JSON_EXISTS(ci.data, '$.action_items[*]?(@.task == \"Schedule Q2 review\")')",
+      "expectedResultPattern": "rowCount:>0"
+    },
+    {
+      "id": "1.5",
+      "title": "Create a Search Index and Full-Text Query",
+      "description": "Create a JSON search index and perform full-text search across document fields.",
+      "codeType": "sql",
+      "code": "-- Create a JSON search index\nCREATE SEARCH INDEX idx_interactions_search\nON client_interactions (data) FOR JSON;\n\n-- Full-text search across all document fields\nSELECT json_serialize(data PRETTY)\nFROM client_interactions ci\nWHERE JSON_TEXTCONTAINS(ci.data, '$.summary', 'rebalance');",
+      "validationQuery": "SELECT COUNT(*) AS cnt FROM user_indexes WHERE index_name = 'IDX_INTERACTIONS_SEARCH'",
+      "expectedResultPattern": "rowCount:>0"
+    },
+    {
+      "id": "1.6",
+      "title": "Aggregate Documents with SQL",
+      "description": "Count interactions by type and calculate average action items per interaction.",
+      "codeType": "sql",
+      "code": "-- Count interactions by type\nSELECT ci.data.type.string() AS interaction_type,\n       COUNT(*) AS total\nFROM client_interactions ci\nGROUP BY ci.data.type.string()\nORDER BY total DESC;\n\n-- Average action items per interaction\nSELECT ci.data.type.string() AS interaction_type,\n       AVG(json_value(ci.data, '$.action_items.size()' RETURNING NUMBER)) AS avg_actions\nFROM client_interactions ci\nGROUP BY ci.data.type.string();",
+      "validationQuery": "SELECT COUNT(DISTINCT ci.data.type.string()) AS type_count FROM client_interactions ci",
+      "expectedResultPattern": "rowCount:>0"
+    }
+  ]
+}

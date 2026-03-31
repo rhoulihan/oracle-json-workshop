@@ -1,0 +1,45 @@
+{
+  "id": "module-4",
+  "title": "Hybrid Queries & JSON_TRANSFORM",
+  "description": "Combine relational SQL power with JSON document flexibility. Solve the 90/10 problem where 90% of queries work great as documents but 10% desperately need relational joins.",
+  "estimatedTime": 15,
+  "checkpoint": "This query returns a document. But under the hood, it used B-tree indexes, hash joins, and a cost-based optimizer with 40 years of battle scars.",
+  "exercises": [
+    {
+      "id": "4.1",
+      "title": "The 90/10 Problem — Top Advisor Books",
+      "description": "Build an advisor dashboard using relational indexes for performance and JSON projection for the API consumer.",
+      "codeType": "sql",
+      "code": "-- Create the relational index that makes this fast\nCREATE INDEX idx_advisor_book_value ON advisor_client_map (advisor_id);\n\n-- Query using SQL joins for the heavy lifting,\n-- project as JSON for the API consumer\nSELECT JSON {\n    'advisorId'    : adv.advisor_id,\n    'advisorName'  : adv.first_name || ' ' || adv.last_name,\n    'topClients'   : (\n        SELECT JSON_ARRAYAGG(\n            JSON {\n                'clientName'  : c.first_name || ' ' || c.last_name,\n                'totalValue'  : client_totals.total_value,\n                'accountCount': client_totals.account_count\n            }\n            ORDER BY client_totals.total_value DESC\n        )\n        FROM advisor_client_map m\n        JOIN clients c ON c.client_id = m.client_id\n        JOIN (\n            SELECT a.client_id,\n                   SUM(h.market_value) AS total_value,\n                   COUNT(DISTINCT a.account_id) AS account_count\n            FROM accounts a\n            JOIN holdings h ON h.account_id = a.account_id\n            GROUP BY a.client_id\n        ) client_totals ON client_totals.client_id = m.client_id\n        WHERE m.advisor_id = adv.advisor_id\n    )\n} AS advisor_dashboard\nFROM advisors adv\nWHERE adv.advisor_id = 5;",
+      "validationQuery": "SELECT COUNT(*) AS cnt FROM advisors WHERE advisor_id = 5",
+      "expectedResultPattern": "rowCount:1"
+    },
+    {
+      "id": "4.2",
+      "title": "JSON_TABLE — Shred Documents into Rows",
+      "description": "Shred interaction action items from JSON arrays into relational rows for reporting.",
+      "codeType": "sql",
+      "code": "-- Shred interaction action items into relational rows for reporting\nSELECT ci.data.client_id.number() AS client_id,\n       ci.data.type.string() AS interaction_type,\n       ci.data.date.string() AS interaction_date,\n       jt.task,\n       jt.due_date,\n       jt.status\nFROM client_interactions ci,\nJSON_TABLE(ci.data, '$.action_items[*]'\n    COLUMNS (\n        task     VARCHAR2(200) PATH '$.task',\n        due_date VARCHAR2(20)  PATH '$.due',\n        status   VARCHAR2(20)  PATH '$.status'\n    )\n) jt\nWHERE jt.status = 'pending'\nORDER BY jt.due_date;",
+      "validationQuery": "SELECT COUNT(*) AS cnt FROM client_interactions ci, JSON_TABLE(ci.data, '$.action_items[*]' COLUMNS (status VARCHAR2(20) PATH '$.status')) jt WHERE jt.status = 'pending'",
+      "expectedResultPattern": "rowCount:>0"
+    },
+    {
+      "id": "4.3",
+      "title": "JSON_TRANSFORM — Surgical Document Updates",
+      "description": "Batch update overdue action items and use KEEP/REMOVE for document projection.",
+      "codeType": "sql",
+      "code": "-- Use KEEP for projection (return only specific fields)\nSELECT json_serialize(\n    json_transform(data, KEEP '$.client_id', '$.type', '$.sentiment')\n    PRETTY\n) AS summary\nFROM client_interactions\nFETCH FIRST 5 ROWS ONLY;\n\n-- Use REMOVE to strip fields before sending to API\nSELECT json_serialize(\n    json_transform(data, REMOVE '$.action_items', REMOVE '$.follow_up_required')\n    PRETTY\n) AS public_summary\nFROM client_interactions\nWHERE data.client_id.number() = 1001;",
+      "validationQuery": "SELECT COUNT(*) AS cnt FROM client_interactions WHERE data.client_id.number() = 1001",
+      "expectedResultPattern": "rowCount:>0"
+    },
+    {
+      "id": "4.4",
+      "title": "Cross-Model Join — Collections + Relational",
+      "description": "Join JSON collections with relational tables — show interactions for clients with aggressive risk profiles.",
+      "codeType": "sql",
+      "code": "-- Join the JSON collection with relational tables\n-- \"Show me all interactions for clients with aggressive risk profiles\"\nSELECT c.first_name || ' ' || c.last_name AS client_name,\n       c.risk_profile,\n       ci.data.type.string() AS interaction_type,\n       ci.data.date.string() AS interaction_date,\n       ci.data.summary.string() AS summary\nFROM client_interactions ci\nJOIN clients c ON c.client_id = ci.data.client_id.number()\nWHERE c.risk_profile = 'aggressive'\nORDER BY ci.data.date.string() DESC;",
+      "validationQuery": "SELECT COUNT(*) AS cnt FROM client_interactions ci JOIN clients c ON c.client_id = ci.data.client_id.number() WHERE c.risk_profile = 'aggressive'",
+      "expectedResultPattern": "rowCount:>0"
+    }
+  ]
+}

@@ -5,6 +5,7 @@ import session from 'express-session';
 import { createQueryRouter } from './routes/query.js';
 import { createAuthRouter } from './routes/auth.js';
 import { createAdminRouter } from './routes/admin.js';
+import { createLabRouter } from './routes/labs.js';
 import { createRateLimiter } from './middleware/rateLimit.js';
 
 export function createApp(config, services = {}) {
@@ -42,6 +43,12 @@ export function createApp(config, services = {}) {
       adminPassword: config.admin.password,
     });
     app.use('/api/admin', adminRouter);
+  }
+
+  // Mount lab routes if lab loader is provided
+  if (services.labLoader) {
+    const labRouter = createLabRouter(services);
+    app.use('/api/labs', labRouter);
   }
 
   // Mount query routes if services are provided
