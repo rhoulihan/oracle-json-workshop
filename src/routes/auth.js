@@ -14,6 +14,20 @@ export function createAuthRouter({ workspaceService, getConnectionAs }) {
   router.post('/register', async (req, res) => {
     const { displayName, email } = req.body || {};
 
+    // Check for duplicate email if provided
+    if (email) {
+      try {
+        const existing = await workspaceService.findByEmail(email);
+        if (existing) {
+          return res.status(409).json({
+            error: `A workspace already exists for ${email} (${existing.schemaName}). Use "Reconnect" to log in with your existing credentials.`,
+          });
+        }
+      } catch {
+        // If findByEmail fails, proceed with registration
+      }
+    }
+
     try {
       const { schemaName, password } = await workspaceService.create({ displayName, email });
 

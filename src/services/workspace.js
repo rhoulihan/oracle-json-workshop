@@ -25,6 +25,23 @@ export class WorkspaceService {
     return password;
   }
 
+  async findByEmail(email) {
+    const conn = await this.#pool.getConnection();
+    try {
+      const result = await conn.execute(
+        `SELECT schema_name FROM workshop_users WHERE email = :em`,
+        { em: email },
+        { outFormat: oracledb.OUT_FORMAT_OBJECT },
+      );
+      if (result.rows && result.rows.length > 0) {
+        return { schemaName: result.rows[0].SCHEMA_NAME };
+      }
+      return null;
+    } finally {
+      await conn.close();
+    }
+  }
+
   async create({ displayName, email } = {}) {
     const schemaName = this.generateSchemaName();
     const password = this.generatePassword();

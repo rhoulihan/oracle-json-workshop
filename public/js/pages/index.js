@@ -30,6 +30,20 @@ async function init() {
 
     if (result.error) {
       errorEl.innerHTML = `<div class="error-message">${result.error}</div>`;
+      // If duplicate email (409), add a link to switch to login form
+      if (result.error.includes('already exists')) {
+        const link = document.createElement('a');
+        link.href = '#';
+        link.textContent = 'Go to Reconnect form';
+        link.style.display = 'block';
+        link.style.textAlign = 'center';
+        link.style.marginTop = '8px';
+        link.addEventListener('click', (ev) => {
+          ev.preventDefault();
+          document.getElementById('show-login')?.click();
+        });
+        errorEl.appendChild(link);
+      }
       registerBtn.disabled = false;
       registerBtn.textContent = 'Create Workspace';
       return;
