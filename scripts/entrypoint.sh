@@ -86,7 +86,6 @@ while true; do
     echo "=== ORDS process died, restarting... ==="
     ords --config "$ORDS_CONFIG" serve \
       --port 8181 \
-      --secure false \
       > "$ORDS_LOG" 2>&1 &
     ORDS_PID=$!
   fi
