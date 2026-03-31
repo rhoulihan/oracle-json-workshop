@@ -106,7 +106,9 @@ export class WorkspaceService {
   async teardownAll() {
     const conn = await this.#pool.getConnection();
     try {
-      const result = await conn.execute(`SELECT schema_name FROM workshop_users`);
+      const result = await conn.execute(`SELECT schema_name FROM workshop_users`, [], {
+        outFormat: oracledb.OUT_FORMAT_OBJECT,
+      });
       for (const row of result.rows || []) {
         await conn.execute(`BEGIN WORKSHOP_ADMIN.drop_workspace(:username); END;`, {
           username: row.SCHEMA_NAME,
