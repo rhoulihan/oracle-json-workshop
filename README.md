@@ -193,9 +193,12 @@ oracle-json-workshop/
 │   ├── server.js               # Express app factory
 │   ├── config.js               # Environment config + validation
 │   ├── middleware/
+│   │   ├── auth.js              # requireAuth + requireAdmin middleware
 │   │   ├── security.js          # SQL classifier + sqlGuard middleware
 │   │   └── rateLimit.js         # Token-bucket rate limiter (per-session)
 │   ├── routes/
+│   │   ├── auth.js              # POST /api/auth/{register,login,logout}, GET /me
+│   │   ├── admin.js             # POST /api/admin/login, GET/DELETE workspaces
 │   │   └── query.js             # POST /api/query/{sql,js,mongo}
 │   └── services/
 │       ├── database.js          # Connection pool manager
@@ -204,7 +207,7 @@ oracle-json-workshop/
 │       ├── jsExecutor.js        # Sandboxed JS execution (vm.createContext)
 │       └── mongoExecutor.js     # mongosh → SQL translator
 ├── test/
-│   ├── unit/                   # No DB required (~102 tests)
+│   ├── unit/                   # No DB required (~132 tests)
 │   └── integration/            # Real Oracle required (~48 tests)
 ├── docs/
 │   ├── workshop-specification.md
@@ -221,28 +224,25 @@ oracle-json-workshop/
 | **Phase 1** | Project scaffolding — npm, Express, Vitest, ESLint, Prettier, Husky, Docker, CI | 20 unit                 |
 | **Phase 2** | Database init scripts, seed data, duality views, indexes, workspace cloning     | 7 unit + 48 integration |
 | **Phase 3** | Query execution engine (SQL, JS, MongoDB) with security + rate limiting         | 75 unit                 |
+| **Phase 4** | Authentication + workspace management API                                       | 30 unit                 |
 
-**Total: 150 tests (102 unit + 48 integration), all passing**
+**Total: 180 tests (132 unit + 48 integration), all passing**
 
-#### Phase 3 Details
+#### Phase 4 Details
 
-- **SQL security middleware** — Blocks dangerous DDL/DCL (`DROP USER`, `ALTER SYSTEM`, `GRANT`, etc.) while allowing safe DML and workshop DDL. Handles mixed case, SQL comments, string literals, multi-statement injection.
-- **Token-bucket rate limiter** — 10 burst, 5/sec refill, per-session isolation. Returns 429 when throttled.
-- **SQL executor** — 30s timeout, 1000-row limit, auto-detects JSON vs tabular vs DML result types.
-- **JS executor** — Sandboxed via `vm.createContext()` with frozen globals. Injects `connection` + `oracledb`, blocks `require`/`process`/`import()`.
-- **MongoDB executor** — Parses mongosh-style commands (`find`, `insertOne`, `deleteOne`, `show collections`) and translates to SQL.
-- **Query routes** — `POST /api/query/sql`, `/js`, `/mongo` with session auth, security guard, and rate limiting.
+- **Auth middleware** — `requireAuth` (401 for unauthenticated) and `requireAdmin` (403 for non-admin). Shared across query and admin routes.
+- **Auth routes** — `POST /api/auth/register` (creates workspace + session), `/login` (validates credentials via DB connection), `/logout` (destroys session), `GET /api/auth/me` (returns current user). Passwords never exposed in responses.
+- **Admin routes** — `POST /api/admin/login` (shared password auth), `GET /api/admin/workspaces` (list all), `DELETE /api/admin/workspaces/:schemaName` (teardown one, validates WS\_ pattern), `DELETE /api/admin/workspaces` (bulk teardown).
+- **Integration tests** — Full lifecycle: register → query → logout → login. Admin lifecycle: login → list → teardown → logout.
 
 ### Remaining
 
-| Phase   | Description                                                     | Status      |
-| ------- | --------------------------------------------------------------- | ----------- |
-| Phase 4 | Authentication + workspace management API                       | Not started |
-| Phase 5 | Lab content JSON files + answer validation                      | Not started |
+| Phase | Description | Status |
+| Phase 5 | Lab content JSON files + answer validation | Not started |
 | Phase 6 | Frontend — landing page, dashboard, lab viewer (Oracle branded) | Not started |
-| Phase 7 | Frontend — query editor (CodeMirror 6, SQL/JS/mongosh tabs)     | Not started |
-| Phase 8 | Instructor dashboard + admin features                           | Not started |
-| Phase 9 | Docker polish, README finalization, CI/CD release pipeline      | Not started |
+| Phase 7 | Frontend — query editor (CodeMirror 6, SQL/JS/mongosh tabs) | Not started |
+| Phase 8 | Instructor dashboard + admin features | Not started |
+| Phase 9 | Docker polish, README finalization, CI/CD release pipeline | Not started |
 
 ## Configuration
 

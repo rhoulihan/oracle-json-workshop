@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { classifySQL } from '../middleware/security.js';
+import { requireAuth } from '../middleware/auth.js';
 
 /**
  * Create query router with injected services.
@@ -12,14 +13,6 @@ import { classifySQL } from '../middleware/security.js';
  */
 export function createQueryRouter({ queryExecutor, jsExecutor, mongoExecutor, getConnection }) {
   const router = Router();
-
-  // Auth check — all query endpoints require a session
-  function requireAuth(req, res, next) {
-    if (!req.session?.user) {
-      return res.status(401).json({ error: 'Authentication required' });
-    }
-    next();
-  }
 
   // POST /sql — execute SQL
   router.post('/sql', requireAuth, async (req, res) => {
