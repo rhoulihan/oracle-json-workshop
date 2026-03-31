@@ -130,10 +130,11 @@ async function init() {
   const teardownAllBtn = document.getElementById('teardown-all-btn');
   const logoutBtn = document.getElementById('admin-logout-btn');
 
-  // Check if already admin-authenticated
-  const workspaces = await api.getWorkspaces();
-  if (Array.isArray(workspaces) && !workspaces.error) {
-    showDashboard(workspaces);
+  // Check if already admin-authenticated by trying to fetch workspaces
+  // The raw response includes { workspaces: [...] } on success or { error: ... } on 403
+  const checkRes = await api.get('/api/admin/workspaces');
+  if (checkRes.workspaces) {
+    await showDashboard();
   }
 
   loginForm?.addEventListener('submit', async (e) => {
@@ -170,6 +171,16 @@ async function init() {
     await refreshWorkspaces();
   }
 
+  // Module definitions for heatmap (hardcoded to avoid requiring user auth)
+  const MODULES = [
+    { id: 'module-0', title: 'The Big Picture', exerciseCount: 0 },
+    { id: 'module-1', title: 'JSON Collections', exerciseCount: 6 },
+    { id: 'module-2', title: 'Duality Views', exerciseCount: 7 },
+    { id: 'module-3', title: 'Single-Table Design', exerciseCount: 5 },
+    { id: 'module-4', title: 'Hybrid Queries', exerciseCount: 4 },
+    { id: 'module-5', title: 'Multi-Protocol', exerciseCount: 2 },
+  ];
+
   async function refreshWorkspaces() {
     const workspaces = await api.getWorkspaces();
 
@@ -180,10 +191,9 @@ async function init() {
     tableContainer.appendChild(renderWorkspaceTable(workspaces));
 
     // Heatmap
-    const modules = await api.getModules();
     heatmapContainer.innerHTML = '';
     if (workspaces.length > 0) {
-      heatmapContainer.appendChild(renderHeatmap(workspaces, modules));
+      heatmapContainer.appendChild(renderHeatmap(workspaces, MODULES));
     }
 
     // Attach teardown handlers
