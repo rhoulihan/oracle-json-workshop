@@ -8,6 +8,11 @@ export const api = {
     return res.json();
   },
 
+  async del(url) {
+    const res = await fetch(url, { method: 'DELETE', credentials: 'same-origin' });
+    return res.json();
+  },
+
   async post(url, body) {
     const res = await fetch(url, {
       method: 'POST',
@@ -67,5 +72,27 @@ export const api = {
 
   async executeMongo(command) {
     return this.post('/api/query/mongo', { command });
+  },
+
+  // Admin
+  async adminLogin(password) {
+    return this.post('/api/admin/login', { password });
+  },
+
+  async adminLogout() {
+    return this.post('/api/admin/logout');
+  },
+
+  async getWorkspaces() {
+    const data = await this.get('/api/admin/workspaces');
+    return data.workspaces || [];
+  },
+
+  async teardownWorkspace(schemaName) {
+    return this.del(`/api/admin/workspaces/${schemaName}`);
+  },
+
+  async teardownAll() {
+    return this.del('/api/admin/workspaces');
   },
 };

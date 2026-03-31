@@ -40,6 +40,8 @@ export default [
         history: 'readonly',
         URLSearchParams: 'readonly',
         customElements: 'readonly',
+        confirm: 'readonly',
+        alert: 'readonly',
       },
     },
     rules: {

@@ -157,4 +157,69 @@ describe('api client', () => {
       expect(result.rows).toEqual([{ ID: 1 }]);
     });
   });
+
+  describe('admin methods', () => {
+    it('adminLogin calls POST /api/admin/login', async () => {
+      fetch.mockResolvedValue({
+        ok: true,
+        status: 200,
+        json: () => Promise.resolve({ ok: true }),
+      });
+      const result = await api.adminLogin('instructor2026');
+      expect(fetch).toHaveBeenCalledWith(
+        '/api/admin/login',
+        expect.objectContaining({
+          body: JSON.stringify({ password: 'instructor2026' }),
+        }),
+      );
+      expect(result.ok).toBe(true);
+    });
+
+    it('adminLogout calls POST /api/admin/logout', async () => {
+      await api.adminLogout();
+      expect(fetch).toHaveBeenCalledWith(
+        '/api/admin/logout',
+        expect.objectContaining({ method: 'POST' }),
+      );
+    });
+
+    it('getWorkspaces returns workspaces array', async () => {
+      fetch.mockResolvedValue({
+        ok: true,
+        status: 200,
+        json: () =>
+          Promise.resolve({
+            workspaces: [{ schemaName: 'WS_ABC123', displayName: 'Alice' }],
+          }),
+      });
+      const result = await api.getWorkspaces();
+      expect(result).toEqual([{ schemaName: 'WS_ABC123', displayName: 'Alice' }]);
+    });
+
+    it('teardownWorkspace calls DELETE with schema name', async () => {
+      fetch.mockResolvedValue({
+        ok: true,
+        status: 200,
+        json: () => Promise.resolve({ ok: true }),
+      });
+      await api.teardownWorkspace('WS_ABC123');
+      expect(fetch).toHaveBeenCalledWith(
+        '/api/admin/workspaces/WS_ABC123',
+        expect.objectContaining({ method: 'DELETE' }),
+      );
+    });
+
+    it('teardownAll calls DELETE /api/admin/workspaces', async () => {
+      fetch.mockResolvedValue({
+        ok: true,
+        status: 200,
+        json: () => Promise.resolve({ ok: true }),
+      });
+      await api.teardownAll();
+      expect(fetch).toHaveBeenCalledWith(
+        '/api/admin/workspaces',
+        expect.objectContaining({ method: 'DELETE' }),
+      );
+    });
+  });
 });

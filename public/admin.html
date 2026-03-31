@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Instructor Dashboard — Oracle JSON Workshop</title>
+    <link rel="stylesheet" href="/css/workshop.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700&family=Source+Code+Pro:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div id="header"></div>
+
+    <!-- Login Gate -->
+    <section id="admin-login" class="container">
+      <div class="admin-login-box">
+        <img src="/img/oracle-logo.svg" alt="Oracle" height="24" style="margin: 0 auto 16px" />
+        <h2 style="text-align: center; margin-bottom: 4px">Instructor Dashboard</h2>
+        <p class="text-muted" style="text-align: center; margin-bottom: 20px; font-size: 0.875rem">
+          Enter the instructor password to manage workspaces.
+        </p>
+        <form id="login-form">
+          <div class="form-group">
+            <label class="form-label" for="admin-password">Password</label>
+            <input
+              class="form-input"
+              type="password"
+              id="admin-password"
+              placeholder="Instructor password"
+              required
+              autofocus
+            />
+          </div>
+          <div id="login-error"></div>
+          <button type="submit" class="btn-primary" style="width: 100%; margin-top: 4px">
+            Sign In
+          </button>
+        </form>
+      </div>
+    </section>
+
+    <!-- Dashboard (hidden until authenticated) -->
+    <main id="admin-dashboard" class="container" style="display: none">
+      <div
+        class="dashboard-header"
+        style="display: flex; justify-content: space-between; align-items: center"
+      >
+        <div>
+          <h2>Workshop Workspaces</h2>
+          <p class="text-muted" id="workspace-count">0 workspaces</p>
+        </div>
+        <div style="display: flex; gap: 8px">
+          <button class="btn-danger" id="teardown-all-btn">Tear Down All</button>
+          <button class="btn-secondary" id="admin-logout-btn" style="font-size: 0.8125rem">
+            Logout
+          </button>
+        </div>
+      </div>
+
+      <section style="margin-bottom: 24px">
+        <h3 style="margin-bottom: 10px">Progress Heatmap</h3>
+        <div id="heatmap"></div>
+      </section>
+
+      <section>
+        <div id="workspace-table">
+          <div class="loading">
+            <div class="spinner"></div>
+            Loading...
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      Oracle JSON Technologies Developer Workshop — Instructor View
+    </footer>
+
+    <script type="module" src="/js/pages/admin.js"></script>
+  </body>
+</html>
