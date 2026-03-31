@@ -24,131 +24,136 @@
         </p>
       </section>
 
-      <section class="card" style="max-width: 720px; margin: 0 auto 40px">
-        <h3 style="margin-bottom: 16px">Workshop Timeline</h3>
-        <table class="timeline-table">
-          <thead>
-            <tr>
-              <th>Time</th>
-              <th>Module</th>
-              <th>Focus</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td class="timeline-time">0:00 - 0:05</td>
-              <td class="timeline-module">Setup</td>
-              <td>Connect, create workspace</td>
-            </tr>
-            <tr>
-              <td class="timeline-time">0:05 - 0:10</td>
-              <td class="timeline-module">The Big Picture</td>
-              <td>Architecture overview, data model</td>
-            </tr>
-            <tr>
-              <td class="timeline-time">0:10 - 0:25</td>
-              <td class="timeline-module">JSON Collections</td>
-              <td>Insert, query, JSON_TRANSFORM, search indexes</td>
-            </tr>
-            <tr>
-              <td class="timeline-time">0:25 - 0:45</td>
-              <td class="timeline-module">Duality Views</td>
-              <td>Bidirectional document-relational mapping</td>
-            </tr>
-            <tr>
-              <td class="timeline-time">0:45 - 1:05</td>
-              <td class="timeline-module">Single-Table Design</td>
-              <td>pk/sk patterns, multi-value indexes</td>
-            </tr>
-            <tr>
-              <td class="timeline-time">1:05 - 1:20</td>
-              <td class="timeline-module">Hybrid Queries</td>
-              <td>JSON_TABLE, cross-model joins</td>
-            </tr>
-            <tr>
-              <td class="timeline-time">1:20 - 1:27</td>
-              <td class="timeline-module">Multi-Protocol</td>
-              <td>mongosh to Oracle, node-oracledb</td>
-            </tr>
-          </tbody>
-        </table>
-      </section>
+      <div class="landing-columns">
+        <section class="card">
+          <h3 style="margin-bottom: 10px">Workshop Timeline</h3>
+          <table class="timeline-table">
+            <thead>
+              <tr>
+                <th>Time</th>
+                <th>Module</th>
+                <th>Focus</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="timeline-time">0:00&ndash;0:05</td>
+                <td class="timeline-module">Setup</td>
+                <td>Connect, create workspace</td>
+              </tr>
+              <tr>
+                <td class="timeline-time">0:05&ndash;0:10</td>
+                <td class="timeline-module">The Big Picture</td>
+                <td>Architecture overview</td>
+              </tr>
+              <tr>
+                <td class="timeline-time">0:10&ndash;0:25</td>
+                <td class="timeline-module">JSON Collections</td>
+                <td>Insert, query, transform, search</td>
+              </tr>
+              <tr>
+                <td class="timeline-time">0:25&ndash;0:45</td>
+                <td class="timeline-module">Duality Views</td>
+                <td>Document-relational mapping</td>
+              </tr>
+              <tr>
+                <td class="timeline-time">0:45&ndash;1:05</td>
+                <td class="timeline-module">Single-Table Design</td>
+                <td>pk/sk, multi-value indexes</td>
+              </tr>
+              <tr>
+                <td class="timeline-time">1:05&ndash;1:20</td>
+                <td class="timeline-module">Hybrid Queries</td>
+                <td>JSON_TABLE, cross-model joins</td>
+              </tr>
+              <tr>
+                <td class="timeline-time">1:20&ndash;1:27</td>
+                <td class="timeline-module">Multi-Protocol</td>
+                <td>mongosh, node-oracledb</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
 
-      <section class="card register-form" id="register-section">
-        <h3 style="text-align: center; margin-bottom: 20px">Create Your Workspace</h3>
-        <form id="register-form">
-          <div class="form-group">
-            <label class="form-label" for="displayName">Display Name</label>
-            <input
-              class="form-input"
-              type="text"
-              id="displayName"
-              placeholder="Your name"
-              required
-            />
-          </div>
-          <div class="form-group">
-            <label class="form-label" for="email"
-              >Email <span style="font-weight: 400; text-transform: none">(optional)</span></label
-            >
-            <input class="form-input" type="email" id="email" placeholder="you@example.com" />
-          </div>
-          <div id="register-error"></div>
-          <button
-            type="submit"
-            class="btn-primary"
-            style="width: 100%; margin-top: 8px"
-            id="register-btn"
-          >
-            Create Workspace
-          </button>
-          <p class="form-hint" style="text-align: center; margin-top: 12px">
-            Creates a dedicated Oracle schema with sample data.
+        <div>
+          <section class="card register-form" id="register-section">
+            <h3 style="text-align: center; margin-bottom: 14px">Create Your Workspace</h3>
+            <form id="register-form">
+              <div class="form-group">
+                <label class="form-label" for="displayName">Display Name</label>
+                <input
+                  class="form-input"
+                  type="text"
+                  id="displayName"
+                  placeholder="Your name"
+                  required
+                />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="email"
+                  >Email
+                  <span style="font-weight: 400; text-transform: none">(optional)</span></label
+                >
+                <input class="form-input" type="email" id="email" placeholder="you@example.com" />
+              </div>
+              <div id="register-error"></div>
+              <button
+                type="submit"
+                class="btn-primary"
+                style="width: 100%; margin-top: 4px"
+                id="register-btn"
+              >
+                Create Workspace
+              </button>
+              <p class="form-hint" style="text-align: center; margin-top: 8px">
+                Creates a dedicated Oracle schema with sample data.
+              </p>
+            </form>
+          </section>
+
+          <p style="text-align: center; margin-top: 12px" id="login-toggle">
+            <a href="#" id="show-login">Already have a workspace? Reconnect</a>
           </p>
-        </form>
-      </section>
 
-      <section class="card register-form" id="credentials-section" style="display: none">
-        <h3 style="text-align: center; margin-bottom: 16px">Workspace Created</h3>
-        <p class="text-secondary" style="text-align: center; margin-bottom: 16px">
-          Save these credentials to reconnect later.
-        </p>
-        <dl class="credential-box" id="credentials"></dl>
-        <button class="btn-primary" style="width: 100%; margin-top: 16px" id="continue-btn">
-          Continue to Dashboard
-        </button>
-      </section>
+          <section class="card register-form" id="credentials-section" style="display: none">
+            <h3 style="text-align: center; margin-bottom: 12px">Workspace Created</h3>
+            <p class="text-secondary" style="text-align: center; margin-bottom: 12px; font-size: 0.875rem">
+              Save these credentials to reconnect later.
+            </p>
+            <dl class="credential-box" id="credentials"></dl>
+            <button class="btn-primary" style="width: 100%; margin-top: 12px" id="continue-btn">
+              Continue to Dashboard
+            </button>
+          </section>
 
-      <section class="card register-form" id="login-section" style="display: none">
-        <h3 style="text-align: center; margin-bottom: 20px">Reconnect to Workspace</h3>
-        <form id="login-form">
-          <div class="form-group">
-            <label class="form-label" for="loginSchema">Schema Name</label>
-            <input
-              class="form-input"
-              type="text"
-              id="loginSchema"
-              placeholder="WS_XXXXXX"
-              required
-            />
-          </div>
-          <div class="form-group">
-            <label class="form-label" for="loginPassword">Password</label>
-            <input class="form-input" type="password" id="loginPassword" required />
-          </div>
-          <div id="login-error"></div>
-          <button type="submit" class="btn-primary" style="width: 100%; margin-top: 8px">
-            Reconnect
-          </button>
-        </form>
-        <p style="text-align: center; margin-top: 16px">
-          <a href="#" id="show-register">Create a new workspace instead</a>
-        </p>
-      </section>
-
-      <p style="text-align: center; margin-bottom: 48px" id="login-toggle">
-        <a href="#" id="show-login">Already have a workspace? Reconnect</a>
-      </p>
+          <section class="card register-form" id="login-section" style="display: none">
+            <h3 style="text-align: center; margin-bottom: 14px">Reconnect to Workspace</h3>
+            <form id="login-form">
+              <div class="form-group">
+                <label class="form-label" for="loginSchema">Schema Name</label>
+                <input
+                  class="form-input"
+                  type="text"
+                  id="loginSchema"
+                  placeholder="WS_XXXXXX"
+                  required
+                />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="loginPassword">Password</label>
+                <input class="form-input" type="password" id="loginPassword" required />
+              </div>
+              <div id="login-error"></div>
+              <button type="submit" class="btn-primary" style="width: 100%; margin-top: 4px">
+                Reconnect
+              </button>
+            </form>
+            <p style="text-align: center; margin-top: 12px; font-size: 0.875rem">
+              <a href="#" id="show-register">Create a new workspace instead</a>
+            </p>
+          </section>
+        </div>
+      </div>
     </main>
 
     <footer class="site-footer">Oracle JSON Technologies Developer Workshop</footer>
