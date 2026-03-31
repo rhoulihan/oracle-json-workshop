@@ -2,6 +2,7 @@
  * Progress tracking service.
  * Reads/writes the workshop_users.progress JSON column.
  */
+import oracledb from 'oracledb';
 
 export class ProgressService {
   /**
@@ -14,6 +15,7 @@ export class ProgressService {
     const result = await conn.execute(
       `SELECT progress FROM workshop_users WHERE schema_name = :sn`,
       { sn: schemaName },
+      { outFormat: oracledb.OUT_FORMAT_OBJECT },
     );
 
     if (!result.rows || result.rows.length === 0) {

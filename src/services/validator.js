@@ -2,6 +2,7 @@
  * Exercise answer validator.
  * Runs a validation query and compares the result against an expected pattern.
  */
+import oracledb from 'oracledb';
 
 const PATTERN_TYPES = {
   rowCount: /^rowCount:(>=?|<=?|=)?(\d+)$/,
@@ -65,7 +66,7 @@ export class Validator {
     let result;
     try {
       result = await conn.execute(validationQuery, [], {
-        outFormat: 2, // OUT_FORMAT_OBJECT
+        outFormat: oracledb.OUT_FORMAT_OBJECT,
         maxRows: 1000,
       });
     } catch (err) {

@@ -59,6 +59,7 @@ async function start() {
     progressService,
     getConnection,
     getConnectionAs,
+    getAdminConnection: async () => pool.getConnection(),
   });
 
   const server = app.listen(config.server.port, () => {

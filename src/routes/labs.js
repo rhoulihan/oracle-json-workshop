@@ -7,10 +7,17 @@ import { requireAuth } from '../middleware/auth.js';
  * @param {object} deps.labLoader - LabLoader instance
  * @param {object} deps.validator - Validator instance
  * @param {object} deps.progressService - ProgressService instance
- * @param {Function} deps.getConnection - async (user) => connection
+ * @param {Function} deps.getConnection - async (user) => connection (user schema)
+ * @param {Function} deps.getAdminConnection - async () => connection (admin pool)
  * @returns {Router}
  */
-export function createLabRouter({ labLoader, validator, progressService, getConnection }) {
+export function createLabRouter({
+  labLoader,
+  validator,
+  progressService,
+  getConnection,
+  getAdminConnection,
+}) {
   const router = Router();
 
   // GET / — list all modules
@@ -21,7 +28,7 @@ export function createLabRouter({ labLoader, validator, progressService, getConn
 
   // GET /progress — get user's completion state
   router.get('/progress', requireAuth, async (req, res) => {
-    const conn = await getConnection(req.session.user);
+    const conn = await getAdminConnection();
     try {
       const progress = await progressService.getProgress(conn, req.session.user.schemaName);
       res.json({ progress });
@@ -56,16 +63,26 @@ export function createLabRouter({ labLoader, validator, progressService, getConn
       });
     }
 
-    const conn = await getConnection(req.session.user);
+    const userConn = await getConnection(req.session.user);
     try {
       const result = await validator.validate(
-        conn,
+        userConn,
         exercise.validationQuery,
         exercise.expectedResultPattern,
       );
 
       if (result.valid) {
-        await progressService.markComplete(conn, req.session.user.schemaName, moduleId, exerciseId);
+        const adminConn = await getAdminConnection();
+        try {
+          await progressService.markComplete(
+            adminConn,
+            req.session.user.schemaName,
+            moduleId,
+            exerciseId,
+          );
+        } finally {
+          await adminConn.close();
+        }
       }
 
       res.json({
@@ -75,7 +92,7 @@ export function createLabRouter({ labLoader, validator, progressService, getConn
         ...(result.valid && { completedAt: new Date().toISOString() }),
       });
     } finally {
-      await conn.close();
+      await userConn.close();
     }
   });
 

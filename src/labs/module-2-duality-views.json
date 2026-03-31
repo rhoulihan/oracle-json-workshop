@@ -11,7 +11,7 @@
       "description": "View clients, advisors, and transactions as rich JSON documents through duality views.",
       "codeType": "sql",
       "code": "-- View a client as a rich document (with nested accounts and holdings)\nSELECT json_serialize(data PRETTY)\nFROM client_portfolio_dv\nWHERE data.\"_id\" = 1001;\n\n-- View an advisor's book\nSELECT json_serialize(data PRETTY)\nFROM advisor_book_dv\nWHERE data.\"_id\" = 5;\n\n-- View a transaction with account context (unnested)\nSELECT json_serialize(data PRETTY)\nFROM transaction_feed_dv\nWHERE data.\"_id\" = 1;",
-      "validationQuery": "SELECT COUNT(*) AS cnt FROM client_portfolio_dv WHERE data.\"_id\" = 1001",
+      "validationQuery": "SELECT COUNT(*) AS cnt FROM client_portfolio_dv WHERE json_value(data, '$._id' RETURNING NUMBER) = 1001",
       "expectedResultPattern": "rowCount:1"
     },
     {

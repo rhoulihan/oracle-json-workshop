@@ -20,7 +20,7 @@
       "description": "Query duality views, insert with JSON type binding, and use the SODA API — all from JavaScript.",
       "codeType": "js",
       "code": "// 1. Query a Duality View — returns native JavaScript objects\nconst result = await connection.execute(\n    `SELECT data FROM client_portfolio_dv WHERE data.\"_id\" = :id`,\n    { id: 1001 },\n    { outFormat: oracledb.OUT_FORMAT_OBJECT }\n);\nconst clientDoc = result.rows[0].DATA;\nconsole.log('Client:', clientDoc.firstName, clientDoc.lastName);\nconsole.log('Accounts:', clientDoc.accounts.length);\n\n// 2. Insert via JSON type binding\nconst newInteraction = {\n    client_id: 1001,\n    advisor_id: 5,\n    type: \"workshop_test\",\n    date: new Date().toISOString(),\n    channel: \"api\",\n    summary: \"Inserted from JavaScript via node-oracledb\",\n    action_items: [],\n    sentiment: \"excited\",\n    follow_up_required: false\n};\n\nawait connection.execute(\n    `INSERT INTO client_interactions (data) VALUES (:doc)`,\n    { doc: { val: newInteraction, type: oracledb.DB_TYPE_JSON } }\n);\nawait connection.commit();\nconsole.log('Inserted interaction successfully');\n\n// 3. Verify and clean up\nawait connection.execute(\n    `DELETE FROM client_interactions WHERE data.type.string() = 'workshop_test'`\n);\nawait connection.commit();\nconsole.log('Cleanup complete');",
-      "validationQuery": "SELECT COUNT(*) AS cnt FROM client_portfolio_dv WHERE data.\"_id\" = 1001",
+      "validationQuery": "SELECT COUNT(*) AS cnt FROM client_portfolio_dv WHERE json_value(data, '$._id' RETURNING NUMBER) = 1001",
       "expectedResultPattern": "rowCount:1"
     }
   ]

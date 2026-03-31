@@ -1,4 +1,5 @@
 import crypto from 'crypto';
+import oracledb from 'oracledb';
 
 export class WorkspaceService {
   #pool;
@@ -68,6 +69,8 @@ export class WorkspaceService {
       const result = await conn.execute(
         `SELECT schema_name, display_name, email, status, progress, created_at, last_active
          FROM workshop_users ORDER BY created_at DESC`,
+        [],
+        { outFormat: oracledb.OUT_FORMAT_OBJECT },
       );
       return (result.rows || []).map((r) => ({
         schemaName: r.SCHEMA_NAME,

@@ -23,6 +23,7 @@ describe('ProgressService', () => {
       expect(conn.execute).toHaveBeenCalledWith(
         expect.stringContaining('SELECT'),
         expect.objectContaining({ sn: 'WS_ABC123' }),
+        expect.any(Object),
       );
     });
 

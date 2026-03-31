@@ -1,6 +1,7 @@
 /**
  * SQL query executor with timeout and row limits.
  */
+import oracledb from 'oracledb';
 import { performance } from 'node:perf_hooks';
 
 const DEFAULT_TIMEOUT = 30000;
@@ -26,7 +27,7 @@ export class QueryExecutor {
 
     try {
       const result = await conn.execute(sql, [], {
-        outFormat: 2, // oracledb.OUT_FORMAT_OBJECT
+        outFormat: oracledb.OUT_FORMAT_OBJECT,
         autoCommit: true,
         callTimeout: this.#timeout,
         maxRows: this.#maxRows,

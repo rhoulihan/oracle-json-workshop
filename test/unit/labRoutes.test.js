@@ -66,6 +66,7 @@ function buildApp(deps = {}) {
       markComplete: vi.fn().mockResolvedValue(undefined),
     },
     getConnection: vi.fn().mockResolvedValue({ close: vi.fn() }),
+    getAdminConnection: vi.fn().mockResolvedValue({ close: vi.fn() }),
   };
 
   const router = createLabRouter({ ...defaults, ...deps });
