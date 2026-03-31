@@ -256,10 +256,58 @@ All 9 phases complete. **287 unit tests (213 backend + 74 frontend) + 48 integra
 
 ### Instructor Guide
 
-- **Workshop URL:** `http://localhost:3000` — developers register and start labs
-- **Admin URL:** `http://localhost:3000/admin.html` — instructor workspace management
-- **Default admin password:** Set via `ADMIN_PASSWORD` env var (default: `instructor2026`)
-- **Query Editor:** `http://localhost:3000/editor.html` — SQL, JavaScript, mongosh tabs
+#### Before the Workshop
+
+1. **Start the environment** — `docker compose up -d` (allow 2-3 minutes for Oracle + ORDS startup)
+2. **Verify health** — `curl http://localhost:3000/health` should return `{"status":"ok"}`
+3. **Set your admin password** — edit `ADMIN_PASSWORD` in `.env` (default: `instructor2026`)
+4. **Share the URL** — tell developers to open `http://localhost:3000` in their browser
+
+#### URLs
+
+| URL                                              | Purpose                                          | Auth           |
+| ------------------------------------------------ | ------------------------------------------------ | -------------- |
+| `http://localhost:3000`                          | Landing page — developers register here          | None           |
+| `http://localhost:3000/dashboard.html`           | Developer dashboard — module progress            | User session   |
+| `http://localhost:3000/lab.html?module=module-1` | Lab viewer — exercises with code + validation    | User session   |
+| `http://localhost:3000/editor.html`              | Query editor — SQL, JavaScript, mongosh tabs     | User session   |
+| `http://localhost:3000/admin.html`               | **Instructor dashboard** — manage all workspaces | Admin password |
+
+#### Admin Dashboard (`/admin.html`)
+
+The instructor dashboard provides full visibility and control over the workshop:
+
+1. **Login** — enter the admin password (set via `ADMIN_PASSWORD` env var, default `instructor2026`)
+2. **Workspace table** — see all registered developers with schema name, display name, email, status, and creation time
+3. **Progress heatmap** — visual grid showing each developer's completion across all 5 lab modules (M1-M5), color-coded: gray (not started), red (in progress), green (complete)
+4. **Individual teardown** — click "Teardown" next to any workspace to drop that developer's Oracle schema and all their data
+5. **Bulk teardown** — click "Tear Down All" to remove every workspace at once (confirmation required). Use this to reset between workshop sessions.
+6. **Logout** — ends your admin session
+
+#### During the Workshop
+
+- Monitor developer progress in real-time via the heatmap on `/admin.html`
+- Developers who get stuck can use the "Check Answer" button in each exercise to validate their work
+- The query editor at `/editor.html` lets developers experiment freely with SQL, JavaScript, and mongosh
+- Each developer gets an isolated Oracle schema — they cannot see or modify each other's data
+
+#### After the Workshop
+
+```bash
+# Clean up all developer workspaces
+# Option 1: Via admin dashboard — click "Tear Down All"
+# Option 2: Via CLI
+curl -X POST http://localhost:3000/api/admin/login \
+  -H "Content-Type: application/json" \
+  -d '{"password":"instructor2026"}' -c /tmp/admin.txt
+curl -X DELETE http://localhost:3000/api/admin/workspaces -b /tmp/admin.txt
+
+# Stop the environment
+docker compose down
+
+# Full reset (removes Oracle data volume — next startup re-runs all init scripts)
+docker compose down -v
+```
 
 ### Troubleshooting
 
