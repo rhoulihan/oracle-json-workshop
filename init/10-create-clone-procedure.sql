@@ -1,27 +1,28 @@
 -- 10-create-clone-procedure.sql
--- PL/SQL procedures to clone the workshop schema for each developer
--- and to tear down a developer workspace.
+-- Creates SYS-owned procedures for workspace cloning (requires elevated privileges).
+-- WORKSHOP_ADMIN gets wrapper procedures that delegate to SYS-owned implementations.
+-- Must run as SYS.
 
 ALTER SESSION SET CONTAINER = FREEPDB1;
-ALTER SESSION SET CURRENT_SCHEMA = WORKSHOP_ADMIN;
 
-CREATE OR REPLACE PROCEDURE clone_schema(
+-- ============================================================
+-- SYS-owned clone procedure (has full privileges)
+-- ============================================================
+CREATE OR REPLACE PROCEDURE sys.workshop_clone_schema(
   p_username IN VARCHAR2,
   p_password IN VARCHAR2
-) AUTHID CURRENT_USER AS
+) AUTHID DEFINER AS
   v_username VARCHAR2(128) := UPPER(p_username);
 BEGIN
   -- Create user
   EXECUTE IMMEDIATE 'CREATE USER ' || DBMS_ASSERT.SIMPLE_SQL_NAME(v_username) ||
     ' IDENTIFIED BY "' || p_password || '" QUOTA UNLIMITED ON USERS';
-
-  -- Grant privileges
   EXECUTE IMMEDIATE 'GRANT CREATE SESSION TO ' || v_username;
   EXECUTE IMMEDIATE 'GRANT DB_DEVELOPER_ROLE TO ' || v_username;
   EXECUTE IMMEDIATE 'GRANT SODA_APP TO ' || v_username;
   EXECUTE IMMEDIATE 'GRANT UNLIMITED TABLESPACE TO ' || v_username;
 
-  -- Create tables in the new schema (CTAS from workshop_admin)
+  -- Clone relational tables (CTAS)
   EXECUTE IMMEDIATE 'CREATE TABLE ' || v_username || '.advisors AS SELECT * FROM workshop_admin.advisors';
   EXECUTE IMMEDIATE 'CREATE TABLE ' || v_username || '.clients AS SELECT * FROM workshop_admin.clients';
   EXECUTE IMMEDIATE 'CREATE TABLE ' || v_username || '.accounts AS SELECT * FROM workshop_admin.accounts';
@@ -29,7 +30,7 @@ BEGIN
   EXECUTE IMMEDIATE 'CREATE TABLE ' || v_username || '.advisor_client_map AS SELECT * FROM workshop_admin.advisor_client_map';
   EXECUTE IMMEDIATE 'CREATE TABLE ' || v_username || '.transactions AS SELECT * FROM workshop_admin.transactions';
 
-  -- Add constraints (CTAS doesn't copy constraints)
+  -- Add constraints (CTAS doesn't copy them)
   EXECUTE IMMEDIATE 'ALTER TABLE ' || v_username || '.advisors ADD PRIMARY KEY (advisor_id)';
   EXECUTE IMMEDIATE 'ALTER TABLE ' || v_username || '.advisors ADD UNIQUE (email)';
   EXECUTE IMMEDIATE 'ALTER TABLE ' || v_username || '.clients ADD PRIMARY KEY (client_id)';
@@ -44,13 +45,13 @@ BEGIN
   EXECUTE IMMEDIATE 'ALTER TABLE ' || v_username || '.transactions ADD PRIMARY KEY (txn_id)';
   EXECUTE IMMEDIATE 'ALTER TABLE ' || v_username || '.transactions ADD FOREIGN KEY (account_id) REFERENCES ' || v_username || '.accounts(account_id)';
 
-  -- Create JSON collection tables and copy data
+  -- Clone JSON collection tables
   EXECUTE IMMEDIATE 'CREATE JSON COLLECTION TABLE ' || v_username || '.client_interactions';
   EXECUTE IMMEDIATE 'INSERT INTO ' || v_username || '.client_interactions SELECT * FROM workshop_admin.client_interactions';
   EXECUTE IMMEDIATE 'CREATE JSON COLLECTION TABLE ' || v_username || '.advisory_entities';
   EXECUTE IMMEDIATE 'INSERT INTO ' || v_username || '.advisory_entities SELECT * FROM workshop_admin.advisory_entities';
 
-  -- Create duality views in the new schema
+  -- Create duality views
   EXECUTE IMMEDIATE '
     CREATE JSON RELATIONAL DUALITY VIEW ' || v_username || '.client_portfolio_dv AS
     SELECT JSON {
@@ -99,6 +100,7 @@ BEGIN
           ''relationship'' : m.relationship,
           UNNEST(
             SELECT JSON {
+              ''clientPk''    : c.client_id,
               ''firstName''   : c.first_name,
               ''lastName''    : c.last_name,
               ''riskProfile'' : c.risk_profile,
@@ -137,7 +139,7 @@ BEGIN
     }
     FROM ' || v_username || '.transactions t WITH INSERT UPDATE DELETE';
 
-  -- Create indexes on the single-table collection
+  -- Create indexes on single-table collection
   EXECUTE IMMEDIATE 'CREATE INDEX ' || v_username || '.idx_pk_sk ON ' || v_username ||
     '.advisory_entities (data.pk.string(), data.sk.string())';
   EXECUTE IMMEDIATE 'CREATE INDEX ' || v_username || '.idx_gsi1 ON ' || v_username ||
@@ -147,30 +149,55 @@ BEGIN
   EXECUTE IMMEDIATE 'CREATE MULTIVALUE INDEX ' || v_username || '.idx_sectors ON ' || v_username ||
     '.advisory_entities ae (ae.data.data.sectors.string())';
 
-  -- Record in workshop_users
+  -- Record workspace
   INSERT INTO workshop_admin.workshop_users (schema_name, status, created_at, last_active)
   VALUES (v_username, 'active', SYSTIMESTAMP, SYSTIMESTAMP);
-
   COMMIT;
+END;
+/
+
+GRANT EXECUTE ON sys.workshop_clone_schema TO WORKSHOP_ADMIN;
+
+-- ============================================================
+-- SYS-owned drop procedure
+-- ============================================================
+CREATE OR REPLACE PROCEDURE sys.workshop_drop_workspace(
+  p_username IN VARCHAR2
+) AUTHID DEFINER AS
+  v_username VARCHAR2(128) := UPPER(p_username);
+BEGIN
+  BEGIN
+    EXECUTE IMMEDIATE 'DROP USER ' || DBMS_ASSERT.SIMPLE_SQL_NAME(v_username) || ' CASCADE';
+  EXCEPTION
+    WHEN OTHERS THEN
+      IF SQLCODE != -1918 THEN RAISE; END IF;
+  END;
+  DELETE FROM workshop_admin.workshop_users WHERE schema_name = v_username;
+  COMMIT;
+END;
+/
+
+GRANT EXECUTE ON sys.workshop_drop_workspace TO WORKSHOP_ADMIN;
+
+-- ============================================================
+-- WORKSHOP_ADMIN wrapper procedures (delegates to SYS)
+-- ============================================================
+ALTER SESSION SET CURRENT_SCHEMA = WORKSHOP_ADMIN;
+
+CREATE OR REPLACE PROCEDURE clone_schema(
+  p_username IN VARCHAR2,
+  p_password IN VARCHAR2
+) AS
+BEGIN
+  sys.workshop_clone_schema(p_username, p_password);
 END;
 /
 
 CREATE OR REPLACE PROCEDURE drop_workspace(
   p_username IN VARCHAR2
-) AUTHID CURRENT_USER AS
-  v_username VARCHAR2(128) := UPPER(p_username);
+) AS
 BEGIN
-  -- Drop the user and all their objects
-  BEGIN
-    EXECUTE IMMEDIATE 'DROP USER ' || DBMS_ASSERT.SIMPLE_SQL_NAME(v_username) || ' CASCADE';
-  EXCEPTION
-    WHEN OTHERS THEN
-      IF SQLCODE != -1918 THEN RAISE; END IF; -- ORA-01918: user does not exist
-  END;
-
-  -- Remove from tracking table
-  DELETE FROM workshop_admin.workshop_users WHERE schema_name = v_username;
-  COMMIT;
+  sys.workshop_drop_workspace(p_username);
 END;
 /
 

@@ -28,7 +28,12 @@ export async function getConnection() {
 export async function execute(sql, binds = [], opts = {}) {
   const conn = await getConnection();
   try {
-    return await conn.execute(sql, binds, { outFormat: oracledb.OUT_FORMAT_OBJECT, ...opts });
+    const result = await conn.execute(sql, binds, {
+      outFormat: oracledb.OUT_FORMAT_OBJECT,
+      autoCommit: true,
+      ...opts,
+    });
+    return result;
   } finally {
     await conn.close();
   }

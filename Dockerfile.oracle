@@ -7,6 +7,9 @@ USER root
 COPY scripts/install-ords.sh /tmp/install-ords.sh
 RUN chmod +x /tmp/install-ords.sh && /tmp/install-ords.sh && rm /tmp/install-ords.sh
 
+# Make ORDS config dir writable by oracle user
+RUN chown -R oracle:oinstall /etc/ords
+
 # Copy init scripts (executed on first container startup by gvenzl entrypoint)
 COPY init/ /container-entrypoint-initdb.d/
 

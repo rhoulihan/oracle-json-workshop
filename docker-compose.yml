@@ -19,7 +19,10 @@ services:
       - oracle-data:/opt/oracle/oradata
     healthcheck:
       test:
-        ['CMD-SHELL', 'healthcheck.sh && curl -sf http://localhost:8181/ords/_/health || exit 1']
+        [
+          'CMD-SHELL',
+          '/opt/oracle/healthcheck.sh && curl -so /dev/null -w "%{http_code}" http://localhost:8181/ | grep -q "302\|200"',
+        ]
       interval: 15s
       timeout: 10s
       retries: 20

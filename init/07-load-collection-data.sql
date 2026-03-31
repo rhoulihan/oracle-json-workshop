@@ -22,7 +22,7 @@ DECLARE
     'Discussed impact of interest rate changes on bond holdings.'
   );
   v_tasks str_arr := str_arr(
-    'Rebalance tech allocation to < 30%',
+    'Rebalance tech allocation to under 30 pct',
     'Send updated risk assessment',
     'Schedule Q2 review meeting',
     'Prepare tax-loss harvesting report',
@@ -35,51 +35,77 @@ DECLARE
   );
   v_seed NUMBER := 77;
 
-  FUNCTION det_rand(p_seed IN OUT NUMBER, p_max NUMBER) RETURN NUMBER IS
+  v_client_id NUMBER;
+  v_advisor_id NUMBER;
+  v_type VARCHAR2(20);
+  v_channel VARCHAR2(20);
+  v_sentiment VARCHAR2(20);
+  v_summary VARCHAR2(200);
+  v_num_items NUMBER;
+  v_items_json VARCHAR2(4000);
+  v_task VARCHAR2(200);
+  v_status VARCHAR2(20);
+  v_mon NUMBER;
+  v_day NUMBER;
+  v_hour NUMBER;
+  v_minute NUMBER;
+  v_doc VARCHAR2(4000);
+  v_follow_up VARCHAR2(5);
+
+  PROCEDURE advance IS
   BEGIN
-    p_seed := MOD(p_seed * 1103515245 + 12345, 2147483648);
-    RETURN MOD(ABS(p_seed), p_max) + 1;
+    v_seed := MOD(v_seed * 1103515245 + 12345, 2147483648);
+  END;
+
+  FUNCTION rr(p_max NUMBER) RETURN NUMBER IS
+  BEGIN
+    advance;
+    RETURN MOD(ABS(v_seed), p_max) + 1;
   END;
 
 BEGIN
   FOR i IN 1..500 LOOP
-    DECLARE
-      v_client_id NUMBER := det_rand(v_seed, 200);
-      v_advisor_id NUMBER := det_rand(v_seed, 20);
-      v_type VARCHAR2(20) := v_types(det_rand(v_seed, v_types.COUNT));
-      v_num_items NUMBER := det_rand(v_seed, 3);
-      v_items_json VARCHAR2(4000) := '[';
-      v_day_offset NUMBER := det_rand(v_seed, 60);
-      v_status VARCHAR2(20);
-    BEGIN
-      -- Build action_items array
-      FOR j IN 1..v_num_items LOOP
-        IF MOD(j, 2) = 0 THEN v_status := 'complete'; ELSE v_status := 'pending'; END IF;
-        v_items_json := v_items_json ||
-          '{"task":"' || v_tasks(det_rand(v_seed, v_tasks.COUNT)) ||
-          '","due":"2026-' || LPAD(det_rand(v_seed, 12), 2, '0') || '-' || LPAD(det_rand(v_seed, 28), 2, '0') ||
-          '","status":"' || v_status || '"}';
-        IF j < v_num_items THEN v_items_json := v_items_json || ','; END IF;
-      END LOOP;
-      v_items_json := v_items_json || ']';
+    v_client_id := rr(200);
+    v_advisor_id := rr(20);
+    v_type := v_types(rr(v_types.COUNT));
+    v_channel := v_channels(rr(v_channels.COUNT));
+    v_sentiment := v_sentiments(rr(v_sentiments.COUNT));
+    v_summary := v_summaries(rr(v_summaries.COUNT));
+    v_num_items := rr(3);
+    v_mon := rr(3);
+    v_day := rr(28);
+    v_hour := rr(12) + 8;
+    v_minute := rr(59);
 
-      INSERT INTO client_interactions (data) VALUES (JSON(
-        '{' ||
-          '"client_id":' || v_client_id || ',' ||
-          '"advisor_id":' || v_advisor_id || ',' ||
-          '"type":"' || v_type || '",' ||
-          '"date":"2026-' || LPAD(det_rand(v_seed, 3), 2, '0') || '-' ||
-            LPAD(det_rand(v_seed, 28), 2, '0') || 'T' ||
-            LPAD(det_rand(v_seed, 12) + 8, 2, '0') || ':' ||
-            LPAD(det_rand(v_seed, 60) - 1, 2, '0') || ':00Z",' ||
-          '"channel":"' || v_channels(det_rand(v_seed, v_channels.COUNT)) || '",' ||
-          '"summary":"' || v_summaries(det_rand(v_seed, v_summaries.COUNT)) || '",' ||
-          '"action_items":' || v_items_json || ',' ||
-          '"sentiment":"' || v_sentiments(det_rand(v_seed, v_sentiments.COUNT)) || '",' ||
-          '"follow_up_required":' || CASE WHEN MOD(i, 3) = 0 THEN 'true' ELSE 'false' END ||
-        '}'
-      ));
-    END;
+    -- Build action_items array
+    v_items_json := '[';
+    FOR j IN 1..v_num_items LOOP
+      IF MOD(j, 2) = 0 THEN v_status := 'complete'; ELSE v_status := 'pending'; END IF;
+      v_task := v_tasks(rr(v_tasks.COUNT));
+      v_items_json := v_items_json ||
+        '{"task":"' || v_task ||
+        '","due":"2026-' || LPAD(rr(12), 2, '0') || '-' || LPAD(rr(28), 2, '0') ||
+        '","status":"' || v_status || '"}';
+      IF j < v_num_items THEN v_items_json := v_items_json || ','; END IF;
+    END LOOP;
+    v_items_json := v_items_json || ']';
+
+    IF MOD(i, 3) = 0 THEN v_follow_up := 'true'; ELSE v_follow_up := 'false'; END IF;
+
+    v_doc := '{' ||
+      '"client_id":' || v_client_id || ',' ||
+      '"advisor_id":' || v_advisor_id || ',' ||
+      '"type":"' || v_type || '",' ||
+      '"date":"2026-' || LPAD(v_mon, 2, '0') || '-' || LPAD(v_day, 2, '0') ||
+        'T' || LPAD(v_hour, 2, '0') || ':' || LPAD(v_minute, 2, '0') || ':00Z",' ||
+      '"channel":"' || v_channel || '",' ||
+      '"summary":"' || v_summary || '",' ||
+      '"action_items":' || v_items_json || ',' ||
+      '"sentiment":"' || v_sentiment || '",' ||
+      '"follow_up_required":' || v_follow_up ||
+    '}';
+
+    INSERT INTO client_interactions (data) VALUES (JSON(v_doc));
   END LOOP;
 
   COMMIT;

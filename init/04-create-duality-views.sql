@@ -52,6 +52,7 @@ SELECT JSON {
             'relationship' : m.relationship,
             UNNEST(
                 SELECT JSON {
+                    'clientPk'    : c.client_id,
                     'firstName'   : c.first_name,
                     'lastName'    : c.last_name,
                     'riskProfile' : c.risk_profile,

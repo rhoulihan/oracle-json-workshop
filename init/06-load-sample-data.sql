@@ -1,5 +1,6 @@
 -- 06-load-sample-data.sql
 -- Generates deterministic relational seed data using PL/SQL.
+-- All random values computed into variables before INSERT (Oracle PL/SQL restriction).
 
 ALTER SESSION SET CONTAINER = FREEPDB1;
 ALTER SESSION SET CURRENT_SCHEMA = WORKSHOP_ADMIN;
@@ -37,146 +38,139 @@ DECLARE
   v_txn_types str_arr := str_arr('buy','sell','dividend','transfer');
   v_relationships str_arr := str_arr('primary','secondary','referral');
 
-  v_advisor_id NUMBER;
-  v_client_id  NUMBER;
-  v_account_id NUMBER;
-  v_fn_idx     NUMBER;
-  v_ln_idx     NUMBER;
-  v_seed       NUMBER := 42;
+  v_seed NUMBER := 42;
+  -- Temp variables for computed values
+  v_fn VARCHAR2(100);
+  v_ln VARCHAR2(100);
+  v_email VARCHAR2(255);
+  v_lic VARCHAR2(50);
+  v_reg VARCHAR2(100);
+  v_hdate DATE;
+  v_rp VARCHAR2(20);
+  v_odate DATE;
+  v_at VARCHAR2(50);
+  v_aname VARCHAR2(200);
+  v_aodate DATE;
+  v_sym VARCHAR2(20);
+  v_qty NUMBER;
+  v_cb NUMBER;
+  v_mv NUMBER;
+  v_lu TIMESTAMP;
+  v_rel VARCHAR2(50);
+  v_adate DATE;
+  v_tt VARCHAR2(20);
+  v_tp NUMBER;
+  v_ta NUMBER;
+  v_tdate TIMESTAMP;
+  v_idx NUMBER;
+  v_acnt NUMBER;
+  v_cnt NUMBER;
 
-  FUNCTION det_rand(p_seed IN OUT NUMBER, p_max NUMBER) RETURN NUMBER IS
+  PROCEDURE advance_seed IS
   BEGIN
-    p_seed := MOD(p_seed * 1103515245 + 12345, 2147483648);
-    RETURN MOD(ABS(p_seed), p_max) + 1;
+    v_seed := MOD(v_seed * 1103515245 + 12345, 2147483648);
+  END;
+
+  FUNCTION rand_range(p_max NUMBER) RETURN NUMBER IS
+  BEGIN
+    advance_seed;
+    RETURN MOD(ABS(v_seed), p_max) + 1;
   END;
 
 BEGIN
   -- 20 Advisors
   FOR i IN 1..20 LOOP
-    v_fn_idx := det_rand(v_seed, v_first_names.COUNT);
-    v_ln_idx := det_rand(v_seed, v_last_names.COUNT);
+    v_fn := v_first_names(rand_range(v_first_names.COUNT));
+    v_ln := v_last_names(rand_range(v_last_names.COUNT));
+    v_email := LOWER(v_fn || '.' || v_ln || i || '@firm.com');
+    v_lic := v_licenses(rand_range(v_licenses.COUNT));
+    v_reg := v_regions(rand_range(v_regions.COUNT));
+    v_hdate := DATE '2015-01-01' + rand_range(3650);
     INSERT INTO advisors (first_name, last_name, email, license_type, region, hire_date)
-    VALUES (
-      v_first_names(v_fn_idx),
-      v_last_names(v_ln_idx),
-      LOWER(v_first_names(v_fn_idx) || '.' || v_last_names(v_ln_idx) || i || '@firm.com'),
-      v_licenses(det_rand(v_seed, v_licenses.COUNT)),
-      v_regions(det_rand(v_seed, v_regions.COUNT)),
-      DATE '2015-01-01' + det_rand(v_seed, 3650)
-    );
+    VALUES (v_fn, v_ln, v_email, v_lic, v_reg, v_hdate);
   END LOOP;
 
   -- 200 Clients
   FOR i IN 1..200 LOOP
-    v_fn_idx := det_rand(v_seed, v_first_names.COUNT);
-    v_ln_idx := det_rand(v_seed, v_last_names.COUNT);
+    v_fn := v_first_names(rand_range(v_first_names.COUNT));
+    v_ln := v_last_names(rand_range(v_last_names.COUNT));
+    v_email := LOWER(v_fn || '.' || v_ln || i || '@email.com');
+    v_rp := v_risk(rand_range(v_risk.COUNT));
+    v_odate := DATE '2018-01-01' + rand_range(2920);
     INSERT INTO clients (first_name, last_name, email, risk_profile, onboard_date, status)
-    VALUES (
-      v_first_names(v_fn_idx),
-      v_last_names(v_ln_idx),
-      LOWER(v_first_names(v_fn_idx) || '.' || v_last_names(v_ln_idx) || i || '@email.com'),
-      v_risk(det_rand(v_seed, v_risk.COUNT)),
-      DATE '2018-01-01' + det_rand(v_seed, 2920),
-      'active'
-    );
+    VALUES (v_fn, v_ln, v_email, v_rp, v_odate, 'active');
   END LOOP;
 
-  -- 500 Accounts (2-3 per client)
+  -- Accounts: target exactly 500
+  v_cnt := 0;
   FOR c_id IN 1..200 LOOP
-    FOR j IN 1..det_rand(v_seed, 3) LOOP
-      IF j <= 3 THEN
-        INSERT INTO accounts (client_id, account_type, account_name, opened_date, status)
-        VALUES (
-          c_id,
-          v_acct_types(det_rand(v_seed, v_acct_types.COUNT)),
-          'Account ' || c_id || '-' || j,
-          DATE '2019-01-01' + det_rand(v_seed, 2190),
-          'active'
-        );
-      END IF;
-    END LOOP;
-  END LOOP;
-
-  -- Adjust to exactly 500 accounts
-  -- The loop above generates variable counts; we'll pad or trim
-  DECLARE
-    v_cnt NUMBER;
-  BEGIN
-    SELECT COUNT(*) INTO v_cnt FROM accounts;
-    -- If under 500, add more to last clients
-    WHILE v_cnt < 500 LOOP
+    v_acnt := rand_range(3); -- 1-3 accounts per client
+    FOR j IN 1..v_acnt LOOP
+      EXIT WHEN v_cnt >= 500;
+      v_at := v_acct_types(rand_range(v_acct_types.COUNT));
+      v_aname := 'Account ' || c_id || '-' || j;
+      v_aodate := DATE '2019-01-01' + rand_range(2190);
       INSERT INTO accounts (client_id, account_type, account_name, opened_date, status)
-      VALUES (
-        det_rand(v_seed, 200),
-        v_acct_types(det_rand(v_seed, v_acct_types.COUNT)),
-        'Extra Account ' || v_cnt,
-        DATE '2020-01-01' + det_rand(v_seed, 1825),
-        'active'
-      );
+      VALUES (c_id, v_at, v_aname, v_aodate, 'active');
       v_cnt := v_cnt + 1;
     END LOOP;
-    -- If over 500, remove extras
-    IF v_cnt > 500 THEN
-      DELETE FROM accounts WHERE account_id IN (
-        SELECT account_id FROM accounts ORDER BY account_id DESC
-        FETCH FIRST (v_cnt - 500) ROWS ONLY
-      );
-    END IF;
-  END;
+  END LOOP;
+  -- Pad to 500 if under
+  WHILE v_cnt < 500 LOOP
+    v_idx := rand_range(200);
+    v_at := v_acct_types(rand_range(v_acct_types.COUNT));
+    v_aodate := DATE '2020-01-01' + rand_range(1825);
+    INSERT INTO accounts (client_id, account_type, account_name, opened_date, status)
+    VALUES (v_idx, v_at, 'Extra ' || v_cnt, v_aodate, 'active');
+    v_cnt := v_cnt + 1;
+  END LOOP;
 
-  -- 2000 Holdings (4 per account on average)
+  -- 2000 Holdings (4 per account)
   FOR a_id IN 1..500 LOOP
     FOR j IN 1..4 LOOP
+      v_sym := v_symbols(rand_range(v_symbols.COUNT));
+      v_qty := rand_range(500);
+      v_cb := rand_range(50000) + 1000;
+      v_mv := rand_range(60000) + 1000;
+      v_lu := SYSTIMESTAMP - NUMTODSINTERVAL(rand_range(60), 'DAY');
       INSERT INTO holdings (account_id, symbol, quantity, cost_basis, market_value, last_updated)
-      VALUES (
-        a_id,
-        v_symbols(det_rand(v_seed, v_symbols.COUNT)),
-        det_rand(v_seed, 500),
-        det_rand(v_seed, 50000) + 1000,
-        det_rand(v_seed, 60000) + 1000,
-        SYSTIMESTAMP - NUMTODSINTERVAL(det_rand(v_seed, 60), 'DAY')
-      );
+      VALUES (a_id, v_sym, v_qty, v_cb, v_mv, v_lu);
     END LOOP;
   END LOOP;
 
   -- 300 Advisor-Client Mappings
-  DECLARE
-    v_cnt NUMBER := 0;
-  BEGIN
-    FOR a_id IN 1..20 LOOP
-      FOR c_id_offset IN 1..15 LOOP
-        EXIT WHEN v_cnt >= 300;
-        BEGIN
-          INSERT INTO advisor_client_map (advisor_id, client_id, relationship, assigned_date)
-          VALUES (
-            a_id,
-            MOD((a_id - 1) * 15 + c_id_offset - 1, 200) + 1,
-            v_relationships(det_rand(v_seed, v_relationships.COUNT)),
-            DATE '2020-01-01' + det_rand(v_seed, 1825)
-          );
-          v_cnt := v_cnt + 1;
-        EXCEPTION WHEN DUP_VAL_ON_INDEX THEN NULL;
-        END;
-      END LOOP;
+  v_cnt := 0;
+  FOR a_id IN 1..20 LOOP
+    FOR c_off IN 1..15 LOOP
+      EXIT WHEN v_cnt >= 300;
+      v_idx := MOD((a_id - 1) * 15 + c_off - 1, 200) + 1;
+      v_rel := v_relationships(rand_range(v_relationships.COUNT));
+      v_adate := DATE '2020-01-01' + rand_range(1825);
+      BEGIN
+        INSERT INTO advisor_client_map (advisor_id, client_id, relationship, assigned_date)
+        VALUES (a_id, v_idx, v_rel, v_adate);
+        v_cnt := v_cnt + 1;
+      EXCEPTION WHEN DUP_VAL_ON_INDEX THEN NULL;
+      END;
     END LOOP;
-  END;
+  END LOOP;
 
   -- 5000 Transactions
   FOR i IN 1..5000 LOOP
-    INSERT INTO transactions (account_id, txn_type, symbol, quantity, price, total_amount, txn_date, notes)
-    VALUES (
-      det_rand(v_seed, 500),
-      v_txn_types(det_rand(v_seed, v_txn_types.COUNT)),
-      v_symbols(det_rand(v_seed, v_symbols.COUNT)),
-      det_rand(v_seed, 200),
-      det_rand(v_seed, 500) + 10,
-      det_rand(v_seed, 100000) + 500,
-      SYSTIMESTAMP - NUMTODSINTERVAL(det_rand(v_seed, 60), 'DAY'),
-      CASE WHEN MOD(i, 5) = 0
-        THEN JSON('{"category":"rebalance","automated":true}')
-        ELSE NULL
-      END
-    );
+    v_idx := rand_range(500);
+    v_tt := v_txn_types(rand_range(v_txn_types.COUNT));
+    v_sym := v_symbols(rand_range(v_symbols.COUNT));
+    v_qty := rand_range(200);
+    v_tp := rand_range(500) + 10;
+    v_ta := rand_range(100000) + 500;
+    v_tdate := SYSTIMESTAMP - NUMTODSINTERVAL(rand_range(60), 'DAY');
+    IF MOD(i, 5) = 0 THEN
+      INSERT INTO transactions (account_id, txn_type, symbol, quantity, price, total_amount, txn_date, notes)
+      VALUES (v_idx, v_tt, v_sym, v_qty, v_tp, v_ta, v_tdate, JSON('{"category":"rebalance","automated":true}'));
+    ELSE
+      INSERT INTO transactions (account_id, txn_type, symbol, quantity, price, total_amount, txn_date, notes)
+      VALUES (v_idx, v_tt, v_sym, v_qty, v_tp, v_ta, v_tdate, NULL);
+    END IF;
   END LOOP;
 
   COMMIT;
