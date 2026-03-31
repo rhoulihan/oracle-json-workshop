@@ -22,7 +22,7 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       include: ['src/**/*.js'],
-      exclude: ['src/server.js'],
+      exclude: ['src/server.js', 'src/index.js'],
     },
   },
 });
