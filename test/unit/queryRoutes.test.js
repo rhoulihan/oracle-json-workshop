@@ -25,15 +25,13 @@ function buildApp(services = {}) {
 
   const defaults = {
     queryExecutor: {
-      execute: vi
-        .fn()
-        .mockResolvedValue({
-          rows: [],
-          columns: [],
-          rowCount: 0,
-          duration: 1,
-          resultType: 'tabular',
-        }),
+      execute: vi.fn().mockResolvedValue({
+        rows: [],
+        columns: [],
+        rowCount: 0,
+        duration: 1,
+        resultType: 'tabular',
+      }),
     },
     jsExecutor: { execute: vi.fn().mockResolvedValue({ output: null, logs: [], duration: 1 }) },
     mongoExecutor: { execute: vi.fn().mockResolvedValue({ documents: [], count: 0, duration: 1 }) },
