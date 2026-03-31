@@ -2,8 +2,10 @@ import express from 'express';
 import helmet from 'helmet';
 import compression from 'compression';
 import session from 'express-session';
+import { createQueryRouter } from './routes/query.js';
+import { createRateLimiter } from './middleware/rateLimit.js';
 
-export function createApp(config) {
+export function createApp(config, services = {}) {
   const app = express();
 
   app.use(helmet());
@@ -24,6 +26,13 @@ export function createApp(config) {
   app.get('/health', (_req, res) => {
     res.json({ status: 'ok' });
   });
+
+  // Mount query routes if services are provided
+  if (services.queryExecutor) {
+    const rateLimiter = createRateLimiter();
+    const queryRouter = createQueryRouter(services);
+    app.use('/api/query', rateLimiter, queryRouter);
+  }
 
   // 404 handler
   app.use((_req, res) => {
