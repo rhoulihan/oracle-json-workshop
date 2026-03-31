@@ -190,8 +190,9 @@ oracle-json-workshop/
 │   ├── 09-enable-ords.sql
 │   └── 10-create-clone-procedure.sql
 ├── src/
-│   ├── server.js               # Express app factory
-│   ├── config.js               # Environment config + validation
+│   ├── index.js                 # Server entrypoint (wires services, starts HTTP)
+│   ├── server.js                # Express app factory
+│   ├── config.js                # Environment config + validation
 │   ├── middleware/
 │   │   ├── auth.js              # requireAuth + requireAdmin middleware
 │   │   ├── security.js          # SQL classifier + sqlGuard middleware
@@ -204,16 +205,33 @@ oracle-json-workshop/
 │   ├── labs/                    # Lab module JSON content (M0-M5)
 │   └── services/
 │       ├── database.js          # Connection pool manager
-│       ├── workspace.js         # Schema clone/teardown service
+│       ├── workspace.js         # Schema clone/teardown + findByEmail
 │       ├── queryExecutor.js     # SQL execution with timeout + row limits
 │       ├── jsExecutor.js        # Sandboxed JS execution (vm.createContext)
 │       ├── mongoExecutor.js     # mongosh → SQL translator
 │       ├── labLoader.js         # Lab module JSON loader + cache
 │       ├── validator.js         # Exercise answer validation
 │       └── progressService.js   # Per-user progress tracking
+├── public/
+│   ├── index.html               # Landing page (register/login)
+│   ├── dashboard.html           # Module grid + progress
+│   ├── lab.html                 # Lab exercise viewer
+│   ├── editor.html              # SQL/JS/mongosh query editor
+│   ├── admin.html               # Instructor dashboard
+│   ├── css/workshop.css         # Oracle-branded design system
+│   ├── img/oracle-logo.svg      # Oracle wordmark
+│   └── js/
+│       ├── api.js               # Fetch wrapper for all API endpoints
+│       ├── components.js        # Shared UI components (header, cards, etc.)
+│       ├── progress.js          # Progress calculation (pure functions)
+│       ├── results.js           # Query result renderers (table, JSON, error)
+│       ├── history.js           # Query history (localStorage, max 50)
+│       ├── editor-setup.js      # Tab manager for editor
+│       └── pages/               # Page controllers (index, dashboard, lab, editor, admin)
 ├── test/
-│   ├── unit/                   # No DB required (~213 tests)
-│   └── integration/            # Real Oracle required (~48 tests)
+│   ├── unit/                    # Backend unit tests (~213)
+│   ├── unit/frontend/           # Frontend unit tests (~74, jsdom)
+│   └── integration/             # Real Oracle required (~48)
 ├── docs/
 │   ├── workshop-specification.md
 │   └── implementation-plan.md
@@ -222,7 +240,7 @@ oracle-json-workshop/
 
 ## Implementation Status
 
-### Completed
+All 9 phases complete. **287 unit tests (213 backend + 74 frontend) + 48 integration tests, all passing.**
 
 | Phase       | Description                                                                     | Tests                   |
 | ----------- | ------------------------------------------------------------------------------- | ----------------------- |
@@ -230,25 +248,29 @@ oracle-json-workshop/
 | **Phase 2** | Database init scripts, seed data, duality views, indexes, workspace cloning     | 7 unit + 48 integration |
 | **Phase 3** | Query execution engine (SQL, JS, MongoDB) with security + rate limiting         | 75 unit                 |
 | **Phase 4** | Authentication + workspace management API                                       | 30 unit                 |
-| **Phase 5** | Lab content engine — 6 modules, answer validation, progress tracking            | 81 unit                 |
+| **Phase 5** | Lab content — 6 modules (24 exercises), answer validation, progress tracking    | 81 unit                 |
+| **Phase 6** | Frontend — landing page, dashboard, lab viewer (Oracle branded)                 | 38 frontend             |
+| **Phase 7** | Frontend — query editor with SQL/JS/mongosh tabs, history                       | 22 frontend             |
+| **Phase 8** | Instructor dashboard — login, workspace management, progress heatmap            | 14 frontend             |
+| **Phase 9** | Docker polish, README finalization, CI/CD release pipeline                      | —                       |
 
-**Total: 261 tests (213 unit + 48 integration), all passing**
+### Instructor Guide
 
-#### Phase 5 Details
+- **Workshop URL:** `http://localhost:3000` — developers register and start labs
+- **Admin URL:** `http://localhost:3000/admin.html` — instructor workspace management
+- **Default admin password:** Set via `ADMIN_PASSWORD` env var (default: `instructor2026`)
+- **Query Editor:** `http://localhost:3000/editor.html` — SQL, JavaScript, mongosh tabs
 
-- **6 lab modules** (M0-M5) — 24 exercises total covering JSON collections, duality views, single-table design, multi-value indexes, hybrid queries, and multi-protocol access. All exercise SQL sourced from the workshop specification.
-- **Validator service** — Runs validation queries against user schemas, supports `rowCount`, `exact`, `contains`, and `columnExists` patterns.
-- **Lab loader** — Reads module JSON from `src/labs/` at startup, serves from memory. Lists modules with summaries, gets individual modules/exercises.
-- **Progress service** — Reads/writes `workshop_users.progress` JSON column. Tracks per-exercise completion timestamps.
-- **Lab routes** — `GET /api/labs` (module list), `GET /api/labs/:moduleId` (full content), `POST /api/labs/:moduleId/check/:exerciseId` (validate + update progress), `GET /api/labs/progress` (completion state).
+### Troubleshooting
 
-### Remaining
-
-| Phase | Description | Status |
-| Phase 6 | Frontend — landing page, dashboard, lab viewer (Oracle branded) | Not started |
-| Phase 7 | Frontend — query editor (CodeMirror 6, SQL/JS/mongosh tabs) | Not started |
-| Phase 8 | Instructor dashboard + admin features | Not started |
-| Phase 9 | Docker polish, README finalization, CI/CD release pipeline | Not started |
+| Issue                                        | Solution                                                                                                                    |
+| -------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| Oracle container stuck on "health: starting" | Wait up to 3 minutes on first run. Oracle + ORDS + init scripts take time.                                                  |
+| App container exits immediately              | Check Oracle is healthy first: `docker compose ps`. App waits for Oracle.                                                   |
+| "Workspace creation failed" on register      | Verify init script 10 ran: `docker exec workshop-oracle sqlplus -s / as sysdba` → check `SYS.WORKSHOP_CLONE_SCHEMA` exists. |
+| Duplicate email error on register            | Use "Reconnect" form with your existing schema name and password.                                                           |
+| Stale workspaces from testing                | Use admin dashboard (`/admin.html`) → "Tear Down All" button.                                                               |
+| ORDS crashing in loop                        | Rebuild Oracle image: `docker compose down -v && docker compose build oracle && docker compose up -d`                       |
 
 ## Configuration
 

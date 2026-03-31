@@ -7,7 +7,7 @@
   "scripts": {
     "start": "node src/index.js",
     "test": "vitest run",
-    "test:unit": "vitest run --project unit",
+    "test:unit": "vitest run --project unit --project frontend",
     "test:integration": "vitest run --project integration",
     "test:watch": "vitest watch",
     "lint": "eslint src/ test/",
