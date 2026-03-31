@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Query Editor — Oracle JSON Workshop</title>
+    <link rel="stylesheet" href="/css/workshop.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700&family=Source+Code+Pro:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="editor-page">
+    <div id="header"></div>
+
+    <div class="editor-layout">
+      <div class="editor-pane">
+        <div class="tab-bar">
+          <button class="tab-btn active" data-tab="sql">SQL</button>
+          <button class="tab-btn" data-tab="js">JavaScript</button>
+          <button class="tab-btn" data-tab="mongo">mongosh</button>
+        </div>
+        <div class="editor-area">
+          <textarea
+            id="editor-textarea"
+            class="editor-textarea"
+            spellcheck="false"
+            autocomplete="off"
+            autocapitalize="off"
+          ></textarea>
+        </div>
+        <div class="editor-toolbar">
+          <div class="toolbar-left">
+            <button class="btn-primary btn-execute" id="execute-btn">Execute</button>
+            <button class="btn-secondary btn-clear" id="clear-btn">Clear</button>
+          </div>
+          <div class="toolbar-right">
+            <span class="toolbar-hint">Ctrl+Enter to run</span>
+          </div>
+        </div>
+        <div class="history-section">
+          <div class="history-header">
+            <button class="history-toggle" id="history-toggle">History +</button>
+            <button class="history-clear-btn" id="history-clear">Clear</button>
+          </div>
+          <div class="history-panel collapsed" id="history-panel">
+            <div id="history-list">
+              <div class="no-results">No queries yet</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="results-pane" id="results-panel">
+        <div class="no-results">Results will appear here</div>
+      </div>
+    </div>
+
+    <script type="module" src="/js/pages/editor.js"></script>
+  </body>
+</html>

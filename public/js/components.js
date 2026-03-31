@@ -18,7 +18,7 @@ export function renderHeader(schemaName) {
         <span class="header-title">JSON Workshop</span>
       </a>
       <nav class="header-nav">
-        ${schemaName ? `<a href="/dashboard.html">Dashboard</a><a href="/lab.html?module=module-1">Labs</a>` : ''}
+        ${schemaName ? `<a href="/dashboard.html">Dashboard</a><a href="/lab.html?module=module-1">Labs</a><a href="/editor.html">Editor</a>` : ''}
       </nav>
       <div class="header-user">
         ${schemaName ? `<span class="schema-badge">${schemaName}</span><a href="#" class="logout-link">Logout</a>` : ''}
