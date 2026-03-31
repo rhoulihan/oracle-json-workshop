@@ -26,6 +26,27 @@ export default [
     },
   },
   {
+    files: ['public/js/**/*.js', 'test/unit/frontend/**/*.js'],
+    languageOptions: {
+      globals: {
+        document: 'readonly',
+        window: 'readonly',
+        fetch: 'readonly',
+        navigator: 'readonly',
+        localStorage: 'readonly',
+        HTMLElement: 'readonly',
+        Event: 'readonly',
+        location: 'readonly',
+        history: 'readonly',
+        URLSearchParams: 'readonly',
+        customElements: 'readonly',
+      },
+    },
+    rules: {
+      'n/no-process-exit': 'off',
+    },
+  },
+  {
     ignores: ['node_modules/', 'coverage/', 'public/js/vendor/'],
   },
 ];

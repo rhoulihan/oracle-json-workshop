@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard — Oracle JSON Workshop</title>
+    <link rel="stylesheet" href="/css/workshop.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700&family=Source+Code+Pro:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div id="header"></div>
+
+    <main class="container">
+      <div class="dashboard-header">
+        <h2>Workshop Modules</h2>
+        <p class="text-secondary">
+          Complete the exercises in order. Each module builds on the previous one.
+        </p>
+      </div>
+
+      <div class="overall-progress" id="overall-progress">
+        <div class="progress-label">
+          <span>Overall Progress</span>
+          <span id="progress-pct">0%</span>
+        </div>
+        <div
+          class="progress-bar progress-bar-lg"
+          role="progressbar"
+          aria-valuenow="0"
+          aria-valuemin="0"
+          aria-valuemax="100"
+        >
+          <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+        </div>
+      </div>
+
+      <div class="module-grid" id="module-grid">
+        <div class="loading">
+          <div class="spinner"></div>
+          Loading modules...
+        </div>
+      </div>
+    </main>
+
+    <footer class="site-footer">Oracle JSON Technologies Developer Workshop</footer>
+
+    <script type="module" src="/js/pages/dashboard.js"></script>
+  </body>
+</html>

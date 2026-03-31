@@ -7,7 +7,15 @@ export default defineConfig({
         test: {
           name: 'unit',
           include: ['test/unit/**/*.test.js'],
+          exclude: ['test/unit/frontend/**/*.test.js'],
           environment: 'node',
+        },
+      },
+      {
+        test: {
+          name: 'frontend',
+          include: ['test/unit/frontend/**/*.test.js'],
+          environment: 'jsdom',
         },
       },
       {
