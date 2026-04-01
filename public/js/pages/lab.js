@@ -225,7 +225,8 @@ async function init() {
 
         e.target.disabled = false;
 
-        // Append result
+        // Clear previous result and show current
+        resultContainer.innerHTML = '';
         if (result) {
           if (result.error) {
             resultContainer.appendChild(renderError(result.error));
