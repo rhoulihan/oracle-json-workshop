@@ -135,14 +135,48 @@ async function init() {
       content.appendChild(cp);
     }
   } else {
-    for (const exercise of mod.exercises) {
+    // Exercise tab bar
+    const exerciseTabBar = document.createElement('div');
+    exerciseTabBar.className = 'exercise-tab-bar';
+    for (let i = 0; i < mod.exercises.length; i++) {
+      const ex = mod.exercises[i];
+      const complete = isExerciseComplete(progress, moduleId, ex.id);
+      const tab = document.createElement('button');
+      tab.className = `exercise-tab ${i === 0 ? 'active' : ''}`;
+      tab.dataset.exerciseIndex = String(i);
+      tab.innerHTML = `${complete ? '<span class="tab-check">&#10003;</span>' : ''}${ex.id}`;
+      tab.title = ex.title;
+      exerciseTabBar.appendChild(tab);
+    }
+    content.appendChild(exerciseTabBar);
+
+    // Exercise panels container
+    const panelsContainer = document.createElement('div');
+    panelsContainer.className = 'exercise-panels';
+    for (let i = 0; i < mod.exercises.length; i++) {
+      const exercise = mod.exercises[i];
       const complete = isExerciseComplete(progress, moduleId, exercise.id);
       const el = renderExercise(exercise, complete);
-      content.appendChild(el);
+      el.style.display = i === 0 ? '' : 'none';
+      el.dataset.panelIndex = String(i);
+      panelsContainer.appendChild(el);
     }
+    content.appendChild(panelsContainer);
+
+    // Tab switching
+    exerciseTabBar.addEventListener('click', (e) => {
+      const tab = e.target.closest('.exercise-tab');
+      if (!tab) return;
+      const idx = tab.dataset.exerciseIndex;
+      exerciseTabBar.querySelectorAll('.exercise-tab').forEach((t) => t.classList.remove('active'));
+      tab.classList.add('active');
+      panelsContainer.querySelectorAll('.exercise').forEach((p) => {
+        p.style.display = p.dataset.panelIndex === idx ? '' : 'none';
+      });
+    });
   }
 
-  // Checkpoint (if exercises exist)
+  // Checkpoint
   if (mod.checkpoint && mod.exercises.length > 0) {
     const cp = document.createElement('div');
     cp.className = 'lab-checkpoint';
