@@ -18,7 +18,26 @@ function renderOneResult(r) {
     const docs = (r.rows || []).map((row) => row.DATA || row);
     return renderJson(docs.length === 1 ? docs[0] : docs);
   }
-  if (r.resultType === 'tabular') return renderTable(r.columns || [], r.rows || []);
+  if (r.resultType === 'tabular') {
+    // Detect single-column JSON text results (e.g., json_serialize PRETTY)
+    const cols = r.columns || [];
+    const rows = r.rows || [];
+    if (cols.length === 1 && rows.length > 0) {
+      const firstVal = rows[0][cols[0]];
+      if (typeof firstVal === 'string' && firstVal.trimStart().startsWith('{')) {
+        // Render as pretty-printed JSON text blocks
+        const container = document.createElement('div');
+        for (const row of rows) {
+          const pre = document.createElement('pre');
+          pre.className = 'json-result';
+          pre.textContent = row[cols[0]];
+          container.appendChild(pre);
+        }
+        return container;
+      }
+    }
+    return renderTable(cols, rows);
+  }
   if (r.output !== undefined) return renderJson(r.output);
   if (r.documents !== undefined) return renderJson(r.documents);
   return renderJson(r);
