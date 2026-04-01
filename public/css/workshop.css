@@ -684,6 +684,81 @@ h4 {
   tab-size: 2;
 }
 
+/* Editable exercise textarea */
+.exercise-textarea {
+  display: block;
+  width: 100%;
+  background: var(--code-bg);
+  color: var(--code-fg);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  line-height: 1.55;
+  padding: 12px;
+  border: none;
+  outline: none;
+  resize: vertical;
+  tab-size: 2;
+  white-space: pre;
+  overflow-x: auto;
+}
+
+.exercise-textarea:focus {
+  box-shadow: inset 0 0 0 1px rgba(199, 70, 52, 0.4);
+}
+
+/* Exercise result container */
+.exercise-result {
+  margin-top: 0;
+  border-radius: 0 0 var(--radius) var(--radius);
+  overflow: hidden;
+}
+
+.exercise-result:empty {
+  display: none;
+}
+
+.exercise-result .results-table {
+  font-size: 0.6875rem;
+}
+
+.exercise-result .json-result {
+  border-radius: 0;
+  max-height: 280px;
+}
+
+.exercise-result .result-meta {
+  padding: 6px 12px;
+  font-size: 0.6875rem;
+  background: var(--body-bg);
+  border-bottom: 1px solid var(--border-light);
+}
+
+/* Run button */
+.btn-run {
+  padding: 6px 20px;
+  font-size: 0.8125rem;
+}
+
+/* Reset button */
+.btn-reset {
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.45);
+  cursor: pointer;
+  transition: all var(--transition);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.btn-reset:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.8);
+}
+
 /* SQL syntax coloring (basic) */
 .code-block code .keyword {
   color: #569cd6;

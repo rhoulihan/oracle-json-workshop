@@ -88,6 +88,10 @@ export function renderExercise(exercise, isComplete) {
   const div = document.createElement('div');
   div.className = `exercise ${isComplete ? 'exercise-done' : ''}`;
   div.dataset.exerciseId = exercise.id;
+  div.dataset.codeType = exercise.codeType;
+
+  const lineCount = exercise.code.split('\n').length;
+  const rows = Math.max(4, Math.min(lineCount + 1, 20));
 
   div.innerHTML = `
     <div class="exercise-header">
@@ -101,13 +105,15 @@ export function renderExercise(exercise, isComplete) {
       <div class="code-toolbar">
         <span class="code-lang">${exercise.codeType}</span>
         <button class="btn-copy" data-code="${encodeURIComponent(exercise.code)}">Copy</button>
+        <button class="btn-reset" data-original="${encodeURIComponent(exercise.code)}">Reset</button>
       </div>
-      <pre><code class="language-${exercise.codeType}">${escapeHtml(exercise.code)}</code></pre>
+      <textarea class="exercise-textarea" rows="${rows}" spellcheck="false" autocomplete="off" autocapitalize="off">${escapeHtml(exercise.code)}</textarea>
     </div>
     <div class="exercise-actions">
-      <button class="btn-primary btn-check" data-exercise-id="${exercise.id}">Check Answer</button>
+      <button class="btn-primary btn-run" data-exercise-id="${exercise.id}">Run</button>
       <span class="check-result"></span>
     </div>
+    <div class="exercise-result"></div>
   `;
 
   return div;

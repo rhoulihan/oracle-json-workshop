@@ -42,6 +42,7 @@ export default [
         customElements: 'readonly',
         confirm: 'readonly',
         alert: 'readonly',
+        performance: 'readonly',
       },
     },
     rules: {

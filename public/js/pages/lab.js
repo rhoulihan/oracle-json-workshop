@@ -1,6 +1,8 @@
 import { api } from '../api.js';
 import { renderHeader, renderExercise } from '../components.js';
 import { isExerciseComplete } from '../progress.js';
+import { runExercise } from '../exercise-runner.js';
+import { renderTable, renderJson, renderError, renderDml } from '../results.js';
 
 async function init() {
   // Auth guard
@@ -112,65 +114,110 @@ async function init() {
 
   // Event delegation for exercise actions
   content.addEventListener('click', async (e) => {
-    // Copy button
-    if (e.target.classList.contains('btn-copy')) {
-      const code = decodeURIComponent(e.target.dataset.code);
-      try {
-        await navigator.clipboard.writeText(code);
-        const original = e.target.textContent;
-        e.target.textContent = 'Copied!';
-        setTimeout(() => {
-          e.target.textContent = original;
-        }, 1500);
-      } catch {
-        // Fallback for non-HTTPS
-        const textarea = document.createElement('textarea');
-        textarea.value = code;
-        document.body.appendChild(textarea);
-        textarea.select();
-        document.execCommand('copy');
-        document.body.removeChild(textarea);
-        e.target.textContent = 'Copied!';
-        setTimeout(() => {
-          e.target.textContent = 'Copy';
-        }, 1500);
+    // Run button — execute code inline and auto-validate
+    if (e.target.classList.contains('btn-run')) {
+      const exerciseEl = e.target.closest('.exercise');
+      const exerciseId = e.target.dataset.exerciseId;
+      const codeType = exerciseEl.dataset.codeType;
+      const textarea = exerciseEl.querySelector('.exercise-textarea');
+      const resultContainer = exerciseEl.querySelector('.exercise-result');
+      const statusEl = e.target.closest('.exercise-actions').querySelector('.check-result');
+      const code = textarea.value.trim();
+
+      if (!code) return;
+
+      e.target.disabled = true;
+      e.target.textContent = 'Running...';
+      statusEl.textContent = '';
+      statusEl.className = 'check-result';
+      resultContainer.innerHTML =
+        '<div class="loading"><div class="spinner"></div> Executing...</div>';
+
+      const { finalResult, error, totalDuration } = await runExercise(codeType, code);
+
+      e.target.disabled = false;
+      e.target.textContent = 'Run';
+      resultContainer.innerHTML = '';
+
+      if (error) {
+        resultContainer.appendChild(renderError(error));
+        statusEl.textContent = `Error (${totalDuration}ms)`;
+        statusEl.className = 'check-result failure';
+      } else if (finalResult) {
+        // Render the final result
+        if (finalResult.resultType === 'dml') {
+          resultContainer.appendChild(renderDml(finalResult));
+        } else if (finalResult.resultType === 'json') {
+          const docs = (finalResult.rows || []).map((r) => r.DATA || r);
+          resultContainer.appendChild(renderJson(docs.length === 1 ? docs[0] : docs));
+        } else if (finalResult.resultType === 'tabular') {
+          resultContainer.appendChild(
+            renderTable(finalResult.columns || [], finalResult.rows || []),
+          );
+        } else if (finalResult.output !== undefined) {
+          resultContainer.appendChild(renderJson(finalResult.output));
+        } else if (finalResult.documents !== undefined) {
+          resultContainer.appendChild(renderJson(finalResult.documents));
+        } else {
+          resultContainer.appendChild(renderJson(finalResult));
+        }
+
+        // Show duration
+        const meta = document.createElement('div');
+        meta.className = 'result-meta';
+        const parts = [];
+        if (finalResult.rowCount !== undefined) parts.push(`${finalResult.rowCount} rows`);
+        if (finalResult.rowsAffected !== undefined)
+          parts.push(`${finalResult.rowsAffected} affected`);
+        parts.push(`${totalDuration}ms`);
+        meta.textContent = parts.join(' · ');
+        resultContainer.prepend(meta);
+
+        // Auto-validate silently
+        const validation = await api.checkExercise(moduleId, exerciseId);
+        if (validation.valid) {
+          statusEl.textContent = validation.message;
+          statusEl.className = 'check-result success';
+          if (!exerciseEl.querySelector('.exercise-complete')) {
+            const titleEl = exerciseEl.querySelector('.exercise-title');
+            const check = document.createElement('span');
+            check.className = 'exercise-complete';
+            check.setAttribute('aria-label', 'Complete');
+            check.innerHTML = '&#10003;';
+            titleEl.prepend(check);
+            exerciseEl.classList.add('exercise-done');
+          }
+        }
       }
     }
 
-    // Check Answer button
-    if (e.target.classList.contains('btn-check')) {
-      const exerciseId = e.target.dataset.exerciseId;
-      const resultEl = e.target.closest('.exercise-actions').querySelector('.check-result');
-
-      e.target.disabled = true;
-      e.target.textContent = 'Checking...';
-      resultEl.textContent = '';
-      resultEl.className = 'check-result';
-
-      const result = await api.checkExercise(moduleId, exerciseId);
-
-      e.target.disabled = false;
-      e.target.textContent = 'Check Answer';
-
-      if (result.valid) {
-        resultEl.textContent = result.message;
-        resultEl.className = 'check-result success';
-
-        // Add checkmark to exercise header
-        const exercise = e.target.closest('.exercise');
-        if (!exercise.querySelector('.exercise-complete')) {
-          const titleEl = exercise.querySelector('.exercise-title');
-          const check = document.createElement('span');
-          check.className = 'exercise-complete';
-          check.setAttribute('aria-label', 'Complete');
-          check.innerHTML = '&#10003;';
-          titleEl.prepend(check);
-          exercise.classList.add('exercise-done');
-        }
-      } else {
-        resultEl.textContent = result.message || 'Not yet complete';
-        resultEl.className = 'check-result failure';
+    // Copy button
+    if (e.target.classList.contains('btn-copy')) {
+      const exerciseEl = e.target.closest('.exercise');
+      const textarea = exerciseEl.querySelector('.exercise-textarea');
+      const code = textarea ? textarea.value : decodeURIComponent(e.target.dataset.code);
+      try {
+        await navigator.clipboard.writeText(code);
+      } catch {
+        const ta = document.createElement('textarea');
+        ta.value = code;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
       }
+      e.target.textContent = 'Copied!';
+      setTimeout(() => {
+        e.target.textContent = 'Copy';
+      }, 1500);
+    }
+
+    // Reset button — restore original code
+    if (e.target.classList.contains('btn-reset')) {
+      const exerciseEl = e.target.closest('.exercise');
+      const textarea = exerciseEl.querySelector('.exercise-textarea');
+      const original = decodeURIComponent(e.target.dataset.original);
+      if (textarea) textarea.value = original;
     }
   });
 }

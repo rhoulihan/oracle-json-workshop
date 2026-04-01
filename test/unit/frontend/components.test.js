@@ -66,7 +66,7 @@ describe('shared components', () => {
   });
 
   describe('renderExercise', () => {
-    it('renders exercise with title and code', () => {
+    it('renders exercise with title and editable textarea', () => {
       const exercise = {
         id: '1.1',
         title: 'Explore the Collection',
@@ -76,7 +76,27 @@ describe('shared components', () => {
       };
       const el = renderExercise(exercise, false);
       expect(el.textContent).toContain('Explore the Collection');
-      expect(el.querySelector('code').textContent).toContain('SELECT 1');
+      expect(el.querySelector('.exercise-textarea').value).toContain('SELECT 1');
+    });
+
+    it('has Run button instead of Check Answer', () => {
+      const exercise = { id: '1.1', title: 'Test', description: '', code: 'x', codeType: 'sql' };
+      const el = renderExercise(exercise, false);
+      expect(el.querySelector('.btn-run')).toBeTruthy();
+      expect(el.querySelector('.btn-check')).toBeNull();
+    });
+
+    it('has Copy and Reset buttons', () => {
+      const exercise = { id: '1.1', title: 'Test', description: '', code: 'x', codeType: 'sql' };
+      const el = renderExercise(exercise, false);
+      expect(el.querySelector('.btn-copy')).toBeTruthy();
+      expect(el.querySelector('.btn-reset')).toBeTruthy();
+    });
+
+    it('has result container', () => {
+      const exercise = { id: '1.1', title: 'Test', description: '', code: 'x', codeType: 'sql' };
+      const el = renderExercise(exercise, false);
+      expect(el.querySelector('.exercise-result')).toBeTruthy();
     });
 
     it('shows checkmark when complete', () => {
