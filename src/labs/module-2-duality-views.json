@@ -9,8 +9,23 @@
       "id": "2.1",
       "title": "Read Through the Document Lens",
       "description": "View clients, advisors, and transactions as rich JSON documents through duality views.",
+      "explanation": "This is the core of Unified Model Theory in action. The data lives in normalized relational tables — clients, accounts, holdings — but the duality view projects it as a rich nested JSON document. No ETL. No materialized copies. No sync jobs. The document is computed on read from the relational source of truth. Each view shapes the same underlying data for a different consumer: client_portfolio_dv nests accounts and holdings inside a client, advisor_book_dv shows an advisor's full book of business, transaction_feed_dv flattens a transaction with its account context. One truth, many shapes.",
       "codeType": "sql",
       "code": "-- View a client as a rich document (with nested accounts and holdings)\nSELECT json_serialize(data PRETTY)\nFROM client_portfolio_dv\nWHERE data.\"_id\" = 1001;\n\n-- View an advisor's book\nSELECT json_serialize(data PRETTY)\nFROM advisor_book_dv\nWHERE data.\"_id\" = 5;\n\n-- View a transaction with account context (unnested)\nSELECT json_serialize(data PRETTY)\nFROM transaction_feed_dv\nWHERE data.\"_id\" = 1;",
+      "steps": [
+        {
+          "label": "View client 1001 as a nested document with accounts and holdings",
+          "code": "SELECT json_serialize(data PRETTY)\nFROM client_portfolio_dv\nWHERE data.\"_id\" = 1001;"
+        },
+        {
+          "label": "View advisor 5's book of business as a document",
+          "code": "SELECT json_serialize(data PRETTY)\nFROM advisor_book_dv\nWHERE data.\"_id\" = 5;"
+        },
+        {
+          "label": "View transaction 1 with its account context",
+          "code": "SELECT json_serialize(data PRETTY)\nFROM transaction_feed_dv\nWHERE data.\"_id\" = 1;"
+        }
+      ],
       "validationQuery": "SELECT COUNT(*) AS cnt FROM client_portfolio_dv WHERE json_value(data, '$._id' RETURNING NUMBER) = 1001",
       "expectedResultPattern": "rowCount:1"
     },
@@ -18,6 +33,7 @@
       "id": "2.2",
       "title": "Read Through the Relational Lens",
       "description": "Access the same data relationally with SQL JOINs — same data, different access pattern.",
+      "explanation": "This is the other side of the duality. The exact same data you just saw as a nested JSON document is accessible here through standard SQL JOINs across normalized tables. Client 1001's accounts and holdings — same rows, same values, different shape. The relational lens gives you the full power of SQL: GROUP BY, window functions, cross-client analytics, ad-hoc reporting. The document lens gives your application developers the shape they need without complex joins. Neither view is a copy. Neither is derived. Both are direct access to the canonical form. That's what 'duality' means.",
       "codeType": "sql",
       "code": "-- The SAME data, accessed relationally\nSELECT c.first_name, c.last_name, c.risk_profile,\n       a.account_type, a.account_name,\n       h.symbol, h.quantity, h.market_value\nFROM clients c\nJOIN accounts a ON a.client_id = c.client_id\nJOIN holdings h ON h.account_id = a.account_id\nWHERE c.client_id = 1001\nORDER BY a.account_type, h.market_value DESC;",
       "validationQuery": "SELECT COUNT(*) AS cnt FROM clients c JOIN accounts a ON a.client_id = c.client_id JOIN holdings h ON h.account_id = a.account_id WHERE c.client_id = 1001",
@@ -27,8 +43,23 @@
       "id": "2.3",
       "title": "Write Through the Document API",
       "description": "Insert a new client with accounts and holdings through the duality view — one document insert populates three relational tables.",
+      "explanation": "Here's where duality views go from interesting to transformative. You INSERT a single JSON document — a client with nested accounts and holdings — and Oracle decomposes it into the correct rows across three normalized tables: clients, accounts, and holdings. Foreign keys, primary keys, referential integrity — all handled automatically. The duality view definition tells Oracle how to map document fields to relational columns, and the database does the decomposition transactionally. One INSERT, one COMMIT, three tables populated, full ACID. Try doing that with a document database and a relational database sitting side by side.",
       "codeType": "sql",
       "code": "-- Insert a new client WITH accounts and holdings — through the document API\nINSERT INTO client_portfolio_dv (data) VALUES (JSON('{\n    \"firstName\": \"Sarah\",\n    \"lastName\": \"Chen\",\n    \"email\": \"sarah.chen@example.com\",\n    \"riskProfile\": \"aggressive\",\n    \"status\": \"active\",\n    \"accounts\": [\n        {\n            \"accountType\": \"brokerage\",\n            \"accountName\": \"Sarah Growth Portfolio\",\n            \"status\": \"active\",\n            \"holdings\": [\n                {\"symbol\": \"NVDA\", \"quantity\": 100, \"costBasis\": 85000, \"marketValue\": 120000},\n                {\"symbol\": \"MSFT\", \"quantity\": 50, \"costBasis\": 20000, \"marketValue\": 22500}\n            ]\n        }\n    ]\n}'));\nCOMMIT;\n\n-- Verify: the relational tables were populated automatically\nSELECT * FROM clients WHERE email = 'sarah.chen@example.com';",
+      "steps": [
+        {
+          "label": "Insert a new client document with nested accounts and holdings",
+          "code": "INSERT INTO client_portfolio_dv (data) VALUES (JSON('{\n    \"firstName\": \"Sarah\",\n    \"lastName\": \"Chen\",\n    \"email\": \"sarah.chen@example.com\",\n    \"riskProfile\": \"aggressive\",\n    \"status\": \"active\",\n    \"accounts\": [\n        {\n            \"accountType\": \"brokerage\",\n            \"accountName\": \"Sarah Growth Portfolio\",\n            \"status\": \"active\",\n            \"holdings\": [\n                {\"symbol\": \"NVDA\", \"quantity\": 100, \"costBasis\": 85000, \"marketValue\": 120000},\n                {\"symbol\": \"MSFT\", \"quantity\": 50, \"costBasis\": 20000, \"marketValue\": 22500}\n            ]\n        }\n    ]\n}'));"
+        },
+        {
+          "label": "Commit the insert",
+          "code": "COMMIT;"
+        },
+        {
+          "label": "Verify the relational tables were populated automatically",
+          "code": "SELECT * FROM clients WHERE email = 'sarah.chen@example.com';"
+        }
+      ],
       "validationQuery": "SELECT COUNT(*) AS cnt FROM clients WHERE email = 'sarah.chen@example.com'",
       "expectedResultPattern": "rowCount:1"
     },
@@ -36,8 +67,23 @@
       "id": "2.4",
       "title": "Update Through the Document API",
       "description": "Update a holding's market value through the duality view and verify the relational table reflects the change.",
+      "explanation": "JSON_TRANSFORM works on duality views the same way it works on raw JSON columns — but the magic is what happens underneath. When you SET a path inside the document, Oracle traces that path back to the specific relational column it maps to and issues the corresponding UPDATE on the underlying table. The holdings table's market_value column gets updated directly. No application logic. No ORM. No read-modify-write cycle. The duality view is bidirectional: read as documents, write as documents, and the relational truth stays consistent. Verify it yourself — query the holdings table directly.",
       "codeType": "sql",
       "code": "-- Update using JSON_TRANSFORM through the duality view\nUPDATE client_portfolio_dv dv\nSET dv.data = json_transform(dv.data,\n    SET '$.accounts[0].holdings[0].marketValue' = 135000\n)\nWHERE dv.data.email.string() = 'sarah.chen@example.com';\nCOMMIT;\n\n-- Verify the relational table reflects the change\nSELECT h.symbol, h.market_value\nFROM holdings h\nJOIN accounts a ON h.account_id = a.account_id\nJOIN clients c ON a.client_id = c.client_id\nWHERE c.email = 'sarah.chen@example.com';",
+      "steps": [
+        {
+          "label": "Update the market value of the first holding through the duality view",
+          "code": "UPDATE client_portfolio_dv dv\nSET dv.data = json_transform(dv.data,\n    SET '$.accounts[0].holdings[0].marketValue' = 135000\n)\nWHERE dv.data.email.string() = 'sarah.chen@example.com';"
+        },
+        {
+          "label": "Commit the update",
+          "code": "COMMIT;"
+        },
+        {
+          "label": "Verify the relational holdings table reflects the change",
+          "code": "SELECT h.symbol, h.market_value\nFROM holdings h\nJOIN accounts a ON h.account_id = a.account_id\nJOIN clients c ON a.client_id = c.client_id\nWHERE c.email = 'sarah.chen@example.com';"
+        }
+      ],
       "validationQuery": "SELECT h.market_value AS mv FROM holdings h JOIN accounts a ON h.account_id = a.account_id JOIN clients c ON a.client_id = c.client_id WHERE c.email = 'sarah.chen@example.com' AND h.symbol = 'NVDA'",
       "expectedResultPattern": "exact:{\"MV\":135000}"
     },
@@ -45,8 +91,23 @@
       "id": "2.5",
       "title": "Delete Through the Document API",
       "description": "Delete a client through the duality view and verify the cascade cleanup.",
+      "explanation": "DELETE on a duality view cascades through the relational structure based on the view's definition. When you delete the client document, Oracle removes the client row, and the cascade directives (defined by the WITH DELETE clause in the duality view DDL) clean up the associated accounts and holdings rows automatically. This is referential integrity doing what it was designed to do — the database enforces the cleanup, not your application code. The verification query confirms zero rows remain. No orphaned records. No dangling references. The relational model's constraints work for you, even when you're operating through a document API.",
       "codeType": "sql",
       "code": "-- Delete a client — cascades through the duality view directives\nDELETE FROM client_portfolio_dv\nWHERE data.email.string() = 'sarah.chen@example.com';\nCOMMIT;\n\n-- Verify: relational tables cleaned up\nSELECT COUNT(*) AS cnt FROM clients WHERE email = 'sarah.chen@example.com';",
+      "steps": [
+        {
+          "label": "Delete the client document through the duality view",
+          "code": "DELETE FROM client_portfolio_dv\nWHERE data.email.string() = 'sarah.chen@example.com';"
+        },
+        {
+          "label": "Commit the delete",
+          "code": "COMMIT;"
+        },
+        {
+          "label": "Verify the client and related data were removed from relational tables",
+          "code": "SELECT COUNT(*) AS cnt FROM clients WHERE email = 'sarah.chen@example.com';"
+        }
+      ],
       "validationQuery": "SELECT COUNT(*) AS cnt FROM clients WHERE email = 'sarah.chen@example.com'",
       "expectedResultPattern": "rowCount:1"
     },
@@ -54,8 +115,23 @@
       "id": "2.6",
       "title": "Examine the Duality View Definition",
       "description": "Inspect the metadata that describes how the duality view maps between document and relational shapes.",
+      "explanation": "Oracle exposes the full duality view mapping through three system views. USER_JSON_DUALITY_VIEW_TABS shows which relational tables back the view — this tells you where your document's data actually lives. USER_JSON_DUALITY_VIEW_TAB_COLS shows the column-level mapping: which JSON field maps to which relational column, and the data type conversions involved. USER_JSON_DUALITY_VIEW_LINKS shows the relationships between tables — the foreign key paths Oracle traverses to assemble the nested document. This is full transparency into the shape projection. You can see exactly how canonical form becomes projected shape.",
       "codeType": "sql",
       "code": "-- See what tables back the duality view\nSELECT * FROM user_json_duality_view_tabs\nWHERE view_name = 'CLIENT_PORTFOLIO_DV';\n\n-- See column mappings\nSELECT * FROM user_json_duality_view_tab_cols\nWHERE view_name = 'CLIENT_PORTFOLIO_DV';\n\n-- See relationships\nSELECT * FROM user_json_duality_view_links\nWHERE view_name = 'CLIENT_PORTFOLIO_DV';",
+      "steps": [
+        {
+          "label": "List the relational tables backing the duality view",
+          "code": "SELECT * FROM user_json_duality_view_tabs\nWHERE view_name = 'CLIENT_PORTFOLIO_DV';"
+        },
+        {
+          "label": "Show column-level mappings between JSON fields and relational columns",
+          "code": "SELECT * FROM user_json_duality_view_tab_cols\nWHERE view_name = 'CLIENT_PORTFOLIO_DV';"
+        },
+        {
+          "label": "Show the foreign key relationships used to assemble the document",
+          "code": "SELECT * FROM user_json_duality_view_links\nWHERE view_name = 'CLIENT_PORTFOLIO_DV';"
+        }
+      ],
       "validationQuery": "SELECT COUNT(*) AS cnt FROM user_json_duality_view_tabs WHERE view_name = 'CLIENT_PORTFOLIO_DV'",
       "expectedResultPattern": "rowCount:>0"
     },
@@ -63,6 +139,7 @@
       "id": "2.7",
       "title": "Create Your Own Duality View",
       "description": "Challenge: Create a holdings summary duality view that shows each holding with its account and client context using UNNEST.",
+      "explanation": "Now you're building a duality view from scratch. UNNEST is the key operator here — it flattens a nested subquery's fields into the parent document instead of creating an array. Without UNNEST, the account and client data would appear as nested objects; with it, accountName and clientName appear as top-level fields alongside the holding data. WITH NOCHECK marks the accounts and clients tables as read-only in this view — you can read through them but writes only target the holdings table (marked WITH UPDATE). This is deliberate: the view is shaped for a holdings-centric consumer who needs context but only modifies holding values. Model the domain. Project the access.",
       "codeType": "sql",
       "code": "-- Create a \"holdings summary\" duality view\n-- Expected shape: { _id, symbol, quantity, marketValue, accountName, clientName }\n\nCREATE OR REPLACE JSON RELATIONAL DUALITY VIEW my_holdings_dv AS\nSELECT JSON {\n    '_id'         : h.holding_id,\n    'symbol'      : h.symbol,\n    'quantity'    : h.quantity,\n    'costBasis'   : h.cost_basis,\n    'marketValue' : h.market_value,\n    UNNEST(\n        SELECT JSON {\n            'accountName' : a.account_name,\n            'accountType' : a.account_type,\n            UNNEST(\n                SELECT JSON {\n                    'clientName' : c.first_name || ' ' || c.last_name,\n                    'riskProfile': c.risk_profile\n                }\n                FROM clients c WITH NOCHECK\n                WHERE c.client_id = a.client_id\n            )\n        }\n        FROM accounts a WITH NOCHECK\n        WHERE a.account_id = h.account_id\n    )\n}\nFROM holdings h WITH UPDATE;",
       "validationQuery": "SELECT COUNT(*) AS cnt FROM user_json_duality_views WHERE view_name = 'MY_HOLDINGS_DV'",

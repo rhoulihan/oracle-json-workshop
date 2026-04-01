@@ -104,5 +104,60 @@ describe('shared components', () => {
       const el = renderExercise(exercise, true);
       expect(el.querySelector('.exercise-complete')).toBeTruthy();
     });
+
+    it('shows Learn tab when explanation is present', () => {
+      const exercise = {
+        id: '1.1',
+        title: 'Test',
+        description: '',
+        code: 'x',
+        codeType: 'sql',
+        explanation: 'JSON_SERIALIZE converts JSON to text.',
+      };
+      const el = renderExercise(exercise, false);
+      expect(el.querySelector('.ex-tab[data-tab="learn"]')).toBeTruthy();
+      expect(el.querySelector('.exercise-explanation')).toBeTruthy();
+      expect(el.querySelector('.exercise-explanation').textContent).toContain('JSON_SERIALIZE');
+    });
+
+    it('does not show Learn tab without explanation', () => {
+      const exercise = { id: '1.1', title: 'Test', description: '', code: 'x', codeType: 'sql' };
+      const el = renderExercise(exercise, false);
+      expect(el.querySelector('.ex-tab[data-tab="learn"]')).toBeNull();
+    });
+
+    it('shows step counter for step-through exercises', () => {
+      const exercise = {
+        id: '1.1',
+        title: 'Test',
+        description: '',
+        code: 'SELECT 1; SELECT 2',
+        codeType: 'sql',
+        steps: [
+          { label: 'First query', code: 'SELECT 1' },
+          { label: 'Second query', code: 'SELECT 2' },
+        ],
+      };
+      const el = renderExercise(exercise, false);
+      expect(el.querySelector('.step-label')).toBeTruthy();
+      expect(el.querySelector('.step-progress').textContent).toContain('Step 1 of 2');
+      expect(el.querySelector('.btn-run').textContent).toContain('Run Step 1/2');
+    });
+
+    it('loads first step code in textarea for step exercises', () => {
+      const exercise = {
+        id: '1.1',
+        title: 'Test',
+        description: '',
+        code: 'SELECT 1; SELECT 2',
+        codeType: 'sql',
+        steps: [
+          { label: 'First', code: 'SELECT 1 FROM dual' },
+          { label: 'Second', code: 'SELECT 2 FROM dual' },
+        ],
+      };
+      const el = renderExercise(exercise, false);
+      expect(el.querySelector('.exercise-textarea').value).toBe('SELECT 1 FROM dual');
+    });
   });
 });

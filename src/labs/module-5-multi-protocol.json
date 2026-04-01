@@ -9,8 +9,31 @@
       "id": "5.1",
       "title": "MongoDB API via mongosh",
       "description": "List collections, query documents, insert through MongoDB API, and verify via SQL.",
+      "explanation": "Oracle's ORDS (Oracle REST Data Services) implements the MongoDB wire protocol natively. That means mongosh — the official MongoDB shell — connects to Oracle and issues find(), insertOne(), deleteOne() against the same tables and collections you've been querying with SQL. Duality views appear as MongoDB collections, so an insertOne() through mongosh actually writes to normalized relational tables via the duality view's bidirectional mapping. No ETL, no sync, no driver changes. Your existing MongoDB applications can point at Oracle and immediately get ACID transactions, SQL joins, and the cost-based optimizer — while the app thinks it's still talking to MongoDB.",
       "codeType": "mongo",
       "code": "// List collections (includes both JSON collections and Duality Views)\nshow collections\n\n// Query a collection\ndb.CLIENT_INTERACTIONS.find({\"client_id\": 1001}).limit(3)\n\n// Query a Duality View as if it were a MongoDB collection\ndb.CLIENT_PORTFOLIO_DV.find({\"_id\": 1001})\n\n// Insert through MongoDB API — writes to relational tables via Duality View\ndb.CLIENT_PORTFOLIO_DV.insertOne({\n    \"firstName\": \"Workshop\",\n    \"lastName\": \"Developer\",\n    \"email\": \"dev@workshop.local\",\n    \"riskProfile\": \"moderate\",\n    \"status\": \"active\",\n    \"accounts\": []\n})\n\n// Clean up\ndb.CLIENT_PORTFOLIO_DV.deleteOne({\"email\": \"dev@workshop.local\"})",
+      "steps": [
+        {
+          "label": "List all collections visible through MongoDB wire protocol",
+          "code": "show collections"
+        },
+        {
+          "label": "Query the client_interactions collection",
+          "code": "db.CLIENT_INTERACTIONS.find({\"client_id\": 1001}).limit(3)"
+        },
+        {
+          "label": "Query a duality view as a MongoDB collection",
+          "code": "db.CLIENT_PORTFOLIO_DV.find({\"_id\": 1001})"
+        },
+        {
+          "label": "Insert through MongoDB API — writes to relational tables via duality view",
+          "code": "db.CLIENT_PORTFOLIO_DV.insertOne({\n    \"firstName\": \"Workshop\",\n    \"lastName\": \"Developer\",\n    \"email\": \"dev@workshop.local\",\n    \"riskProfile\": \"moderate\",\n    \"status\": \"active\",\n    \"accounts\": []\n})"
+        },
+        {
+          "label": "Clean up the test record",
+          "code": "db.CLIENT_PORTFOLIO_DV.deleteOne({\"email\": \"dev@workshop.local\"})"
+        }
+      ],
       "validationQuery": "SELECT COUNT(*) AS cnt FROM client_interactions ci WHERE ci.data.client_id.number() = 1001",
       "expectedResultPattern": "rowCount:>0"
     },
@@ -18,8 +41,23 @@
       "id": "5.2",
       "title": "JavaScript with node-oracledb",
       "description": "Query duality views, insert with JSON type binding, and use the SODA API — all from JavaScript.",
+      "explanation": "The node-oracledb driver gives JavaScript applications three distinct access patterns against the same Oracle database. First, SQL queries against duality views return native JavaScript objects — the JSON column maps directly to JS objects without parsing. Second, JSON type binding (oracledb.DB_TYPE_JSON) lets you insert JavaScript objects directly into JSON collections without serialization — Oracle stores them as binary OSON. Third, the SODA (Simple Oracle Document Access) API provides a document-store interface: createCollection, insertOne, find().filter() — the same mental model as MongoDB but backed by Oracle's transactional engine. All three patterns hit the same data, the same indexes, the same optimizer. Pick the access pattern that fits your code; the database handles convergence.",
       "codeType": "js",
       "code": "// 1. Query a Duality View — returns native JavaScript objects\nconst result = await connection.execute(\n    `SELECT data FROM client_portfolio_dv WHERE data.\"_id\" = :id`,\n    { id: 1001 },\n    { outFormat: oracledb.OUT_FORMAT_OBJECT }\n);\nconst clientDoc = result.rows[0].DATA;\nconsole.log('Client:', clientDoc.firstName, clientDoc.lastName);\nconsole.log('Accounts:', clientDoc.accounts.length);\n\n// 2. Insert via JSON type binding\nconst newInteraction = {\n    client_id: 1001,\n    advisor_id: 5,\n    type: \"workshop_test\",\n    date: new Date().toISOString(),\n    channel: \"api\",\n    summary: \"Inserted from JavaScript via node-oracledb\",\n    action_items: [],\n    sentiment: \"excited\",\n    follow_up_required: false\n};\n\nawait connection.execute(\n    `INSERT INTO client_interactions (data) VALUES (:doc)`,\n    { doc: { val: newInteraction, type: oracledb.DB_TYPE_JSON } }\n);\nawait connection.commit();\nconsole.log('Inserted interaction successfully');\n\n// 3. Verify and clean up\nawait connection.execute(\n    `DELETE FROM client_interactions WHERE data.type.string() = 'workshop_test'`\n);\nawait connection.commit();\nconsole.log('Cleanup complete');",
+      "steps": [
+        {
+          "label": "Query a duality view — returns native JavaScript objects",
+          "code": "const result = await connection.execute(\n    `SELECT data FROM client_portfolio_dv WHERE data.\"_id\" = :id`,\n    { id: 1001 },\n    { outFormat: oracledb.OUT_FORMAT_OBJECT }\n);\nconst clientDoc = result.rows[0].DATA;\nconsole.log('Client:', clientDoc.firstName, clientDoc.lastName);\nconsole.log('Accounts:', clientDoc.accounts.length);"
+        },
+        {
+          "label": "Insert a document via JSON type binding",
+          "code": "const newInteraction = {\n    client_id: 1001,\n    advisor_id: 5,\n    type: \"workshop_test\",\n    date: new Date().toISOString(),\n    channel: \"api\",\n    summary: \"Inserted from JavaScript via node-oracledb\",\n    action_items: [],\n    sentiment: \"excited\",\n    follow_up_required: false\n};\n\nawait connection.execute(\n    `INSERT INTO client_interactions (data) VALUES (:doc)`,\n    { doc: { val: newInteraction, type: oracledb.DB_TYPE_JSON } }\n);\nawait connection.commit();\nconsole.log('Inserted interaction successfully');"
+        },
+        {
+          "label": "Verify and clean up the test record",
+          "code": "await connection.execute(\n    `DELETE FROM client_interactions WHERE data.type.string() = 'workshop_test'`\n);\nawait connection.commit();\nconsole.log('Cleanup complete');"
+        }
+      ],
       "validationQuery": "SELECT COUNT(*) AS cnt FROM client_portfolio_dv WHERE json_value(data, '$._id' RETURNING NUMBER) = 1001",
       "expectedResultPattern": "rowCount:1"
     }

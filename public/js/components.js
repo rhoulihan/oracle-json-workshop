@@ -90,8 +90,23 @@ export function renderExercise(exercise, isComplete) {
   div.dataset.exerciseId = exercise.id;
   div.dataset.codeType = exercise.codeType;
 
-  const lineCount = exercise.code.split('\n').length;
+  const hasSteps = exercise.steps && exercise.steps.length > 0;
+  const hasExplanation = !!exercise.explanation;
+  const initialCode = hasSteps ? exercise.steps[0].code : exercise.code;
+  const lineCount = initialCode.split('\n').length;
   const rows = Math.max(4, Math.min(lineCount + 1, 20));
+
+  // Step label for step-through exercises
+  const stepLabel = hasSteps
+    ? `<div class="step-label" data-step-index="0">
+        <span class="step-progress">Step 1 of ${exercise.steps.length}</span>
+        <span class="step-name">${escapeHtml(exercise.steps[0].label)}</span>
+      </div>`
+    : '';
+
+  // Run button text
+  const runBtnText = hasSteps ? `Run Step 1/${exercise.steps.length}` : 'Run';
+  const runBtnClass = hasSteps ? 'btn-primary btn-run btn-step' : 'btn-primary btn-run';
 
   div.innerHTML = `
     <div class="exercise-header">
@@ -99,24 +114,51 @@ export function renderExercise(exercise, isComplete) {
         ${isComplete ? '<span class="exercise-complete" aria-label="Complete">&#10003;</span>' : ''}
         Exercise ${exercise.id}: ${exercise.title}
       </h4>
+      ${
+        hasExplanation
+          ? `<div class="exercise-tabs">
+        <button class="ex-tab active" data-tab="code">Code</button>
+        <button class="ex-tab" data-tab="learn">Learn</button>
+      </div>`
+          : ''
+      }
     </div>
     ${exercise.description ? `<p class="exercise-desc">${exercise.description}</p>` : ''}
-    <div class="code-block">
-      <div class="code-toolbar">
-        <span class="code-lang">${exercise.codeType}</span>
-        <button class="btn-copy" data-code="${encodeURIComponent(exercise.code)}">Copy</button>
-        <button class="btn-reset" data-original="${encodeURIComponent(exercise.code)}">Reset</button>
+    ${hasExplanation ? `<div class="exercise-explanation" style="display:none;">${formatExplanation(exercise.explanation)}</div>` : ''}
+    <div class="exercise-code-panel">
+      ${stepLabel}
+      <div class="code-block">
+        <div class="code-toolbar">
+          <span class="code-lang">${exercise.codeType}</span>
+          <button class="btn-copy" data-code="${encodeURIComponent(exercise.code)}">Copy All</button>
+          <button class="btn-reset" data-original="${encodeURIComponent(initialCode)}">Reset</button>
+        </div>
+        <textarea class="exercise-textarea" rows="${rows}" spellcheck="false" autocomplete="off" autocapitalize="off">${escapeHtml(initialCode)}</textarea>
       </div>
-      <textarea class="exercise-textarea" rows="${rows}" spellcheck="false" autocomplete="off" autocapitalize="off">${escapeHtml(exercise.code)}</textarea>
+      <div class="exercise-actions">
+        <button class="${runBtnClass}" data-exercise-id="${exercise.id}" data-total-steps="${hasSteps ? exercise.steps.length : 0}">${runBtnText}</button>
+        <span class="check-result"></span>
+      </div>
+      <div class="exercise-result"></div>
     </div>
-    <div class="exercise-actions">
-      <button class="btn-primary btn-run" data-exercise-id="${exercise.id}">Run</button>
-      <span class="check-result"></span>
-    </div>
-    <div class="exercise-result"></div>
   `;
 
+  // Store steps data on the element for the event handler
+  if (hasSteps) {
+    div.dataset.steps = JSON.stringify(exercise.steps);
+  }
+
   return div;
+}
+
+function formatExplanation(text) {
+  // Simple markdown-lite: **bold**, line breaks
+  return text
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\n\n/g, '</p><p>')
+    .replace(/\n/g, '<br>')
+    .replace(/^/, '<p>')
+    .replace(/$/, '</p>');
 }
 
 function escapeHtml(text) {

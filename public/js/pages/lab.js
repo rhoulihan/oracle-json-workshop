@@ -2,7 +2,11 @@ import { api } from '../api.js';
 import { renderHeader, renderExercise } from '../components.js';
 import { isExerciseComplete } from '../progress.js';
 import { runExercise } from '../exercise-runner.js';
+import { StepRunner } from '../step-runner.js';
 import { renderTable, renderJson, renderError, renderDml } from '../results.js';
+
+// Map of exercise ID → StepRunner instance (for step-through exercises)
+const stepRunners = new Map();
 
 /**
  * Render a single query result into a DOM element.
@@ -128,9 +132,38 @@ async function init() {
   `;
   content.appendChild(nav);
 
+  // Helper: mark exercise as complete in the UI
+  function markExerciseComplete(exerciseEl, statusEl, message) {
+    statusEl.textContent = message;
+    statusEl.className = 'check-result success';
+    if (!exerciseEl.querySelector('.exercise-complete')) {
+      const titleEl = exerciseEl.querySelector('.exercise-title');
+      const check = document.createElement('span');
+      check.className = 'exercise-complete';
+      check.setAttribute('aria-label', 'Complete');
+      check.innerHTML = '&#10003;';
+      titleEl.prepend(check);
+      exerciseEl.classList.add('exercise-done');
+    }
+  }
+
   // Event delegation for exercise actions
   content.addEventListener('click', async (e) => {
-    // Run button — execute code inline and auto-validate
+    // Tab switching (Code / Learn)
+    if (e.target.classList.contains('ex-tab')) {
+      const exerciseEl = e.target.closest('.exercise');
+      const tab = e.target.dataset.tab;
+      exerciseEl
+        .querySelectorAll('.ex-tab')
+        .forEach((t) => t.classList.toggle('active', t.dataset.tab === tab));
+      const codePanel = exerciseEl.querySelector('.exercise-code-panel');
+      const learnPanel = exerciseEl.querySelector('.exercise-explanation');
+      if (codePanel) codePanel.style.display = tab === 'code' ? '' : 'none';
+      if (learnPanel) learnPanel.style.display = tab === 'learn' ? '' : 'none';
+      return;
+    }
+
+    // Run / Run Step button
     if (e.target.classList.contains('btn-run')) {
       const exerciseEl = e.target.closest('.exercise');
       const exerciseId = e.target.dataset.exerciseId;
@@ -138,8 +171,76 @@ async function init() {
       const textarea = exerciseEl.querySelector('.exercise-textarea');
       const resultContainer = exerciseEl.querySelector('.exercise-result');
       const statusEl = e.target.closest('.exercise-actions').querySelector('.check-result');
-      const code = textarea.value.trim();
+      const totalSteps = parseInt(e.target.dataset.totalSteps || '0', 10);
 
+      // Step-through mode
+      if (totalSteps > 0) {
+        // Initialize StepRunner on first click
+        if (!stepRunners.has(exerciseId)) {
+          const steps = JSON.parse(exerciseEl.dataset.steps);
+          stepRunners.set(exerciseId, new StepRunner(steps, codeType));
+        }
+        const runner = stepRunners.get(exerciseId);
+
+        if (runner.isComplete()) {
+          // Reset for re-run
+          runner.reset();
+          resultContainer.innerHTML = '';
+          const firstStep = runner.getCurrentStep();
+          textarea.value = firstStep.code;
+          const stepLabel = exerciseEl.querySelector('.step-label');
+          if (stepLabel) {
+            stepLabel.querySelector('.step-progress').textContent = runner.getProgress();
+            stepLabel.querySelector('.step-name').textContent = firstStep.label;
+          }
+          e.target.textContent = `Run Step 1/${totalSteps}`;
+          statusEl.textContent = '';
+          statusEl.className = 'check-result';
+          return;
+        }
+
+        e.target.disabled = true;
+        e.target.textContent = 'Running...';
+
+        const result = await runner.executeNext();
+
+        e.target.disabled = false;
+
+        // Append result
+        if (result) {
+          if (result.error) {
+            resultContainer.appendChild(renderError(result.error));
+            statusEl.textContent = `Error (${result.duration || 0}ms)`;
+            statusEl.className = 'check-result failure';
+          } else {
+            resultContainer.appendChild(renderOneResult(result));
+          }
+        }
+
+        if (runner.isComplete()) {
+          e.target.textContent = 'Run Again';
+          // Auto-validate
+          const validation = await api.checkExercise(moduleId, exerciseId);
+          if (validation.valid) {
+            markExerciseComplete(exerciseEl, statusEl, validation.message);
+          }
+        } else {
+          // Advance to next step
+          const nextStep = runner.getCurrentStep();
+          textarea.value = nextStep.code;
+          const idx = runner.getStepIndex();
+          e.target.textContent = `Run Step ${idx + 1}/${totalSteps}`;
+          const stepLabel = exerciseEl.querySelector('.step-label');
+          if (stepLabel) {
+            stepLabel.querySelector('.step-progress').textContent = runner.getProgress();
+            stepLabel.querySelector('.step-name').textContent = nextStep.label;
+          }
+        }
+        return;
+      }
+
+      // Single-run mode (no steps)
+      const code = textarea.value.trim();
       if (!code) return;
 
       e.target.disabled = true;
@@ -156,7 +257,6 @@ async function init() {
       resultContainer.innerHTML = '';
 
       if (error) {
-        // Show successful results before the error
         for (const r of results) {
           if (!r.error) resultContainer.appendChild(renderOneResult(r));
         }
@@ -164,40 +264,24 @@ async function init() {
         statusEl.textContent = `Error (${totalDuration}ms)`;
         statusEl.className = 'check-result failure';
       } else if (results.length > 0) {
-        // Render all results
         for (const r of results) {
           resultContainer.appendChild(renderOneResult(r));
         }
-
-        // Show total duration
         const meta = document.createElement('div');
         meta.className = 'result-meta';
         meta.textContent = `${results.length} statement${results.length > 1 ? 's' : ''} · ${totalDuration}ms`;
         resultContainer.prepend(meta);
 
-        // Auto-validate silently
         const validation = await api.checkExercise(moduleId, exerciseId);
         if (validation.valid) {
-          statusEl.textContent = validation.message;
-          statusEl.className = 'check-result success';
-          if (!exerciseEl.querySelector('.exercise-complete')) {
-            const titleEl = exerciseEl.querySelector('.exercise-title');
-            const check = document.createElement('span');
-            check.className = 'exercise-complete';
-            check.setAttribute('aria-label', 'Complete');
-            check.innerHTML = '&#10003;';
-            titleEl.prepend(check);
-            exerciseEl.classList.add('exercise-done');
-          }
+          markExerciseComplete(exerciseEl, statusEl, validation.message);
         }
       }
     }
 
     // Copy button
     if (e.target.classList.contains('btn-copy')) {
-      const exerciseEl = e.target.closest('.exercise');
-      const textarea = exerciseEl.querySelector('.exercise-textarea');
-      const code = textarea ? textarea.value : decodeURIComponent(e.target.dataset.code);
+      const code = decodeURIComponent(e.target.dataset.code);
       try {
         await navigator.clipboard.writeText(code);
       } catch {
@@ -208,18 +292,37 @@ async function init() {
         document.execCommand('copy');
         document.body.removeChild(ta);
       }
+      const original = e.target.textContent;
       e.target.textContent = 'Copied!';
       setTimeout(() => {
-        e.target.textContent = 'Copy';
+        e.target.textContent = original;
       }, 1500);
     }
 
-    // Reset button — restore original code
+    // Reset button
     if (e.target.classList.contains('btn-reset')) {
       const exerciseEl = e.target.closest('.exercise');
+      const exerciseId = exerciseEl.dataset.exerciseId;
       const textarea = exerciseEl.querySelector('.exercise-textarea');
       const original = decodeURIComponent(e.target.dataset.original);
       if (textarea) textarea.value = original;
+      // Reset step runner if exists
+      if (stepRunners.has(exerciseId)) {
+        const runner = stepRunners.get(exerciseId);
+        runner.reset();
+        const resultContainer = exerciseEl.querySelector('.exercise-result');
+        resultContainer.innerHTML = '';
+        const btn = exerciseEl.querySelector('.btn-run');
+        const totalSteps = parseInt(btn.dataset.totalSteps || '0', 10);
+        if (totalSteps > 0) {
+          btn.textContent = `Run Step 1/${totalSteps}`;
+          const stepLabel = exerciseEl.querySelector('.step-label');
+          if (stepLabel) {
+            stepLabel.querySelector('.step-progress').textContent = runner.getProgress();
+            stepLabel.querySelector('.step-name').textContent = runner.getCurrentStep().label;
+          }
+        }
+      }
     }
   });
 }

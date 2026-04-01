@@ -9,8 +9,19 @@
       "id": "1.1",
       "title": "Explore the Collection",
       "description": "View documents in the interactions collection and count them.",
+      "explanation": "JSON_SERIALIZE converts Oracle's internal binary JSON (OSON) back into human-readable text. The PRETTY keyword formats the output with indentation — without it you'd get a dense single-line string that's painful to read. FETCH FIRST limits the result set, which matters when you're exploring a collection and don't want to dump thousands of documents to your screen. Think of this as the Oracle equivalent of MongoDB's db.collection.find().limit(3).pretty().",
       "codeType": "sql",
       "code": "-- View documents in the interactions collection\nSELECT json_serialize(data PRETTY) FROM client_interactions\nFETCH FIRST 3 ROWS ONLY;\n\n-- Count documents\nSELECT COUNT(*) AS doc_count FROM client_interactions;",
+      "steps": [
+        {
+          "label": "View the first 3 documents with pretty formatting",
+          "code": "SELECT json_serialize(data PRETTY) FROM client_interactions\nFETCH FIRST 3 ROWS ONLY;"
+        },
+        {
+          "label": "Count total documents in the collection",
+          "code": "SELECT COUNT(*) AS doc_count FROM client_interactions;"
+        }
+      ],
       "validationQuery": "SELECT COUNT(*) AS cnt FROM client_interactions",
       "expectedResultPattern": "rowCount:>0"
     },
@@ -18,8 +29,19 @@
       "id": "1.2",
       "title": "Query by Example",
       "description": "Find meetings with follow-up required and interactions for a specific client using dot notation.",
+      "explanation": "Oracle's simplified dot notation lets you navigate into JSON documents and extract values with type safety — .string(), .number(), .boolean() tell the database exactly what SQL type to return. No schema definition needed. No upfront DDL. The database figures out the path at query time, and the type cast ensures you get proper SQL comparison semantics. This is how you get the flexibility of a document store with the query power of SQL: filter, join, aggregate — all against schemaless documents.",
       "codeType": "sql",
       "code": "-- Find all meetings with follow-up required\nSELECT json_serialize(data PRETTY)\nFROM client_interactions ci\nWHERE ci.data.type.string() = 'meeting'\n  AND ci.data.follow_up_required.boolean() = TRUE;\n\n-- Find interactions for a specific client\nSELECT json_serialize(data PRETTY)\nFROM client_interactions ci\nWHERE ci.data.client_id.number() = 1001;",
+      "steps": [
+        {
+          "label": "Find meetings that require follow-up using dot notation with boolean cast",
+          "code": "SELECT json_serialize(data PRETTY)\nFROM client_interactions ci\nWHERE ci.data.type.string() = 'meeting'\n  AND ci.data.follow_up_required.boolean() = TRUE;"
+        },
+        {
+          "label": "Find all interactions for client 1001 using dot notation with number cast",
+          "code": "SELECT json_serialize(data PRETTY)\nFROM client_interactions ci\nWHERE ci.data.client_id.number() = 1001;"
+        }
+      ],
       "validationQuery": "SELECT COUNT(*) AS cnt FROM client_interactions ci WHERE ci.data.type.string() = 'meeting' AND ci.data.follow_up_required.boolean() = TRUE",
       "expectedResultPattern": "rowCount:>0"
     },
@@ -27,8 +49,23 @@
       "id": "1.3",
       "title": "Insert a Document",
       "description": "Insert a new interaction document and verify it was stored.",
+      "explanation": "The JSON() constructor takes a text literal and converts it into Oracle's native OSON binary format on write. This matters for performance — OSON uses hash-indexed field navigation giving you O(1) field access, versus the O(n) sequential scan you'd get with MongoDB's BSON. The document goes into a table with a JSON column, no schema definition required. You INSERT a document, Oracle stores it in an optimized binary format, and you can immediately query it with SQL. That's the document API in action.",
       "codeType": "sql",
       "code": "-- Insert a new interaction\nINSERT INTO client_interactions (data) VALUES (JSON('{\n    \"client_id\": 1001,\n    \"advisor_id\": 5,\n    \"type\": \"email\",\n    \"date\": \"2026-03-30T14:00:00Z\",\n    \"channel\": \"email\",\n    \"summary\": \"Follow-up on rebalancing discussion.\",\n    \"action_items\": [],\n    \"sentiment\": \"positive\",\n    \"follow_up_required\": false\n}'));\nCOMMIT;\n\n-- Verify it's there\nSELECT json_serialize(data PRETTY)\nFROM client_interactions ci\nWHERE ci.data.type.string() = 'email'\n  AND ci.data.client_id.number() = 1001;",
+      "steps": [
+        {
+          "label": "Insert a new interaction document using the JSON() constructor",
+          "code": "INSERT INTO client_interactions (data) VALUES (JSON('{\n    \"client_id\": 1001,\n    \"advisor_id\": 5,\n    \"type\": \"email\",\n    \"date\": \"2026-03-30T14:00:00Z\",\n    \"channel\": \"email\",\n    \"summary\": \"Follow-up on rebalancing discussion.\",\n    \"action_items\": [],\n    \"sentiment\": \"positive\",\n    \"follow_up_required\": false\n}'));"
+        },
+        {
+          "label": "Commit the insert",
+          "code": "COMMIT;"
+        },
+        {
+          "label": "Verify the new document exists",
+          "code": "SELECT json_serialize(data PRETTY)\nFROM client_interactions ci\nWHERE ci.data.type.string() = 'email'\n  AND ci.data.client_id.number() = 1001;"
+        }
+      ],
       "validationQuery": "SELECT COUNT(*) AS cnt FROM client_interactions ci WHERE ci.data.type.string() = 'email' AND ci.data.client_id.number() = 1001",
       "expectedResultPattern": "rowCount:>0"
     },
@@ -36,8 +73,27 @@
       "id": "1.4",
       "title": "Update with JSON_TRANSFORM",
       "description": "Add an action item to an existing interaction and change its sentiment using JSON_TRANSFORM.",
+      "explanation": "JSON_TRANSFORM is surgical document modification — you specify path expressions and operations (SET, APPEND, REMOVE, RENAME) and Oracle applies them directly to the binary OSON representation. No need to read the document into your application, deserialize it, modify a field, serialize it back, and write it. APPEND adds an element to an array at a given path. SET replaces a scalar value. The path expression '$.action_items' navigates to the array, and the JSON() wrapper converts the new element from text to binary. This is a server-side atomic operation — no round trips, no race conditions.",
       "codeType": "sql",
       "code": "-- Add an action item to an existing interaction\nUPDATE client_interactions ci\nSET ci.data = json_transform(ci.data,\n    APPEND '$.action_items' = JSON('{\"task\":\"Schedule Q2 review\",\"due\":\"2026-04-15\",\"status\":\"pending\"}')\n)\nWHERE ci.data.client_id.number() = 1001\n  AND ci.data.type.string() = 'meeting';\nCOMMIT;\n\n-- Change sentiment\nUPDATE client_interactions ci\nSET ci.data = json_transform(ci.data,\n    SET '$.sentiment' = 'optimistic'\n)\nWHERE ci.data.client_id.number() = 1001\n  AND ci.data.type.string() = 'meeting';\nCOMMIT;",
+      "steps": [
+        {
+          "label": "Append a new action item to the meeting's action_items array",
+          "code": "UPDATE client_interactions ci\nSET ci.data = json_transform(ci.data,\n    APPEND '$.action_items' = JSON('{\"task\":\"Schedule Q2 review\",\"due\":\"2026-04-15\",\"status\":\"pending\"}')\n)\nWHERE ci.data.client_id.number() = 1001\n  AND ci.data.type.string() = 'meeting';"
+        },
+        {
+          "label": "Commit the append",
+          "code": "COMMIT;"
+        },
+        {
+          "label": "Change the sentiment field to 'optimistic' using SET",
+          "code": "UPDATE client_interactions ci\nSET ci.data = json_transform(ci.data,\n    SET '$.sentiment' = 'optimistic'\n)\nWHERE ci.data.client_id.number() = 1001\n  AND ci.data.type.string() = 'meeting';"
+        },
+        {
+          "label": "Commit the sentiment update",
+          "code": "COMMIT;"
+        }
+      ],
       "validationQuery": "SELECT COUNT(*) AS cnt FROM client_interactions ci WHERE ci.data.client_id.number() = 1001 AND ci.data.type.string() = 'meeting' AND JSON_EXISTS(ci.data, '$.action_items[*]?(@.task == \"Schedule Q2 review\")')",
       "expectedResultPattern": "rowCount:>0"
     },
@@ -45,8 +101,19 @@
       "id": "1.5",
       "title": "Create a Search Index and Full-Text Query",
       "description": "Create a JSON search index and perform full-text search across document fields.",
+      "explanation": "CREATE SEARCH INDEX builds an Oracle Text full-text index over your JSON documents — the FOR JSON clause tells Oracle to index all string fields in the document automatically. No need to specify which fields to index; it introspects the JSON structure. JSON_TEXTCONTAINS then performs full-text search against a specific path ('$.summary') using Oracle Text's linguistic analysis: stemming, fuzzy matching, the works. This is the same search engine that powers Oracle's text analytics, now operating natively on JSON documents. In MongoDB, you'd need Atlas Search with a separate Lucene-based sync that introduces 1-15 seconds of eventual consistency. Here, the index is transactionally consistent.",
       "codeType": "sql",
       "code": "-- Create a JSON search index\nCREATE SEARCH INDEX idx_interactions_search\nON client_interactions (data) FOR JSON;\n\n-- Full-text search across all document fields\nSELECT json_serialize(data PRETTY)\nFROM client_interactions ci\nWHERE JSON_TEXTCONTAINS(ci.data, '$.summary', 'rebalance');",
+      "steps": [
+        {
+          "label": "Create a full-text search index on the JSON data column",
+          "code": "CREATE SEARCH INDEX idx_interactions_search\nON client_interactions (data) FOR JSON;"
+        },
+        {
+          "label": "Search for documents containing 'rebalance' in the summary field",
+          "code": "SELECT json_serialize(data PRETTY)\nFROM client_interactions ci\nWHERE JSON_TEXTCONTAINS(ci.data, '$.summary', 'rebalance');"
+        }
+      ],
       "validationQuery": "SELECT COUNT(*) AS cnt FROM user_indexes WHERE index_name = 'IDX_INTERACTIONS_SEARCH'",
       "expectedResultPattern": "rowCount:>0"
     },
@@ -54,8 +121,19 @@
       "id": "1.6",
       "title": "Aggregate Documents with SQL",
       "description": "Count interactions by type and calculate average action items per interaction.",
+      "explanation": "This is where convergence pays off. You're running GROUP BY, COUNT, and AVG — classic SQL aggregation operators — directly against JSON documents. The dot notation extracts the grouping key (ci.data.type.string()), and json_value with '$.action_items.size()' computes the array length as a number. No MapReduce pipeline. No application-side aggregation. Oracle's Cost-Based Optimizer — four decades of query optimization — plans and executes this just like any relational aggregation. Same engine, same optimizer, same ACID guarantees. Documents and SQL are not competing paradigms; they're complementary access patterns.",
       "codeType": "sql",
       "code": "-- Count interactions by type\nSELECT ci.data.type.string() AS interaction_type,\n       COUNT(*) AS total\nFROM client_interactions ci\nGROUP BY ci.data.type.string()\nORDER BY total DESC;\n\n-- Average action items per interaction\nSELECT ci.data.type.string() AS interaction_type,\n       AVG(json_value(ci.data, '$.action_items.size()' RETURNING NUMBER)) AS avg_actions\nFROM client_interactions ci\nGROUP BY ci.data.type.string();",
+      "steps": [
+        {
+          "label": "Count interactions grouped by type using dot notation extraction",
+          "code": "SELECT ci.data.type.string() AS interaction_type,\n       COUNT(*) AS total\nFROM client_interactions ci\nGROUP BY ci.data.type.string()\nORDER BY total DESC;"
+        },
+        {
+          "label": "Calculate average action items per interaction type using json_value",
+          "code": "SELECT ci.data.type.string() AS interaction_type,\n       AVG(json_value(ci.data, '$.action_items.size()' RETURNING NUMBER)) AS avg_actions\nFROM client_interactions ci\nGROUP BY ci.data.type.string();"
+        }
+      ],
       "validationQuery": "SELECT COUNT(DISTINCT ci.data.type.string()) AS type_count FROM client_interactions ci",
       "expectedResultPattern": "rowCount:>0"
     }

@@ -111,4 +111,63 @@ describe('lab content JSON files', () => {
     const m5 = modules.find((m) => m.module.id === 'module-5');
     expect(m5.module.exercises).toHaveLength(2);
   });
+
+  describe('enriched content', () => {
+    it('all exercises in modules 1-5 have explanations', () => {
+      for (const { module: mod } of modules) {
+        for (const exercise of mod.exercises) {
+          expect(exercise.explanation, `${mod.id}/${exercise.id} missing explanation`).toBeTruthy();
+          expect(typeof exercise.explanation).toBe('string');
+          expect(exercise.explanation.length).toBeGreaterThan(20);
+        }
+      }
+    });
+
+    it('multi-statement exercises have steps array', () => {
+      // Exercises known to be multi-statement
+      const multiStatement = [
+        'module-1/1.1',
+        'module-1/1.2',
+        'module-1/1.3',
+        'module-1/1.4',
+        'module-1/1.5',
+        'module-1/1.6',
+        'module-2/2.1',
+        'module-2/2.3',
+        'module-2/2.4',
+        'module-2/2.5',
+        'module-2/2.6',
+        'module-3/3.1',
+        'module-3/3.2',
+        'module-3/3.3',
+        'module-3/3.4',
+        'module-4/4.1',
+        'module-4/4.3',
+      ];
+      for (const key of multiStatement) {
+        const [modId, exId] = key.split('/');
+        const mod = modules.find((m) => m.module.id === modId);
+        const ex = mod.module.exercises.find((e) => e.id === exId);
+        expect(ex.steps, `${key} missing steps`).toBeDefined();
+        expect(Array.isArray(ex.steps)).toBe(true);
+        expect(ex.steps.length).toBeGreaterThanOrEqual(2);
+      }
+    });
+
+    it('each step has label and code', () => {
+      for (const { module: mod } of modules) {
+        for (const exercise of mod.exercises) {
+          if (exercise.steps) {
+            for (const step of exercise.steps) {
+              expect(step).toHaveProperty('label');
+              expect(step).toHaveProperty('code');
+              expect(typeof step.label).toBe('string');
+              expect(typeof step.code).toBe('string');
+              expect(step.code.length).toBeGreaterThan(0);
+            }
+          }
+        }
+      }
+    });
+  });
 });
