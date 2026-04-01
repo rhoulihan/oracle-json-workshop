@@ -4,6 +4,22 @@ import { isExerciseComplete } from '../progress.js';
 import { runExercise } from '../exercise-runner.js';
 import { renderTable, renderJson, renderError, renderDml } from '../results.js';
 
+/**
+ * Render a single query result into a DOM element.
+ */
+function renderOneResult(r) {
+  if (r.error) return renderError(r.error);
+  if (r.resultType === 'dml') return renderDml(r);
+  if (r.resultType === 'json') {
+    const docs = (r.rows || []).map((row) => row.DATA || row);
+    return renderJson(docs.length === 1 ? docs[0] : docs);
+  }
+  if (r.resultType === 'tabular') return renderTable(r.columns || [], r.rows || []);
+  if (r.output !== undefined) return renderJson(r.output);
+  if (r.documents !== undefined) return renderJson(r.documents);
+  return renderJson(r);
+}
+
 async function init() {
   // Auth guard
   const me = await api.getMe();
@@ -133,44 +149,30 @@ async function init() {
       resultContainer.innerHTML =
         '<div class="loading"><div class="spinner"></div> Executing...</div>';
 
-      const { finalResult, error, totalDuration } = await runExercise(codeType, code);
+      const { results, error, totalDuration } = await runExercise(codeType, code);
 
       e.target.disabled = false;
       e.target.textContent = 'Run';
       resultContainer.innerHTML = '';
 
       if (error) {
+        // Show successful results before the error
+        for (const r of results) {
+          if (!r.error) resultContainer.appendChild(renderOneResult(r));
+        }
         resultContainer.appendChild(renderError(error));
         statusEl.textContent = `Error (${totalDuration}ms)`;
         statusEl.className = 'check-result failure';
-      } else if (finalResult) {
-        // Render the final result
-        if (finalResult.resultType === 'dml') {
-          resultContainer.appendChild(renderDml(finalResult));
-        } else if (finalResult.resultType === 'json') {
-          const docs = (finalResult.rows || []).map((r) => r.DATA || r);
-          resultContainer.appendChild(renderJson(docs.length === 1 ? docs[0] : docs));
-        } else if (finalResult.resultType === 'tabular') {
-          resultContainer.appendChild(
-            renderTable(finalResult.columns || [], finalResult.rows || []),
-          );
-        } else if (finalResult.output !== undefined) {
-          resultContainer.appendChild(renderJson(finalResult.output));
-        } else if (finalResult.documents !== undefined) {
-          resultContainer.appendChild(renderJson(finalResult.documents));
-        } else {
-          resultContainer.appendChild(renderJson(finalResult));
+      } else if (results.length > 0) {
+        // Render all results
+        for (const r of results) {
+          resultContainer.appendChild(renderOneResult(r));
         }
 
-        // Show duration
+        // Show total duration
         const meta = document.createElement('div');
         meta.className = 'result-meta';
-        const parts = [];
-        if (finalResult.rowCount !== undefined) parts.push(`${finalResult.rowCount} rows`);
-        if (finalResult.rowsAffected !== undefined)
-          parts.push(`${finalResult.rowsAffected} affected`);
-        parts.push(`${totalDuration}ms`);
-        meta.textContent = parts.join(' · ');
+        meta.textContent = `${results.length} statement${results.length > 1 ? 's' : ''} · ${totalDuration}ms`;
         resultContainer.prepend(meta);
 
         // Auto-validate silently
