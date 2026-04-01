@@ -60,13 +60,22 @@ async function init() {
     window.location.href = '/';
   });
 
-  // Get module ID from URL
+  // Get module ID and options from URL
   const params = new URLSearchParams(window.location.search);
   const moduleId = params.get('module');
+  const preserveData = params.has('preserveData');
 
   if (!moduleId) {
     window.location.href = '/dashboard.html';
     return;
+  }
+
+  // Reset workspace to fresh state unless preserveData is set
+  if (!preserveData) {
+    const labContent = document.getElementById('lab-content');
+    labContent.innerHTML =
+      '<div class="loading"><div class="spinner"></div> Resetting workspace to fresh state...</div>';
+    await api.resetWorkspace();
   }
 
   // Fetch module and progress

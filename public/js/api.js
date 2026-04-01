@@ -36,6 +36,10 @@ export const api = {
     return this.post('/api/auth/logout');
   },
 
+  async resetWorkspace() {
+    return this.post('/api/auth/reset');
+  },
+
   async getMe() {
     const res = await fetch('/api/auth/me', { method: 'GET', credentials: 'same-origin' });
     if (!res.ok) return null;

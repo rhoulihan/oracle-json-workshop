@@ -70,6 +70,26 @@ export function createAuthRouter({ workspaceService, getConnectionAs }) {
     });
   });
 
+  // POST /reset — tear down and recreate workspace (fresh database state)
+  router.post('/reset', async (req, res) => {
+    if (!req.session?.user) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+
+    const { schemaName } = req.session.user;
+    try {
+      // Tear down existing schema
+      await workspaceService.teardown(schemaName);
+      // Recreate with same schema name
+      const { password } = await workspaceService.createWithName(schemaName);
+      // Update session with new password
+      req.session.user = { schemaName, password };
+      res.json({ ok: true, schemaName });
+    } catch (err) {
+      res.status(500).json({ error: `Reset failed: ${err.message}` });
+    }
+  });
+
   // GET /me — return current user info
   router.get('/me', (req, res) => {
     if (!req.session?.user) {

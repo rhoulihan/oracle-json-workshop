@@ -105,7 +105,7 @@ describe('shared components', () => {
       expect(el.querySelector('.exercise-complete')).toBeTruthy();
     });
 
-    it('shows Learn tab when explanation is present', () => {
+    it('shows Learn tab as default active when explanation is present', () => {
       const exercise = {
         id: '1.1',
         title: 'Test',
@@ -116,7 +116,11 @@ describe('shared components', () => {
       };
       const el = renderExercise(exercise, false);
       expect(el.querySelector('.ex-tab[data-tab="learn"]')).toBeTruthy();
+      expect(el.querySelector('.ex-tab[data-tab="learn"]').classList.contains('active')).toBe(true);
+      expect(el.querySelector('.ex-tab[data-tab="code"]').classList.contains('active')).toBe(false);
       expect(el.querySelector('.exercise-explanation')).toBeTruthy();
+      expect(el.querySelector('.exercise-explanation').style.display).not.toBe('none');
+      expect(el.querySelector('.exercise-code-panel').style.display).toBe('none');
       expect(el.querySelector('.exercise-explanation').textContent).toContain('JSON_SERIALIZE');
     });
 

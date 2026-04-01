@@ -68,6 +68,22 @@ export class WorkspaceService {
     }
   }
 
+  async createWithName(schemaName) {
+    const password = this.generatePassword();
+
+    const conn = await this.#pool.getConnection();
+    try {
+      await conn.execute(`BEGIN WORKSHOP_ADMIN.clone_schema(:username, :password); END;`, {
+        username: schemaName,
+        password,
+      });
+      await conn.commit();
+      return { schemaName, password };
+    } finally {
+      await conn.close();
+    }
+  }
+
   async teardown(schemaName) {
     const conn = await this.#pool.getConnection();
     try {

@@ -3,6 +3,7 @@
  * Each call to executeNext() runs one step and advances the index.
  */
 import { api } from './api.js';
+import { splitStatements } from './sql-splitter.js';
 
 export class StepRunner {
   #steps;
@@ -54,7 +55,12 @@ export class StepRunner {
     } else if (this.#codeType === 'mongo') {
       result = await api.executeMongo(step.code);
     } else {
-      result = await api.executeSql(step.code);
+      // Split on semicolons for SQL (handles "INSERT...;\nCOMMIT" as two calls)
+      const stmts = splitStatements(step.code);
+      for (const stmt of stmts) {
+        result = await api.executeSql(stmt);
+        if (result.error) break;
+      }
     }
 
     this.#index++;

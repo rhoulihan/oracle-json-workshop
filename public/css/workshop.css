@@ -694,6 +694,8 @@ h4 {
   font-size: 0.8125rem;
   line-height: 1.65;
   color: var(--text-secondary);
+  max-height: 400px;
+  overflow-y: auto;
 }
 
 .exercise-explanation strong {

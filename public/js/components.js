@@ -117,15 +117,15 @@ export function renderExercise(exercise, isComplete) {
       ${
         hasExplanation
           ? `<div class="exercise-tabs">
-        <button class="ex-tab active" data-tab="code">Code</button>
-        <button class="ex-tab" data-tab="learn">Learn</button>
+        <button class="ex-tab" data-tab="code">Code</button>
+        <button class="ex-tab active" data-tab="learn">Learn</button>
       </div>`
           : ''
       }
     </div>
     ${exercise.description ? `<p class="exercise-desc">${exercise.description}</p>` : ''}
-    ${hasExplanation ? `<div class="exercise-explanation" style="display:none;">${formatExplanation(exercise.explanation)}</div>` : ''}
-    <div class="exercise-code-panel">
+    ${hasExplanation ? `<div class="exercise-explanation">${formatExplanation(exercise.explanation)}</div>` : ''}
+    <div class="exercise-code-panel" ${hasExplanation ? 'style="display:none;"' : ''}>
       ${stepLabel}
       <div class="code-block">
         <div class="code-toolbar">
