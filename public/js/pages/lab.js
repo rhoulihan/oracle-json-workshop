@@ -176,13 +176,18 @@ async function init() {
     });
   }
 
-  // Checkpoint
+  // Checkpoint — hidden until all exercises complete
   if (mod.checkpoint && mod.exercises.length > 0) {
     const cp = document.createElement('div');
     cp.className = 'lab-checkpoint';
+    cp.style.display = 'none';
+    cp.id = 'module-checkpoint';
     cp.textContent = mod.checkpoint;
     content.appendChild(cp);
   }
+
+  // Track which exercises have been fully run
+  const exercisesRun = new Set();
 
   // Navigation
   const nav = document.createElement('div');
@@ -194,8 +199,11 @@ async function init() {
   `;
   content.appendChild(nav);
 
-  // Helper: mark exercise as complete in the UI
+  // Helper: mark exercise as complete in the UI + update tab checkmark
   function markExerciseComplete(exerciseEl, statusEl, message) {
+    const exerciseId = exerciseEl.dataset.exerciseId;
+    exercisesRun.add(exerciseId);
+
     statusEl.textContent = message;
     statusEl.className = 'check-result success';
     if (!exerciseEl.querySelector('.exercise-complete')) {
@@ -206,6 +214,22 @@ async function init() {
       check.innerHTML = '&#10003;';
       titleEl.prepend(check);
       exerciseEl.classList.add('exercise-done');
+    }
+
+    // Update tab checkmark
+    const panelIndex = exerciseEl.dataset.panelIndex;
+    const tab = content.querySelector(`.exercise-tab[data-exercise-index="${panelIndex}"]`);
+    if (tab && !tab.querySelector('.tab-check')) {
+      const tabCheck = document.createElement('span');
+      tabCheck.className = 'tab-check';
+      tabCheck.innerHTML = '&#10003;';
+      tab.prepend(tabCheck);
+    }
+
+    // Show checkpoint if ALL exercises have been run
+    if (exercisesRun.size === mod.exercises.length) {
+      const checkpoint = document.getElementById('module-checkpoint');
+      if (checkpoint) checkpoint.style.display = '';
     }
   }
 
