@@ -125,6 +125,17 @@ async function init() {
     content.appendChild(desc);
   }
 
+  // Introduction (detailed module overview)
+  if (mod.introduction) {
+    const intro = document.createElement('div');
+    intro.className = 'lab-introduction';
+    intro.innerHTML = mod.introduction
+      .split('\n\n')
+      .map((p) => `<p>${p}</p>`)
+      .join('');
+    content.appendChild(intro);
+  }
+
   // Exercises
   if (mod.exercises.length === 0) {
     // Read-only module (Module 0)
@@ -186,8 +197,17 @@ async function init() {
     content.appendChild(cp);
   }
 
-  // Track which exercises have been fully run
+  // Track which exercises have had all their code fully executed
   const exercisesRun = new Set();
+
+  function markExerciseRun(exerciseId) {
+    exercisesRun.add(exerciseId);
+    // Show checkpoint if ALL exercises have been run
+    if (exercisesRun.size === mod.exercises.length) {
+      const checkpoint = document.getElementById('module-checkpoint');
+      if (checkpoint) checkpoint.style.display = '';
+    }
+  }
 
   // Navigation
   const nav = document.createElement('div');
@@ -201,9 +221,6 @@ async function init() {
 
   // Helper: mark exercise as complete in the UI + update tab checkmark
   function markExerciseComplete(exerciseEl, statusEl, message) {
-    const exerciseId = exerciseEl.dataset.exerciseId;
-    exercisesRun.add(exerciseId);
-
     statusEl.textContent = message;
     statusEl.className = 'check-result success';
     if (!exerciseEl.querySelector('.exercise-complete')) {
@@ -224,12 +241,6 @@ async function init() {
       tabCheck.className = 'tab-check';
       tabCheck.innerHTML = '&#10003;';
       tab.prepend(tabCheck);
-    }
-
-    // Show checkpoint if ALL exercises have been run
-    if (exercisesRun.size === mod.exercises.length) {
-      const checkpoint = document.getElementById('module-checkpoint');
-      if (checkpoint) checkpoint.style.display = '';
     }
   }
 
@@ -306,6 +317,7 @@ async function init() {
 
         if (runner.isComplete()) {
           e.target.textContent = 'Run Again';
+          markExerciseRun(exerciseId);
           // Auto-validate
           const validation = await api.checkExercise(moduleId, exerciseId);
           if (validation.valid) {
@@ -359,6 +371,7 @@ async function init() {
         meta.textContent = `${results.length} statement${results.length > 1 ? 's' : ''} · ${totalDuration}ms`;
         resultContainer.prepend(meta);
 
+        markExerciseRun(exerciseId);
         const validation = await api.checkExercise(moduleId, exerciseId);
         if (validation.valid) {
           markExerciseComplete(exerciseEl, statusEl, validation.message);
