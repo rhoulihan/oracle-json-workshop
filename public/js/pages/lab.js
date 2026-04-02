@@ -129,12 +129,16 @@ async function init() {
   if (mod.introduction) {
     const intro = document.createElement('div');
     intro.className = 'lab-introduction';
-    // Render paragraphs and [diagram]...[/diagram] blocks
+    // Render paragraphs, [svg:file] references, and [diagram]...[/diagram] blocks
     intro.innerHTML = mod.introduction
-      .replace(/\[diagram\]([\s\S]*?)\[\/diagram\]/g, '</p><pre class="intro-diagram">$1</pre><p>')
+      .replace(
+        /\[svg:([^\]]+)\]/g,
+        '<img src="/img/diagrams/$1" class="intro-diagram-svg" alt="Diagram">',
+      )
+      .replace(/\[diagram\]([\s\S]*?)\[\/diagram\]/g, '<pre class="intro-diagram">$1</pre>')
       .split('\n\n')
       .map((p) => {
-        if (p.includes('<pre class="intro-diagram">')) return p;
+        if (p.includes('intro-diagram') || p.includes('<img')) return p;
         return `<p>${p}</p>`;
       })
       .join('');

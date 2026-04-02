@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 420" font-family="Source Sans Pro, -apple-system, sans-serif">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10" fill="#9B9590"/></marker>
+  </defs>
+  <!-- Background -->
+  <rect width="680" height="420" rx="8" fill="#F7F6F5"/>
+  <!-- Title -->
+  <text x="340" y="28" text-anchor="middle" font-size="13" font-weight="700" fill="#312D2A">Financial Advisory Data Model</text>
+  <!-- Relational Tables -->
+  <text x="22" y="55" font-size="10" font-weight="600" fill="#9B9590" letter-spacing="1">RELATIONAL TABLES</text>
+  <rect x="20" y="65" width="130" height="48" rx="6" fill="#fff" stroke="#E5E2DF" stroke-width="1.5"/>
+  <text x="85" y="85" text-anchor="middle" font-size="12" font-weight="600" fill="#312D2A">advisors</text>
+  <text x="85" y="100" text-anchor="middle" font-size="10" fill="#9B9590">20 rows</text>
+  <rect x="200" y="65" width="130" height="48" rx="6" fill="#fff" stroke="#E5E2DF" stroke-width="1.5"/>
+  <text x="265" y="85" text-anchor="middle" font-size="12" font-weight="600" fill="#312D2A">advisor_client_map</text>
+  <text x="265" y="100" text-anchor="middle" font-size="10" fill="#9B9590">300 rows</text>
+  <rect x="380" y="65" width="130" height="48" rx="6" fill="#fff" stroke="#E5E2DF" stroke-width="1.5"/>
+  <text x="445" y="85" text-anchor="middle" font-size="12" font-weight="600" fill="#312D2A">clients</text>
+  <text x="445" y="100" text-anchor="middle" font-size="10" fill="#9B9590">200 rows</text>
+  <!-- Arrows row 1 -->
+  <line x1="150" y1="89" x2="198" y2="89" stroke="#9B9590" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="330" y1="89" x2="378" y2="89" stroke="#9B9590" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <!-- Row 2 -->
+  <rect x="380" y="140" width="130" height="48" rx="6" fill="#fff" stroke="#E5E2DF" stroke-width="1.5"/>
+  <text x="445" y="160" text-anchor="middle" font-size="12" font-weight="600" fill="#312D2A">accounts</text>
+  <text x="445" y="175" text-anchor="middle" font-size="10" fill="#9B9590">500 rows</text>
+  <rect x="550" y="140" width="110" height="48" rx="6" fill="#fff" stroke="#E5E2DF" stroke-width="1.5"/>
+  <text x="605" y="160" text-anchor="middle" font-size="12" font-weight="600" fill="#312D2A">holdings</text>
+  <text x="605" y="175" text-anchor="middle" font-size="10" fill="#9B9590">2,000 rows</text>
+  <line x1="445" y1="113" x2="445" y2="138" stroke="#9B9590" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="510" y1="164" x2="548" y2="164" stroke="#9B9590" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <!-- Row 3 -->
+  <rect x="380" y="215" width="130" height="48" rx="6" fill="#fff" stroke="#E5E2DF" stroke-width="1.5"/>
+  <text x="445" y="235" text-anchor="middle" font-size="12" font-weight="600" fill="#312D2A">transactions</text>
+  <text x="445" y="250" text-anchor="middle" font-size="10" fill="#9B9590">5,000 rows</text>
+  <line x1="445" y1="188" x2="445" y2="213" stroke="#9B9590" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <!-- JSON Collections -->
+  <text x="22" y="305" font-size="10" font-weight="600" fill="#9B9590" letter-spacing="1">JSON COLLECTIONS</text>
+  <rect x="20" y="315" width="170" height="48" rx="6" fill="#C74634" fill-opacity="0.08" stroke="#C74634" stroke-width="1.5"/>
+  <text x="105" y="335" text-anchor="middle" font-size="12" font-weight="600" fill="#C74634">client_interactions</text>
+  <text x="105" y="350" text-anchor="middle" font-size="10" fill="#9B9590">500 documents</text>
+  <rect x="210" y="315" width="170" height="48" rx="6" fill="#C74634" fill-opacity="0.08" stroke="#C74634" stroke-width="1.5"/>
+  <text x="295" y="335" text-anchor="middle" font-size="12" font-weight="600" fill="#C74634">advisory_entities</text>
+  <text x="295" y="350" text-anchor="middle" font-size="10" fill="#9B9590">3,000 documents</text>
+  <!-- Duality Views -->
+  <text x="22" y="390" font-size="10" font-weight="600" fill="#9B9590" letter-spacing="1">DUALITY VIEWS</text>
+  <rect x="20" y="397" width="155" height="18" rx="4" fill="#1B7D3A" fill-opacity="0.1" stroke="#1B7D3A" stroke-width="1"/>
+  <text x="97" y="410" text-anchor="middle" font-size="10" font-weight="600" fill="#1B7D3A">client_portfolio_dv</text>
+  <rect x="185" y="397" width="135" height="18" rx="4" fill="#1B7D3A" fill-opacity="0.1" stroke="#1B7D3A" stroke-width="1"/>
+  <text x="252" y="410" text-anchor="middle" font-size="10" font-weight="600" fill="#1B7D3A">advisor_book_dv</text>
+  <rect x="330" y="397" width="155" height="18" rx="4" fill="#1B7D3A" fill-opacity="0.1" stroke="#1B7D3A" stroke-width="1"/>
+  <text x="407" y="410" text-anchor="middle" font-size="10" font-weight="600" fill="#1B7D3A">transaction_feed_dv</text>
+</svg>

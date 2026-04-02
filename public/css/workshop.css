@@ -608,6 +608,15 @@ h4 {
   margin-bottom: 0;
 }
 
+.intro-diagram-svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 16px auto;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+}
+
 .intro-diagram {
   background: var(--code-bg);
   color: var(--code-fg);

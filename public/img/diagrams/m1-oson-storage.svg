@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 200" font-family="Source Sans Pro, -apple-system, sans-serif">
+  <defs>
+    <marker id="arr1" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10" fill="#C74634"/></marker>
+  </defs>
+  <rect width="600" height="200" rx="8" fill="#F7F6F5"/>
+  <text x="300" y="24" text-anchor="middle" font-size="13" font-weight="700" fill="#312D2A">OSON: Oracle's Binary JSON Format</text>
+  <!-- App side -->
+  <rect x="20" y="55" width="140" height="70" rx="8" fill="#fff" stroke="#E5E2DF" stroke-width="1.5"/>
+  <text x="90" y="78" text-anchor="middle" font-size="11" font-weight="600" fill="#312D2A">Application</text>
+  <text x="90" y="95" text-anchor="middle" font-size="9" fill="#9B9590" font-family="Source Code Pro, monospace">{"name": "Emily",</text>
+  <text x="90" y="108" text-anchor="middle" font-size="9" fill="#9B9590" font-family="Source Code Pro, monospace"> "accounts": [...]}</text>
+  <!-- Arrow: INSERT -->
+  <line x1="162" y1="78" x2="225" y2="78" stroke="#C74634" stroke-width="2" marker-end="url(#arr1)"/>
+  <text x="193" y="72" text-anchor="middle" font-size="9" font-weight="600" fill="#C74634">INSERT</text>
+  <!-- Oracle side -->
+  <rect x="228" y="45" width="150" height="90" rx="8" fill="#312D2A"/>
+  <text x="303" y="68" text-anchor="middle" font-size="11" font-weight="700" fill="#fff">OSON Binary</text>
+  <text x="303" y="85" text-anchor="middle" font-size="9" fill="rgba(255,255,255,0.6)">Hash-indexed fields</text>
+  <text x="303" y="100" text-anchor="middle" font-size="9" fill="rgba(255,255,255,0.6)">O(1) field access</text>
+  <text x="303" y="120" text-anchor="middle" font-size="9" fill="#C74634">529x faster at pos 1000</text>
+  <!-- Arrow: SELECT -->
+  <line x1="380" y1="105" x2="438" y2="105" stroke="#C74634" stroke-width="2" marker-end="url(#arr1)"/>
+  <text x="409" y="99" text-anchor="middle" font-size="9" font-weight="600" fill="#C74634">SELECT</text>
+  <!-- Output -->
+  <rect x="440" y="55" width="140" height="70" rx="8" fill="#fff" stroke="#E5E2DF" stroke-width="1.5"/>
+  <text x="510" y="78" text-anchor="middle" font-size="11" font-weight="600" fill="#312D2A">json_serialize()</text>
+  <text x="510" y="95" text-anchor="middle" font-size="9" fill="#9B9590">PRETTY keyword</text>
+  <text x="510" y="108" text-anchor="middle" font-size="9" fill="#9B9590">Human-readable text</text>
+  <!-- Comparison -->
+  <rect x="130" y="155" width="160" height="28" rx="5" fill="#C74634" fill-opacity="0.08" stroke="#C74634" stroke-width="1"/>
+  <text x="210" y="174" text-anchor="middle" font-size="10" font-weight="600" fill="#C74634">OSON: O(1) hash lookup</text>
+  <rect x="310" y="155" width="160" height="28" rx="5" fill="#9B9590" fill-opacity="0.1" stroke="#9B9590" stroke-width="1"/>
+  <text x="390" y="174" text-anchor="middle" font-size="10" font-weight="600" fill="#9B9590">BSON: O(n) sequential</text>
+</svg>

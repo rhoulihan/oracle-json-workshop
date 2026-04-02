@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 280" font-family="Source Sans Pro, -apple-system, sans-serif">
+  <rect width="600" height="280" rx="8" fill="#F7F6F5"/>
+  <text x="300" y="28" text-anchor="middle" font-size="13" font-weight="700" fill="#312D2A">Five Access Paths — One Database</text>
+  <!-- Central database -->
+  <rect x="195" y="55" width="210" height="170" rx="10" fill="#312D2A"/>
+  <text x="300" y="82" text-anchor="middle" font-size="14" font-weight="700" fill="#fff">Oracle Database</text>
+  <text x="300" y="102" text-anchor="middle" font-size="10" fill="rgba(255,255,255,0.5)">Relational + JSON + Graph + Vector</text>
+  <text x="300" y="117" text-anchor="middle" font-size="10" fill="rgba(255,255,255,0.5)">Full-Text Search</text>
+  <line x1="215" y1="130" x2="385" y2="130" stroke="rgba(255,255,255,0.15)" stroke-width="1"/>
+  <text x="300" y="152" text-anchor="middle" font-size="11" font-weight="600" fill="#C74634">One Optimizer</text>
+  <text x="300" y="170" text-anchor="middle" font-size="11" font-weight="600" fill="#C74634">Full ACID</text>
+  <text x="300" y="188" text-anchor="middle" font-size="11" font-weight="600" fill="#C74634">Zero Sync Lag</text>
+  <text x="300" y="210" text-anchor="middle" font-size="10" fill="rgba(255,255,255,0.4)">40 years of query optimization</text>
+  <!-- Left arrows -->
+  <rect x="20" y="70" width="100" height="30" rx="5" fill="#C74634"/>
+  <text x="70" y="90" text-anchor="middle" font-size="11" font-weight="600" fill="#fff">SQL</text>
+  <line x1="120" y1="85" x2="193" y2="100" stroke="#C74634" stroke-width="2"/>
+  <rect x="20" y="115" width="100" height="30" rx="5" fill="#C74634"/>
+  <text x="70" y="135" text-anchor="middle" font-size="11" font-weight="600" fill="#fff">REST / ORDS</text>
+  <line x1="120" y1="130" x2="193" y2="140" stroke="#C74634" stroke-width="2"/>
+  <rect x="20" y="160" width="100" height="30" rx="5" fill="#C74634"/>
+  <text x="70" y="180" text-anchor="middle" font-size="11" font-weight="600" fill="#fff">Document API</text>
+  <line x1="120" y1="175" x2="193" y2="170" stroke="#C74634" stroke-width="2"/>
+  <!-- Right arrows -->
+  <rect x="480" y="80" width="100" height="30" rx="5" fill="#C74634"/>
+  <text x="530" y="100" text-anchor="middle" font-size="10" font-weight="600" fill="#fff">MongoDB Wire</text>
+  <line x1="480" y1="95" x2="407" y2="110" stroke="#C74634" stroke-width="2"/>
+  <rect x="480" y="135" width="100" height="30" rx="5" fill="#C74634"/>
+  <text x="530" y="155" text-anchor="middle" font-size="10" font-weight="600" fill="#fff">node-oracledb</text>
+  <line x1="480" y1="150" x2="407" y2="150" stroke="#C74634" stroke-width="2"/>
+  <!-- Bottom tagline -->
+  <text x="300" y="258" text-anchor="middle" font-size="12" font-weight="600" fill="#312D2A">5 protocols. 1 database. Same ACID guarantees.</text>
+</svg>

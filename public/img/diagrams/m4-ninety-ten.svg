@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 230" font-family="Source Sans Pro, -apple-system, sans-serif">
+  <rect width="560" height="230" rx="8" fill="#F7F6F5"/>
+  <text x="280" y="24" text-anchor="middle" font-size="13" font-weight="700" fill="#312D2A">The 90/10 Problem</text>
+  <!-- 90% side -->
+  <rect x="20" y="45" width="240" height="130" rx="8" fill="#1B7D3A" fill-opacity="0.06" stroke="#1B7D3A" stroke-width="1.5"/>
+  <text x="140" y="66" text-anchor="middle" font-size="14" font-weight="700" fill="#1B7D3A">90%</text>
+  <text x="140" y="82" text-anchor="middle" font-size="10" font-weight="600" fill="#1B7D3A">Document queries work great</text>
+  <text x="44" y="102" font-size="10" fill="#312D2A">GET /client/3</text>
+  <text x="200" y="102" font-size="9" fill="#1B7D3A">&#10003; key lookup</text>
+  <text x="44" y="118" font-size="10" fill="#312D2A">GET /portfolio</text>
+  <text x="200" y="118" font-size="9" fill="#1B7D3A">&#10003; nested doc</text>
+  <text x="44" y="134" font-size="10" fill="#312D2A">GET /interaction</text>
+  <text x="200" y="134" font-size="9" fill="#1B7D3A">&#10003; single trip</text>
+  <text x="140" y="163" text-anchor="middle" font-size="9" fill="#9B9590">Simple. Fast. Done.</text>
+  <!-- 10% side -->
+  <rect x="300" y="45" width="240" height="130" rx="8" fill="#C74634" fill-opacity="0.06" stroke="#C74634" stroke-width="1.5"/>
+  <text x="420" y="66" text-anchor="middle" font-size="14" font-weight="700" fill="#C74634">10%</text>
+  <text x="420" y="82" text-anchor="middle" font-size="10" font-weight="600" fill="#C74634">Desperately need JOINs</text>
+  <text x="318" y="102" font-size="10" fill="#312D2A">"Top clients by value"</text>
+  <text x="494" y="102" font-size="9" fill="#C74634">&#10007; N+1 queries</text>
+  <text x="318" y="118" font-size="10" fill="#312D2A">"Cross-advisor report"</text>
+  <text x="494" y="118" font-size="9" fill="#C74634">&#10007; full scan</text>
+  <text x="318" y="134" font-size="10" fill="#312D2A">"Compliance audit"</text>
+  <text x="494" y="134" font-size="9" fill="#C74634">&#10007; app-side join</text>
+  <text x="420" y="163" text-anchor="middle" font-size="9" fill="#9B9590">Aggregation pipeline hell.</text>
+  <!-- Solution bar -->
+  <rect x="80" y="190" width="400" height="30" rx="6" fill="#312D2A"/>
+  <text x="280" y="210" text-anchor="middle" font-size="11" font-weight="600" fill="#fff">Oracle: Both in one query. One optimizer. One transaction.</text>
+</svg>

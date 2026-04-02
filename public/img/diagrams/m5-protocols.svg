@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 240" font-family="Source Sans Pro, -apple-system, sans-serif">
+  <defs>
+    <marker id="arr5" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10" fill="#C74634"/></marker>
+  </defs>
+  <rect width="520" height="240" rx="8" fill="#F7F6F5"/>
+  <text x="260" y="24" text-anchor="middle" font-size="13" font-weight="700" fill="#312D2A">Protocol Convergence</text>
+  <!-- Protocols on left -->
+  <rect x="20" y="50" width="140" height="32" rx="6" fill="#C74634"/>
+  <text x="90" y="71" text-anchor="middle" font-size="11" font-weight="600" fill="#fff">mongosh</text>
+  <rect x="20" y="92" width="140" height="32" rx="6" fill="#C74634"/>
+  <text x="90" y="113" text-anchor="middle" font-size="11" font-weight="600" fill="#fff">SQL</text>
+  <rect x="20" y="134" width="140" height="32" rx="6" fill="#C74634"/>
+  <text x="90" y="155" text-anchor="middle" font-size="11" font-weight="600" fill="#fff">node-oracledb</text>
+  <rect x="20" y="176" width="140" height="32" rx="6" fill="#C74634"/>
+  <text x="90" y="197" text-anchor="middle" font-size="11" font-weight="600" fill="#fff">REST / ORDS</text>
+  <!-- Arrows -->
+  <line x1="162" y1="66" x2="258" y2="110" stroke="#C74634" stroke-width="2" marker-end="url(#arr5)"/>
+  <line x1="162" y1="108" x2="258" y2="125" stroke="#C74634" stroke-width="2" marker-end="url(#arr5)"/>
+  <line x1="162" y1="150" x2="258" y2="140" stroke="#C74634" stroke-width="2" marker-end="url(#arr5)"/>
+  <line x1="162" y1="192" x2="258" y2="155" stroke="#C74634" stroke-width="2" marker-end="url(#arr5)"/>
+  <!-- Central database -->
+  <rect x="260" y="55" width="240" height="155" rx="10" fill="#312D2A"/>
+  <text x="380" y="85" text-anchor="middle" font-size="14" font-weight="700" fill="#fff">Oracle Database</text>
+  <line x1="280" y1="96" x2="480" y2="96" stroke="rgba(255,255,255,0.15)" stroke-width="1"/>
+  <text x="380" y="118" text-anchor="middle" font-size="10" fill="rgba(255,255,255,0.6)">Same tables</text>
+  <text x="380" y="136" text-anchor="middle" font-size="10" fill="rgba(255,255,255,0.6)">Same indexes</text>
+  <text x="380" y="154" text-anchor="middle" font-size="10" fill="rgba(255,255,255,0.6)">Same optimizer</text>
+  <text x="380" y="172" text-anchor="middle" font-size="10" fill="rgba(255,255,255,0.6)">Same ACID</text>
+  <text x="380" y="198" text-anchor="middle" font-size="11" font-weight="600" fill="#C74634">Zero sync lag</text>
+  <!-- Bottom -->
+  <text x="260" y="232" text-anchor="middle" font-size="11" font-weight="600" fill="#312D2A">4 protocols, 1 database, immediate consistency</text>
+</svg>
