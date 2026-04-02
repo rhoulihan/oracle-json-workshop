@@ -608,6 +608,19 @@ h4 {
   margin-bottom: 0;
 }
 
+.intro-diagram {
+  background: var(--code-bg);
+  color: var(--code-fg);
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  line-height: 1.4;
+  padding: 16px;
+  border-radius: var(--radius);
+  margin: 12px 0;
+  overflow-x: auto;
+  white-space: pre;
+}
+
 .lab-checkpoint {
   background: var(--red-light);
   border-left: 3px solid var(--red);

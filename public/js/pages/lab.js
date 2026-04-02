@@ -129,10 +129,16 @@ async function init() {
   if (mod.introduction) {
     const intro = document.createElement('div');
     intro.className = 'lab-introduction';
+    // Render paragraphs and [diagram]...[/diagram] blocks
     intro.innerHTML = mod.introduction
+      .replace(/\[diagram\]([\s\S]*?)\[\/diagram\]/g, '</p><pre class="intro-diagram">$1</pre><p>')
       .split('\n\n')
-      .map((p) => `<p>${p}</p>`)
+      .map((p) => {
+        if (p.includes('<pre class="intro-diagram">')) return p;
+        return `<p>${p}</p>`;
+      })
       .join('');
+    intro.id = 'lab-introduction';
     content.appendChild(intro);
   }
 
@@ -146,6 +152,10 @@ async function init() {
       content.appendChild(cp);
     }
   } else {
+    // Hide introduction when exercises are shown
+    const introEl = document.getElementById('lab-introduction');
+    if (introEl) introEl.style.display = 'none';
+
     // Exercise tab bar
     const exerciseTabBar = document.createElement('div');
     exerciseTabBar.className = 'exercise-tab-bar';
