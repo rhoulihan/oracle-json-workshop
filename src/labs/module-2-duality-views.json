@@ -28,7 +28,8 @@
         }
       ],
       "validationQuery": "SELECT COUNT(*) AS cnt FROM client_portfolio_dv WHERE json_value(data, '$._id' RETURNING NUMBER) = 3",
-      "expectedResultPattern": "rowCount:1"
+      "expectedResultPattern": "rowCount:1",
+      "checkpoint": "You just read the same relational data as three different JSON document shapes — client portfolio, advisor book, transaction feed. No ETL. No sync. No copies. One truth, many shapes."
     },
     {
       "id": "2.2",
@@ -38,7 +39,8 @@
       "codeType": "sql",
       "code": "-- The SAME data, accessed relationally\nSELECT c.first_name, c.last_name, c.risk_profile,\n       a.account_type, a.account_name,\n       h.symbol, h.quantity, h.market_value\nFROM clients c\nJOIN accounts a ON a.client_id = c.client_id\nJOIN holdings h ON h.account_id = a.account_id\nWHERE c.client_id = 3\nORDER BY a.account_type, h.market_value DESC;",
       "validationQuery": "SELECT COUNT(*) AS cnt FROM clients c JOIN accounts a ON a.client_id = c.client_id JOIN holdings h ON h.account_id = a.account_id WHERE c.client_id = 3",
-      "expectedResultPattern": "rowCount:>0"
+      "expectedResultPattern": "rowCount:>0",
+      "checkpoint": "You just accessed the exact same data through SQL JOINs. Same rows, same values, different shape. That's duality — document and relational are complementary, not competing."
     },
     {
       "id": "2.3",
@@ -58,7 +60,8 @@
         }
       ],
       "validationQuery": "SELECT COUNT(*) AS cnt FROM clients WHERE email = 'sarah.chen@example.com'",
-      "expectedResultPattern": "rowCount:1"
+      "expectedResultPattern": "rowCount:1",
+      "checkpoint": "You just inserted one JSON document and Oracle populated three relational tables — clients, accounts, holdings. Full referential integrity. One transaction."
     },
     {
       "id": "2.4",
@@ -78,7 +81,8 @@
         }
       ],
       "validationQuery": "SELECT h.market_value AS mv FROM holdings h JOIN accounts a ON h.account_id = a.account_id JOIN clients c ON a.client_id = c.client_id WHERE c.email = 'sarah.chen@example.com' AND h.symbol = 'NVDA'",
-      "expectedResultPattern": "exact:{\"MV\":135000}"
+      "expectedResultPattern": "exact:{\"MV\":135000}",
+      "checkpoint": "You just updated a relational column by modifying a JSON document path through a duality view. The database traced the path back to the holdings table automatically."
     },
     {
       "id": "2.5",
@@ -98,7 +102,8 @@
         }
       ],
       "validationQuery": "SELECT COUNT(*) AS cnt FROM clients WHERE email = 'sarah.chen@example.com'",
-      "expectedResultPattern": "rowCount:1"
+      "expectedResultPattern": "rowCount:1",
+      "checkpoint": "You just deleted a client document and Oracle cascaded the cleanup across all related relational tables. No orphaned records. No dangling references."
     },
     {
       "id": "2.6",
@@ -122,7 +127,8 @@
         }
       ],
       "validationQuery": "SELECT COUNT(*) AS cnt FROM user_json_duality_view_tabs WHERE view_name = 'CLIENT_PORTFOLIO_DV'",
-      "expectedResultPattern": "rowCount:>0"
+      "expectedResultPattern": "rowCount:>0",
+      "checkpoint": "You just inspected the metadata that maps document fields to relational columns. Full transparency into how canonical form becomes projected shape."
     },
     {
       "id": "2.7",
@@ -132,7 +138,8 @@
       "codeType": "sql",
       "code": "-- Create a \"holdings summary\" duality view\n-- Expected shape: { _id, symbol, quantity, marketValue, accountName, clientName }\n\nCREATE OR REPLACE JSON RELATIONAL DUALITY VIEW my_holdings_dv AS\nSELECT JSON {\n    '_id'         : h.holding_id,\n    'symbol'      : h.symbol,\n    'quantity'    : h.quantity,\n    'costBasis'   : h.cost_basis,\n    'marketValue' : h.market_value,\n    UNNEST(\n        SELECT JSON {\n            'accountName' : a.account_name,\n            'accountType' : a.account_type,\n            UNNEST(\n                SELECT JSON {\n                    'clientName' : c.first_name || ' ' || c.last_name,\n                    'riskProfile': c.risk_profile\n                }\n                FROM clients c WITH NOCHECK\n                WHERE c.client_id = a.client_id\n            )\n        }\n        FROM accounts a WITH NOCHECK\n        WHERE a.account_id = h.account_id\n    )\n}\nFROM holdings h WITH UPDATE;",
       "validationQuery": "SELECT COUNT(*) AS cnt FROM user_json_duality_views WHERE view_name = 'MY_HOLDINGS_DV'",
-      "expectedResultPattern": "rowCount:1"
+      "expectedResultPattern": "rowCount:1",
+      "checkpoint": "You just created your own duality view using UNNEST to flatten nested relationships. WITH NOCHECK for read-only joins, WITH UPDATE for writable tables. Model the domain. Project the access."
     }
   ]
 }

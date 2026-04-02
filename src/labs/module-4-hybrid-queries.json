@@ -24,7 +24,8 @@
         }
       ],
       "validationQuery": "SELECT COUNT(*) AS cnt FROM advisors WHERE advisor_id = 5",
-      "expectedResultPattern": "rowCount:1"
+      "expectedResultPattern": "rowCount:1",
+      "checkpoint": "You just built an advisor dashboard using relational JOINs projected as JSON with JSON_ARRAYAGG. The cost-based optimizer handled the heavy lifting — B-tree scans, hash joins, sort-merge aggregation."
     },
     {
       "id": "4.2",
@@ -34,7 +35,8 @@
       "codeType": "sql",
       "code": "-- Shred interaction action items into relational rows for reporting\nSELECT ci.data.client_id.number() AS client_id,\n       ci.data.type.string() AS interaction_type,\n       ci.data.date.string() AS interaction_date,\n       jt.task,\n       jt.due_date,\n       jt.status\nFROM client_interactions ci,\nJSON_TABLE(ci.data, '$.action_items[*]'\n    COLUMNS (\n        task     VARCHAR2(200) PATH '$.task',\n        due_date VARCHAR2(20)  PATH '$.due',\n        status   VARCHAR2(20)  PATH '$.status'\n    )\n) jt\nWHERE jt.status = 'pending'\nORDER BY jt.due_date;",
       "validationQuery": "SELECT COUNT(*) AS cnt FROM client_interactions ci, JSON_TABLE(ci.data, '$.action_items[*]' COLUMNS (status VARCHAR2(20) PATH '$.status')) jt WHERE jt.status = 'pending'",
-      "expectedResultPattern": "rowCount:>0"
+      "expectedResultPattern": "rowCount:>0",
+      "checkpoint": "You just shredded JSON arrays into relational rows with JSON_TABLE. Once shredded, you filtered and sorted with standard SQL — WHERE, ORDER BY, the works."
     },
     {
       "id": "4.3",
@@ -54,7 +56,8 @@
         }
       ],
       "validationQuery": "SELECT COUNT(*) AS cnt FROM client_interactions WHERE data.client_id.number() = 3",
-      "expectedResultPattern": "rowCount:>0"
+      "expectedResultPattern": "rowCount:>0",
+      "checkpoint": "You just projected documents using KEEP and REMOVE — server-side, single-pass, no read-modify-write. Oracle operates directly on the binary OSON representation."
     },
     {
       "id": "4.4",
@@ -64,7 +67,8 @@
       "codeType": "sql",
       "code": "-- Join the JSON collection with relational tables\n-- \"Show me all interactions for clients with aggressive risk profiles\"\nSELECT c.first_name || ' ' || c.last_name AS client_name,\n       c.risk_profile,\n       ci.data.type.string() AS interaction_type,\n       ci.data.date.string() AS interaction_date,\n       ci.data.summary.string() AS summary\nFROM client_interactions ci\nJOIN clients c ON c.client_id = ci.data.client_id.number()\nWHERE c.risk_profile = 'aggressive'\nORDER BY ci.data.date.string() DESC;",
       "validationQuery": "SELECT COUNT(*) AS cnt FROM client_interactions ci JOIN clients c ON c.client_id = ci.data.client_id.number() WHERE c.risk_profile = 'aggressive'",
-      "expectedResultPattern": "rowCount:>0"
+      "expectedResultPattern": "rowCount:>0",
+      "checkpoint": "You just joined a JSON collection with a relational table in one query. The cost-based optimizer treated them as peers — choosing the optimal join strategy from statistics on both sides."
     }
   ]
 }

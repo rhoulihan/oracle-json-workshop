@@ -141,6 +141,7 @@ export function renderExercise(exercise, isComplete) {
       </div>
       <div class="exercise-result"></div>
     </div>
+    ${exercise.checkpoint ? `<div class="exercise-checkpoint" style="display:none;">${escapeHtml(exercise.checkpoint)}</div>` : ''}
   `;
 
   // Store steps data on the element for the event handler

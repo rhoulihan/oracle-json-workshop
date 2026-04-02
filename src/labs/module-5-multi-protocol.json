@@ -36,7 +36,8 @@
         }
       ],
       "validationQuery": "SELECT COUNT(*) AS cnt FROM client_interactions ci WHERE ci.data.client_id.number() = 3",
-      "expectedResultPattern": "rowCount:>0"
+      "expectedResultPattern": "rowCount:>0",
+      "checkpoint": "You just accessed Oracle through the MongoDB wire protocol. A MongoDB application can connect to Oracle without changing a single line of driver code. Same data, same ACID guarantees."
     },
     {
       "id": "5.2",
@@ -60,7 +61,8 @@
         }
       ],
       "validationQuery": "SELECT COUNT(*) AS cnt FROM client_portfolio_dv WHERE json_value(data, '$._id' RETURNING NUMBER) = 3",
-      "expectedResultPattern": "rowCount:1"
+      "expectedResultPattern": "rowCount:1",
+      "checkpoint": "You just used three distinct JavaScript access patterns — SQL on duality views, JSON type binding, and SODA API — all hitting the same data, same indexes, same optimizer."
     }
   ]
 }

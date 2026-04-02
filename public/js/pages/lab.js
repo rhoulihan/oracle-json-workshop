@@ -212,7 +212,15 @@ async function init() {
 
   function markExerciseRun(exerciseId) {
     exercisesRun.add(exerciseId);
-    // Show checkpoint if ALL exercises have been run
+
+    // Show per-exercise checkpoint
+    const exerciseEl = content.querySelector(`.exercise[data-exercise-id="${exerciseId}"]`);
+    if (exerciseEl) {
+      const cp = exerciseEl.querySelector('.exercise-checkpoint');
+      if (cp) cp.style.display = '';
+    }
+
+    // Show module checkpoint if ALL exercises have been run
     if (exercisesRun.size === mod.exercises.length) {
       const checkpoint = document.getElementById('module-checkpoint');
       if (checkpoint) checkpoint.style.display = '';

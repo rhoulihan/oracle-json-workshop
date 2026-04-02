@@ -28,7 +28,8 @@
         }
       ],
       "validationQuery": "SELECT COUNT(DISTINCT data.entityType.string()) AS type_count FROM advisory_entities",
-      "expectedResultPattern": "rowCount:>0"
+      "expectedResultPattern": "rowCount:>0",
+      "checkpoint": "You just queried a single-table collection using partition key and sort key prefix patterns — the same access pattern that powered Amazon's retail operation. One query, multiple entity types."
     },
     {
       "id": "3.2",
@@ -52,7 +53,8 @@
         }
       ],
       "validationQuery": "SELECT COUNT(*) AS cnt FROM user_indexes WHERE index_name IN ('IDX_PK_SK', 'IDX_GSI1')",
-      "expectedResultPattern": "rowCount:>0"
+      "expectedResultPattern": "rowCount:>0",
+      "checkpoint": "You just created functional indexes on JSON paths — the Oracle equivalent of DynamoDB GSIs, but backed by real B-trees with zero replication lag."
     },
     {
       "id": "3.3",
@@ -80,7 +82,8 @@
         }
       ],
       "validationQuery": "SELECT COUNT(*) AS cnt FROM user_indexes WHERE index_name IN ('IDX_TAGS', 'IDX_SECTORS')",
-      "expectedResultPattern": "rowCount:>0"
+      "expectedResultPattern": "rowCount:>0",
+      "checkpoint": "You just indexed into JSON arrays with MULTIVALUE INDEX and queried across two array fields in one WHERE clause. On MongoDB, this compound index would fail — parallel arrays prohibition. On Oracle, it's standard B-tree semantics."
     },
     {
       "id": "3.4",
@@ -100,7 +103,8 @@
         }
       ],
       "validationQuery": "SELECT COUNT(*) AS cnt FROM (SELECT jt.tag FROM advisory_entities ae, JSON_TABLE(ae.data, '$.data.tags[*]' COLUMNS (tag VARCHAR2(50) PATH '$')) jt WHERE ae.data.entityType.string() = 'holding' GROUP BY jt.tag)",
-      "expectedResultPattern": "rowCount:>0"
+      "expectedResultPattern": "rowCount:>0",
+      "checkpoint": "You just ran SQL aggregations across entity types using JSON_TABLE and window functions — queries that single-table design on DynamoDB could never support."
     },
     {
       "id": "3.5",
@@ -110,7 +114,8 @@
       "codeType": "sql",
       "code": "-- Query: Find clients whose holdings include \"dividend\" tagged securities\n-- using the multi-value index on the single-table collection,\n-- then join to the relational model for the full client document\nSELECT json_serialize(cp.data PRETTY) AS client_portfolio\nFROM advisory_entities ae\nJOIN clients c ON c.client_id = TO_NUMBER(\n    REPLACE(ae.data.pk.string(), 'ACCOUNT#', '')\n)\nJOIN client_portfolio_dv cp ON cp.json_value(data, '$._id' RETURNING NUMBER) = c.client_id\nWHERE JSON_EXISTS(ae.data, '$.data.tags?(@ == \"dividend\")')\n  AND ae.data.entityType.string() = 'holding';",
       "validationQuery": "SELECT COUNT(*) AS cnt FROM advisory_entities ae WHERE JSON_EXISTS(ae.data, '$.data.tags?(@ == \"dividend\")') AND ae.data.entityType.string() = 'holding'",
-      "expectedResultPattern": "rowCount:>0"
+      "expectedResultPattern": "rowCount:>0",
+      "checkpoint": "You just combined multi-value index lookup, SQL JOIN, and duality view projection in a single query. Three paradigms. One optimizer. One round trip."
     }
   ]
 }

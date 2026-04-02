@@ -24,7 +24,8 @@
         }
       ],
       "validationQuery": "SELECT COUNT(*) AS cnt FROM client_interactions",
-      "expectedResultPattern": "rowCount:>0"
+      "expectedResultPattern": "rowCount:>0",
+      "checkpoint": "You just queried JSON documents with SQL and formatted them with JSON_SERIALIZE. Oracle stored those documents in OSON binary format — hash-indexed, O(1) field access. No schema definition required."
     },
     {
       "id": "1.2",
@@ -44,7 +45,8 @@
         }
       ],
       "validationQuery": "SELECT COUNT(*) AS cnt FROM client_interactions ci WHERE ci.data.type.string() = 'meeting' AND ci.data.follow_up_required.boolean() = TRUE",
-      "expectedResultPattern": "rowCount:>0"
+      "expectedResultPattern": "rowCount:>0",
+      "checkpoint": "You just filtered documents using Oracle's type-safe dot notation — .string(), .number(), .boolean(). No schema definition. No upfront DDL. The database resolved paths at query time."
     },
     {
       "id": "1.3",
@@ -64,7 +66,8 @@
         }
       ],
       "validationQuery": "SELECT COUNT(*) AS cnt FROM client_interactions ci WHERE ci.data.type.string() = 'email' AND ci.data.client_id.number() = 3",
-      "expectedResultPattern": "rowCount:>0"
+      "expectedResultPattern": "rowCount:>0",
+      "checkpoint": "You just inserted a JSON document using the JSON() constructor. Oracle converted it to OSON binary on write. One INSERT, one table, zero schema changes."
     },
     {
       "id": "1.4",
@@ -84,7 +87,8 @@
         }
       ],
       "validationQuery": "SELECT COUNT(*) AS cnt FROM client_interactions ci WHERE ci.data.client_id.number() = 3 AND ci.data.type.string() = 'meeting' AND JSON_EXISTS(ci.data, '$.action_items[*]?(@.task == \"Schedule Q2 review\")')",
-      "expectedResultPattern": "rowCount:>0"
+      "expectedResultPattern": "rowCount:>0",
+      "checkpoint": "You just modified documents in place with JSON_TRANSFORM — APPEND to add array elements, SET to change values. Server-side, atomic, no read-modify-write cycle."
     },
     {
       "id": "1.5",
@@ -104,7 +108,8 @@
         }
       ],
       "validationQuery": "SELECT COUNT(*) AS cnt FROM user_indexes WHERE index_name = 'IDX_INTERACTIONS_SEARCH'",
-      "expectedResultPattern": "rowCount:>0"
+      "expectedResultPattern": "rowCount:>0",
+      "checkpoint": "You just built a full-text search index on JSON documents and queried it with JSON_TEXTCONTAINS. Transactionally consistent — unlike MongoDB Atlas Search's 1-15 second eventual consistency lag."
     },
     {
       "id": "1.6",
@@ -124,7 +129,8 @@
         }
       ],
       "validationQuery": "SELECT COUNT(DISTINCT ci.data.type.string()) AS type_count FROM client_interactions ci",
-      "expectedResultPattern": "rowCount:>0"
+      "expectedResultPattern": "rowCount:>0",
+      "checkpoint": "You just ran SQL aggregations — GROUP BY, COUNT, AVG — directly on JSON documents. Same optimizer that's been optimizing relational queries for 40 years. Documents and SQL are not competing paradigms."
     }
   ]
 }
