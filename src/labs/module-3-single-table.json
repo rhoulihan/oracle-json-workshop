@@ -27,7 +27,7 @@
           "code": "SELECT data.data.firstName.string() || ' ' || data.data.lastName.string() AS client_name,\n       data.data.riskProfile.string() AS risk_profile,\n       data.data.totalValue.number() AS total_value\nFROM advisory_entities\nWHERE data.pk.string() = 'ADVISOR#5'\n  AND data.sk.string() LIKE 'CLIENT#%'\nORDER BY data.data.totalValue.number() DESC;"
         }
       ],
-      "validationQuery": "SELECT COUNT(DISTINCT data.entityType.string()) AS type_count FROM advisory_entities",
+      "validationQuery": "SELECT COUNT(*) AS cnt FROM advisory_entities WHERE json_value(data, '$.entityType') IS NOT NULL",
       "expectedResultPattern": "rowCount:>0",
       "checkpoint": "You just queried a single-table collection using partition key and sort key prefix patterns — the same access pattern that powered Amazon's retail operation. One query, multiple entity types."
     },

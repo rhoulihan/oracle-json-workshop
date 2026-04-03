@@ -55,7 +55,7 @@
           "code": "SELECT json_serialize(\n    json_transform(data, REMOVE '$.action_items', REMOVE '$.follow_up_required')\n    PRETTY\n) AS public_summary\nFROM client_interactions\nWHERE data.client_id.number() = 3;"
         }
       ],
-      "validationQuery": "SELECT COUNT(*) AS cnt FROM client_interactions WHERE data.client_id.number() = 3",
+      "validationQuery": "SELECT COUNT(*) AS cnt FROM client_interactions ci WHERE ci.data.client_id.number() = 3",
       "expectedResultPattern": "rowCount:>0",
       "checkpoint": "You just projected documents using KEEP and REMOVE — server-side, single-pass, no read-modify-write. Oracle operates directly on the binary OSON representation."
     },
