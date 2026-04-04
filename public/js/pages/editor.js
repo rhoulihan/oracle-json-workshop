@@ -35,7 +35,25 @@ export function renderResult(result) {
     const docs = rows.map((r) => r.DATA || r);
     wrapper.appendChild(renderJson(docs.length === 1 ? docs[0] : docs));
   } else if (result.resultType === 'tabular') {
-    wrapper.appendChild(renderTable(result.columns || [], result.rows || []));
+    const cols = result.columns || [];
+    const rows = result.rows || [];
+    if (cols.length === 1 && rows.length > 0) {
+      const firstVal = rows[0][cols[0]];
+      if (typeof firstVal === 'string' && firstVal.trimStart().startsWith('{')) {
+        const container = document.createElement('div');
+        for (const row of rows) {
+          const pre = document.createElement('pre');
+          pre.className = 'json-result';
+          pre.textContent = row[cols[0]];
+          container.appendChild(pre);
+        }
+        wrapper.appendChild(container);
+      } else {
+        wrapper.appendChild(renderTable(cols, rows));
+      }
+    } else {
+      wrapper.appendChild(renderTable(cols, rows));
+    }
   } else if (result.output !== undefined) {
     // JS executor result
     wrapper.appendChild(renderJson(result.output));
