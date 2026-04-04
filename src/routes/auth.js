@@ -78,10 +78,16 @@ export function createAuthRouter({ workspaceService, getConnectionAs }) {
 
     const { schemaName } = req.session.user;
     try {
+      // Save progress before teardown (drop_workspace deletes the workshop_users row)
+      const savedProgress = await workspaceService.getProgress(schemaName);
       // Tear down existing schema
       await workspaceService.teardown(schemaName);
       // Recreate with same schema name
       const { password } = await workspaceService.createWithName(schemaName);
+      // Restore progress
+      if (savedProgress && Object.keys(savedProgress).length > 0) {
+        await workspaceService.setProgress(schemaName, savedProgress);
+      }
       // Update session with new password
       req.session.user = { schemaName, password };
       res.json({ ok: true, schemaName });

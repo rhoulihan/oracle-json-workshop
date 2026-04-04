@@ -84,6 +84,36 @@ export class WorkspaceService {
     }
   }
 
+  async getProgress(schemaName) {
+    const conn = await this.#pool.getConnection();
+    try {
+      const result = await conn.execute(
+        `SELECT progress FROM workshop_users WHERE schema_name = :sn`,
+        { sn: schemaName.toUpperCase() },
+        { outFormat: oracledb.OUT_FORMAT_OBJECT },
+      );
+      if (!result.rows || result.rows.length === 0) return {};
+      const raw = result.rows[0].PROGRESS;
+      if (!raw) return {};
+      return typeof raw === 'string' ? JSON.parse(raw) : raw;
+    } finally {
+      await conn.close();
+    }
+  }
+
+  async setProgress(schemaName, progress) {
+    const conn = await this.#pool.getConnection();
+    try {
+      await conn.execute(`UPDATE workshop_users SET progress = :progress WHERE schema_name = :sn`, {
+        progress: JSON.stringify(progress),
+        sn: schemaName.toUpperCase(),
+      });
+      await conn.commit();
+    } finally {
+      await conn.close();
+    }
+  }
+
   async teardown(schemaName) {
     const conn = await this.#pool.getConnection();
     try {
