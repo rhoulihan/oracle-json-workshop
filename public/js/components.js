@@ -7,6 +7,15 @@
  * @param {string|null} schemaName - Current user's schema, or null if not logged in
  * @returns {HTMLElement}
  */
+function labReturnUrl() {
+  const pos = sessionStorage.getItem('labPosition');
+  if (pos) {
+    const [mod, ex] = pos.split(':');
+    return `/lab.html?module=${mod}&exercise=${ex}&preserveData`;
+  }
+  return '/lab.html?module=module-1';
+}
+
 export function renderHeader(schemaName) {
   const header = document.createElement('header');
   header.className = 'site-header';
@@ -18,7 +27,7 @@ export function renderHeader(schemaName) {
         <span class="header-title">JSON Workshop</span>
       </a>
       <nav class="header-nav">
-        ${schemaName ? `<a href="/dashboard.html">Dashboard</a><a href="/lab.html?module=module-1">Labs</a><a href="/editor.html">Editor</a>` : ''}
+        ${schemaName ? `<a href="/dashboard.html">Dashboard</a><a href="${labReturnUrl()}" class="labs-link">Labs</a><a href="/editor.html">Editor</a>` : ''}
       </nav>
       <div class="header-user">
         ${schemaName ? `<span class="schema-badge">${schemaName}</span><a href="#" class="logout-link">Logout</a>` : ''}

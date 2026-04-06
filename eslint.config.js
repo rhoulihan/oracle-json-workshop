@@ -34,6 +34,7 @@ export default [
         fetch: 'readonly',
         navigator: 'readonly',
         localStorage: 'readonly',
+        sessionStorage: 'readonly',
         HTMLElement: 'readonly',
         Event: 'readonly',
         location: 'readonly',

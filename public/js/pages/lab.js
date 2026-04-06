@@ -70,6 +70,11 @@ async function init() {
     return;
   }
 
+  // Default lab position for "Labs" nav link
+  if (!params.has('exercise')) {
+    sessionStorage.setItem('labPosition', `${moduleId}:0`);
+  }
+
   // Reset workspace to fresh state unless preserveData is set
   if (!preserveData) {
     const labContent = document.getElementById('lab-content');
@@ -198,7 +203,18 @@ async function init() {
       panelsContainer.querySelectorAll('.exercise').forEach((p) => {
         p.style.display = p.dataset.panelIndex === idx ? '' : 'none';
       });
+      // Remember position for "Labs" nav link
+      sessionStorage.setItem('labPosition', `${moduleId}:${idx}`);
     });
+
+    // Restore exercise tab from URL param or sessionStorage
+    const requestedEx = params.get('exercise');
+    if (requestedEx) {
+      const tab = exerciseTabBar.querySelector(
+        `.exercise-tab[data-exercise-index="${requestedEx}"]`,
+      );
+      if (tab) tab.click();
+    }
   }
 
   // Checkpoint — hidden until all exercises complete
