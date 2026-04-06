@@ -217,13 +217,21 @@ async function init() {
 
       // Restore Learn sub-tab if requested
       const subtab = params.get('subtab');
-      if (subtab === 'learn') {
+      if (subtab === 'learn' || subtab === 'trythis') {
         const exerciseEl = panelsContainer.querySelector(
           `.exercise[data-panel-index="${requestedEx}"]`,
         );
         if (exerciseEl) {
           const learnBtn = exerciseEl.querySelector('.ex-tab[data-tab="learn"]');
           if (learnBtn) learnBtn.click();
+          // Show Try-this section and scroll to it
+          if (subtab === 'trythis') {
+            const tryThis = exerciseEl.querySelector('.try-this-section');
+            if (tryThis) {
+              tryThis.style.display = '';
+              setTimeout(() => tryThis.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+            }
+          }
         }
       }
     }
@@ -474,10 +482,10 @@ async function init() {
     if (e.target.classList.contains('btn-editor')) {
       const code = decodeURIComponent(e.target.dataset.code);
       const tab = e.target.dataset.tab || 'sql';
-      // Remember that we were on the Learn tab
+      // Remember that we were viewing Try-this examples
       const exerciseEl = e.target.closest('.exercise');
       const idx = exerciseEl?.dataset.panelIndex || '0';
-      sessionStorage.setItem('labPosition', `${moduleId}:${idx}:learn`);
+      sessionStorage.setItem('labPosition', `${moduleId}:${idx}:trythis`);
       window.open(`/editor.html?code=${encodeURIComponent(code)}&tab=${tab}`, '_blank');
       return;
     }
