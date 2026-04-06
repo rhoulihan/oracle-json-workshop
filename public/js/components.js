@@ -153,8 +153,21 @@ export function renderExercise(exercise, isComplete) {
 }
 
 function formatExplanation(text) {
-  // Simple markdown-lite: **bold**, line breaks
+  const sqlPattern = /^(SELECT|INSERT|UPDATE|DELETE|CREATE|WITH|ALTER)\b/i;
+  const mongoPattern = /^(db\.|show )/i;
+
   return text
+    .replace(/`([^`]+)`/g, (_match, code) => {
+      const safe = escapeHtml(code);
+      const encoded = encodeURIComponent(code);
+      if (sqlPattern.test(code)) {
+        return `<code class="explain-code explain-sql">${safe}</code><button class="btn-editor" data-code="${encoded}" data-tab="sql">\u2192 Editor</button>`;
+      }
+      if (mongoPattern.test(code)) {
+        return `<code class="explain-code explain-mongo">${safe}</code><button class="btn-editor" data-code="${encoded}" data-tab="mongo">\u2192 Editor</button>`;
+      }
+      return `<code class="explain-code">${safe}</code>`;
+    })
     .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
     .replace(/\n\n/g, '</p><p>')
     .replace(/\n/g, '<br>')

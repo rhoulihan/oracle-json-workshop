@@ -114,6 +114,20 @@ async function init() {
   // Set initial placeholder
   editorArea.placeholder = tabManager.getPlaceholder('sql');
 
+  // Pre-load code from URL parameters (from "→ Editor" buttons in Learn tab)
+  const params = new URLSearchParams(window.location.search);
+  const preloadCode = params.get('code');
+  const preloadTab = params.get('tab');
+  if (preloadCode) {
+    const targetTab =
+      preloadTab && ['sql', 'js', 'mongo'].includes(preloadTab) ? preloadTab : 'sql';
+    tabManager.switchTab(targetTab);
+    editorArea.value = preloadCode;
+    tabManager.setContent(targetTab, preloadCode);
+    editorArea.placeholder = tabManager.getPlaceholder(targetTab);
+    tabButtons.forEach((b) => b.classList.toggle('active', b.dataset.tab === targetTab));
+  }
+
   // Tab switching
   tabButtons.forEach((btn) => {
     btn.addEventListener('click', () => {

@@ -401,6 +401,14 @@ async function init() {
       }
     }
 
+    // "→ Editor" button in explanation panel
+    if (e.target.classList.contains('btn-editor')) {
+      const code = decodeURIComponent(e.target.dataset.code);
+      const tab = e.target.dataset.tab || 'sql';
+      window.open(`/editor.html?code=${encodeURIComponent(code)}&tab=${tab}`, '_blank');
+      return;
+    }
+
     // Copy button
     if (e.target.classList.contains('btn-copy')) {
       const code = decodeURIComponent(e.target.dataset.code);
