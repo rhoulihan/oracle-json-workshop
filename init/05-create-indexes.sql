@@ -5,9 +5,9 @@ ALTER SESSION SET CONTAINER = FREEPDB1;
 ALTER SESSION SET CURRENT_SCHEMA = WORKSHOP_ADMIN;
 
 -- Advisory entities: compound indexes on natural grouping attributes
-CREATE INDEX idx_advisor ON advisory_entities (data.advisorId.number());
-CREATE INDEX idx_account ON advisory_entities (data.accountId.number());
-CREATE INDEX idx_symbol ON advisory_entities (data.symbol.string());
+CREATE INDEX idx_advisor ON advisory_entities ae (ae.data.advisorId.number());
+CREATE INDEX idx_account ON advisory_entities ae (ae.data.accountId.number());
+CREATE INDEX idx_symbol ON advisory_entities ae (ae.data.symbol.string());
 
 -- Multi-value indexes on array attributes
 CREATE MULTIVALUE INDEX idx_tags ON advisory_entities ae
