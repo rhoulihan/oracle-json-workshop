@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 200" font-family="Source Sans Pro, -apple-system, sans-serif">
+  <defs>
+    <marker id="rlArr" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10" fill="#9B9590"/></marker>
+  </defs>
+  <rect width="600" height="200" rx="8" fill="#F7F6F5"/>
+  <text x="300" y="22" text-anchor="middle" font-size="13" font-weight="700" fill="#312D2A">Relational Lens — Same Data, Flat SQL Access</text>
+  <!-- clients table -->
+  <rect x="20" y="45" width="150" height="110" rx="6" fill="#fff" stroke="#E5E2DF" stroke-width="1.5"/>
+  <rect x="20" y="45" width="150" height="24" rx="6 6 0 0" fill="#312D2A"/>
+  <text x="95" y="61" text-anchor="middle" font-size="10" font-weight="600" fill="#fff">clients</text>
+  <text x="32" y="83" font-size="9" fill="#312D2A" font-family="Source Code Pro, monospace">client_id  PK</text>
+  <text x="32" y="97" font-size="9" fill="#9B9590" font-family="Source Code Pro, monospace">first_name</text>
+  <text x="32" y="111" font-size="9" fill="#9B9590" font-family="Source Code Pro, monospace">last_name</text>
+  <text x="32" y="125" font-size="9" fill="#9B9590" font-family="Source Code Pro, monospace">email</text>
+  <text x="32" y="139" font-size="9" fill="#9B9590" font-family="Source Code Pro, monospace">risk_profile</text>
+  <!-- accounts table -->
+  <rect x="220" y="45" width="150" height="110" rx="6" fill="#fff" stroke="#E5E2DF" stroke-width="1.5"/>
+  <rect x="220" y="45" width="150" height="24" rx="6 6 0 0" fill="#312D2A"/>
+  <text x="295" y="61" text-anchor="middle" font-size="10" font-weight="600" fill="#fff">accounts</text>
+  <text x="232" y="83" font-size="9" fill="#312D2A" font-family="Source Code Pro, monospace">account_id  PK</text>
+  <text x="232" y="97" font-size="9" fill="#C74634" font-family="Source Code Pro, monospace">client_id   FK</text>
+  <text x="232" y="111" font-size="9" fill="#9B9590" font-family="Source Code Pro, monospace">account_type</text>
+  <text x="232" y="125" font-size="9" fill="#9B9590" font-family="Source Code Pro, monospace">balance</text>
+  <text x="232" y="139" font-size="9" fill="#9B9590" font-family="Source Code Pro, monospace">opened_date</text>
+  <!-- holdings table -->
+  <rect x="420" y="45" width="160" height="110" rx="6" fill="#fff" stroke="#E5E2DF" stroke-width="1.5"/>
+  <rect x="420" y="45" width="160" height="24" rx="6 6 0 0" fill="#312D2A"/>
+  <text x="500" y="61" text-anchor="middle" font-size="10" font-weight="600" fill="#fff">holdings</text>
+  <text x="432" y="83" font-size="9" fill="#312D2A" font-family="Source Code Pro, monospace">holding_id   PK</text>
+  <text x="432" y="97" font-size="9" fill="#C74634" font-family="Source Code Pro, monospace">account_id   FK</text>
+  <text x="432" y="111" font-size="9" fill="#9B9590" font-family="Source Code Pro, monospace">ticker</text>
+  <text x="432" y="125" font-size="9" fill="#9B9590" font-family="Source Code Pro, monospace">quantity</text>
+  <text x="432" y="139" font-size="9" fill="#9B9590" font-family="Source Code Pro, monospace">market_value</text>
+  <!-- Join arrows -->
+  <line x1="170" y1="83" x2="218" y2="97" stroke="#9B9590" stroke-width="1.5" marker-end="url(#rlArr)"/>
+  <line x1="370" y1="83" x2="418" y2="97" stroke="#9B9590" stroke-width="1.5" marker-end="url(#rlArr)"/>
+  <!-- Join labels -->
+  <text x="195" y="82" text-anchor="middle" font-size="8" font-weight="600" fill="#9B9590">JOIN</text>
+  <text x="395" y="82" text-anchor="middle" font-size="8" font-weight="600" fill="#9B9590">JOIN</text>
+  <!-- Bottom SQL -->
+  <rect x="90" y="168" width="420" height="22" rx="4" fill="#312D2A"/>
+  <text x="300" y="183" text-anchor="middle" font-size="9" font-family="Source Code Pro, monospace" fill="#fff">SELECT * FROM clients c JOIN accounts a JOIN holdings h</text>
+</svg>

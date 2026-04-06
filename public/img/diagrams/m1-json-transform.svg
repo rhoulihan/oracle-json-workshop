@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 200" font-family="Source Sans Pro, -apple-system, sans-serif">
+  <defs>
+    <marker id="arr1" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10" fill="#C74634"/></marker>
+  </defs>
+  <rect width="600" height="200" rx="8" fill="#F7F6F5"/>
+  <text x="300" y="24" text-anchor="middle" font-size="13" font-weight="700" fill="#312D2A">JSON_TRANSFORM: Server-Side Document Mutation</text>
+  <!-- Document box -->
+  <rect x="20" y="40" width="200" height="120" rx="8" fill="#fff" stroke="#E5E2DF" stroke-width="1.5"/>
+  <text x="120" y="58" text-anchor="middle" font-size="10" font-weight="600" fill="#312D2A">Document (before)</text>
+  <text x="35" y="74" font-size="8.5" fill="#9B9590" font-family="Source Code Pro, monospace">{</text>
+  <text x="43" y="86" font-size="8.5" fill="#312D2A" font-family="Source Code Pro, monospace">"status": "pending",</text>
+  <text x="43" y="98" font-size="8.5" fill="#312D2A" font-family="Source Code Pro, monospace">"tags": ["review"],</text>
+  <text x="43" y="110" font-size="8.5" fill="#312D2A" font-family="Source Code Pro, monospace">"priority": "low",</text>
+  <text x="43" y="122" font-size="8.5" fill="#312D2A" font-family="Source Code Pro, monospace">"temp_note": "..."</text>
+  <text x="35" y="134" font-size="8.5" fill="#9B9590" font-family="Source Code Pro, monospace">}</text>
+  <!-- SET arrow -->
+  <line x1="222" y1="60" x2="278" y2="60" stroke="#C74634" stroke-width="1.5" marker-end="url(#arr1)"/>
+  <!-- APPEND arrow -->
+  <line x1="222" y1="88" x2="278" y2="88" stroke="#C74634" stroke-width="1.5" marker-end="url(#arr1)"/>
+  <!-- REMOVE arrow -->
+  <line x1="222" y1="116" x2="278" y2="116" stroke="#C74634" stroke-width="1.5" marker-end="url(#arr1)"/>
+  <!-- Operation labels -->
+  <rect x="280" y="48" width="100" height="24" rx="5" fill="#1B7D3A" fill-opacity="0.12" stroke="#1B7D3A" stroke-width="1"/>
+  <text x="330" y="64" text-anchor="middle" font-size="10" font-weight="700" fill="#1B7D3A">SET</text>
+  <text x="330" y="44" text-anchor="middle" font-size="8" fill="#9B9590">$.status = 'complete'</text>
+  <rect x="280" y="76" width="100" height="24" rx="5" fill="#C74634" fill-opacity="0.08" stroke="#C74634" stroke-width="1"/>
+  <text x="330" y="92" text-anchor="middle" font-size="10" font-weight="700" fill="#C74634">APPEND</text>
+  <text x="330" y="73" text-anchor="middle" font-size="8" fill="#9B9590">$.tags += 'urgent'</text>
+  <rect x="280" y="104" width="100" height="24" rx="5" fill="#9B9590" fill-opacity="0.15" stroke="#9B9590" stroke-width="1"/>
+  <text x="330" y="120" text-anchor="middle" font-size="10" font-weight="700" fill="#9B9590">REMOVE</text>
+  <text x="330" y="133" text-anchor="middle" font-size="8" fill="#9B9590">$.temp_note deleted</text>
+  <!-- Arrow to result -->
+  <line x1="382" y1="88" x2="418" y2="88" stroke="#C74634" stroke-width="2" marker-end="url(#arr1)"/>
+  <!-- Result document -->
+  <rect x="420" y="40" width="160" height="120" rx="8" fill="#fff" stroke="#E5E2DF" stroke-width="1.5"/>
+  <text x="500" y="58" text-anchor="middle" font-size="10" font-weight="600" fill="#312D2A">Document (after)</text>
+  <text x="435" y="74" font-size="8.5" fill="#9B9590" font-family="Source Code Pro, monospace">{</text>
+  <text x="443" y="86" font-size="8.5" fill="#1B7D3A" font-family="Source Code Pro, monospace">"status": "complete",</text>
+  <text x="443" y="98" font-size="8.5" fill="#C74634" font-family="Source Code Pro, monospace">"tags": ["review",</text>
+  <text x="443" y="110" font-size="8.5" fill="#C74634" font-family="Source Code Pro, monospace">         "urgent"],</text>
+  <text x="443" y="122" font-size="8.5" fill="#312D2A" font-family="Source Code Pro, monospace">"priority": "low"</text>
+  <text x="435" y="134" font-size="8.5" fill="#9B9590" font-family="Source Code Pro, monospace">}</text>
+  <!-- Bottom callout -->
+  <rect x="100" y="168" width="400" height="24" rx="5" fill="#1B7D3A" fill-opacity="0.08" stroke="#1B7D3A" stroke-width="1"/>
+  <text x="300" y="184" text-anchor="middle" font-size="10" font-weight="600" fill="#1B7D3A">No read-modify-write &#8212; atomic server-side mutation in a single UPDATE</text>
+</svg>

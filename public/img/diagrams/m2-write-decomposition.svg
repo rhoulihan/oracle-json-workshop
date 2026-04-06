@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 200" font-family="Source Sans Pro, -apple-system, sans-serif">
+  <defs>
+    <marker id="wdArr" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10" fill="#C74634"/></marker>
+  </defs>
+  <rect width="600" height="200" rx="8" fill="#F7F6F5"/>
+  <text x="300" y="22" text-anchor="middle" font-size="13" font-weight="700" fill="#312D2A">Write Decomposition — 1 INSERT → 3 Tables</text>
+  <!-- JSON document on left -->
+  <rect x="15" y="38" width="175" height="130" rx="8" fill="#C74634" fill-opacity="0.06" stroke="#C74634" stroke-width="1.5"/>
+  <text x="102" y="56" text-anchor="middle" font-size="10" font-weight="700" fill="#C74634">INSERT JSON Document</text>
+  <text x="30" y="73" font-size="9" fill="#312D2A" font-family="Source Code Pro, monospace">{ "firstName": "Amy",</text>
+  <text x="38" y="87" font-size="9" fill="#312D2A" font-family="Source Code Pro, monospace">"accounts": [{</text>
+  <text x="46" y="101" font-size="9" fill="#312D2A" font-family="Source Code Pro, monospace">"type": "401K",</text>
+  <text x="46" y="115" font-size="9" fill="#312D2A" font-family="Source Code Pro, monospace">"holdings": [{</text>
+  <text x="54" y="129" font-size="9" fill="#312D2A" font-family="Source Code Pro, monospace">"ticker": "AAPL"</text>
+  <text x="38" y="143" font-size="9" fill="#312D2A" font-family="Source Code Pro, monospace">}]}]}</text>
+  <!-- Decomposition arrows -->
+  <line x1="195" y1="72" x2="280" y2="62" stroke="#C74634" stroke-width="2" marker-end="url(#wdArr)"/>
+  <line x1="195" y1="100" x2="280" y2="100" stroke="#C74634" stroke-width="2" marker-end="url(#wdArr)"/>
+  <line x1="195" y1="128" x2="280" y2="138" stroke="#C74634" stroke-width="2" marker-end="url(#wdArr)"/>
+  <text x="238" y="88" text-anchor="middle" font-size="8" font-weight="600" fill="#C74634">splits</text>
+  <!-- clients row -->
+  <rect x="285" y="46" width="295" height="30" rx="4" fill="#fff" stroke="#E5E2DF" stroke-width="1"/>
+  <rect x="285" y="46" width="60" height="30" rx="4 0 0 4" fill="#312D2A"/>
+  <text x="315" y="65" text-anchor="middle" font-size="9" font-weight="600" fill="#fff">clients</text>
+  <text x="365" y="65" font-size="9" fill="#312D2A" font-family="Source Code Pro, monospace">101</text>
+  <text x="410" y="65" font-size="9" fill="#9B9590" font-family="Source Code Pro, monospace">Amy</text>
+  <text x="460" y="65" font-size="9" fill="#9B9590" font-family="Source Code Pro, monospace">Chen</text>
+  <text x="520" y="65" font-size="9" fill="#1B7D3A" font-family="Source Code Pro, monospace">1 row</text>
+  <!-- accounts row -->
+  <rect x="285" y="84" width="295" height="30" rx="4" fill="#fff" stroke="#E5E2DF" stroke-width="1"/>
+  <rect x="285" y="84" width="60" height="30" rx="4 0 0 4" fill="#312D2A"/>
+  <text x="315" y="103" text-anchor="middle" font-size="9" font-weight="600" fill="#fff">accounts</text>
+  <text x="365" y="103" font-size="9" fill="#312D2A" font-family="Source Code Pro, monospace">501</text>
+  <text x="410" y="103" font-size="9" fill="#9B9590" font-family="Source Code Pro, monospace">401K</text>
+  <text x="460" y="103" font-size="9" fill="#9B9590" font-family="Source Code Pro, monospace">FK→101</text>
+  <text x="520" y="103" font-size="9" fill="#1B7D3A" font-family="Source Code Pro, monospace">1 row</text>
+  <!-- holdings row -->
+  <rect x="285" y="122" width="295" height="30" rx="4" fill="#fff" stroke="#E5E2DF" stroke-width="1"/>
+  <rect x="285" y="122" width="60" height="30" rx="4 0 0 4" fill="#312D2A"/>
+  <text x="315" y="141" text-anchor="middle" font-size="9" font-weight="600" fill="#fff">holdings</text>
+  <text x="365" y="141" font-size="9" fill="#312D2A" font-family="Source Code Pro, monospace">1001</text>
+  <text x="410" y="141" font-size="9" fill="#9B9590" font-family="Source Code Pro, monospace">AAPL</text>
+  <text x="460" y="141" font-size="9" fill="#9B9590" font-family="Source Code Pro, monospace">FK→501</text>
+  <text x="520" y="141" font-size="9" fill="#1B7D3A" font-family="Source Code Pro, monospace">1 row</text>
+  <!-- Bottom summary -->
+  <rect x="155" y="170" width="290" height="22" rx="4" fill="#C74634" fill-opacity="0.08"/>
+  <text x="300" y="185" text-anchor="middle" font-size="10" font-weight="600" fill="#C74634">Oracle decomposes JSON into relational rows automatically</text>
+</svg>

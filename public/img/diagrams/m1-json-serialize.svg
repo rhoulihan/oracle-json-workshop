@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 200" font-family="Source Sans Pro, -apple-system, sans-serif">
+  <defs>
+    <marker id="arr1" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10" fill="#C74634"/></marker>
+  </defs>
+  <rect width="600" height="200" rx="8" fill="#F7F6F5"/>
+  <text x="300" y="24" text-anchor="middle" font-size="13" font-weight="700" fill="#312D2A">JSON_SERIALIZE: OSON Binary to Readable Text</text>
+  <!-- OSON Binary box -->
+  <rect x="20" y="50" width="130" height="70" rx="8" fill="#312D2A"/>
+  <text x="85" y="73" text-anchor="middle" font-size="11" font-weight="700" fill="#fff">OSON Binary</text>
+  <text x="85" y="90" text-anchor="middle" font-size="9" fill="rgba(255,255,255,0.6)">Hash-indexed</text>
+  <text x="85" y="103" text-anchor="middle" font-size="9" fill="rgba(255,255,255,0.6)">Machine format</text>
+  <!-- Arrow -->
+  <line x1="152" y1="85" x2="215" y2="85" stroke="#C74634" stroke-width="2" marker-end="url(#arr1)"/>
+  <text x="183" y="78" text-anchor="middle" font-size="9" font-weight="600" fill="#C74634">json_serialize()</text>
+  <!-- PRETTY output box -->
+  <rect x="218" y="42" width="170" height="88" rx="8" fill="#fff" stroke="#E5E2DF" stroke-width="1.5"/>
+  <text x="303" y="60" text-anchor="middle" font-size="10" font-weight="600" fill="#1B7D3A">PRETTY</text>
+  <text x="303" y="76" text-anchor="start" font-size="8.5" fill="#9B9590" font-family="Source Code Pro, monospace" x="235">{</text>
+  <text x="243" y="88" text-anchor="start" font-size="8.5" fill="#9B9590" font-family="Source Code Pro, monospace">  "type": "meeting",</text>
+  <text x="243" y="100" text-anchor="start" font-size="8.5" fill="#9B9590" font-family="Source Code Pro, monospace">  "client_id": 3,</text>
+  <text x="243" y="112" text-anchor="start" font-size="8.5" fill="#9B9590" font-family="Source Code Pro, monospace">  "sentiment": "positive"</text>
+  <text x="235" y="124" text-anchor="start" font-size="8.5" fill="#9B9590" font-family="Source Code Pro, monospace">}</text>
+  <!-- Compact output box -->
+  <rect x="400" y="50" width="180" height="70" rx="8" fill="#fff" stroke="#E5E2DF" stroke-width="1.5"/>
+  <text x="490" y="68" text-anchor="middle" font-size="10" font-weight="600" fill="#9B9590">Compact (default)</text>
+  <text x="415" y="88" text-anchor="start" font-size="8" fill="#9B9590" font-family="Source Code Pro, monospace">{"type":"meeting",</text>
+  <text x="415" y="100" text-anchor="start" font-size="8" fill="#9B9590" font-family="Source Code Pro, monospace">"client_id":3,</text>
+  <text x="415" y="112" text-anchor="start" font-size="8" fill="#9B9590" font-family="Source Code Pro, monospace">"sentiment":"positive"}</text>
+  <!-- Options callouts -->
+  <rect x="40" y="150" width="140" height="28" rx="5" fill="#C74634" fill-opacity="0.08" stroke="#C74634" stroke-width="1"/>
+  <text x="110" y="168" text-anchor="middle" font-size="10" font-weight="600" fill="#C74634">PRETTY — indented</text>
+  <rect x="200" y="150" width="140" height="28" rx="5" fill="#C74634" fill-opacity="0.08" stroke="#C74634" stroke-width="1"/>
+  <text x="270" y="168" text-anchor="middle" font-size="10" font-weight="600" fill="#C74634">ORDERED — sorted keys</text>
+  <rect x="360" y="150" width="140" height="28" rx="5" fill="#9B9590" fill-opacity="0.1" stroke="#9B9590" stroke-width="1"/>
+  <text x="430" y="168" text-anchor="middle" font-size="10" font-weight="600" fill="#9B9590">ASCII — escaped unicode</text>
+</svg>

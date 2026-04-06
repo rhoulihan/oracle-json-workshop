@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 200" font-family="Source Sans Pro, -apple-system, sans-serif">
+  <defs>
+    <marker id="arr1" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10" fill="#C74634"/></marker>
+  </defs>
+  <rect width="600" height="200" rx="8" fill="#F7F6F5"/>
+  <text x="300" y="24" text-anchor="middle" font-size="13" font-weight="700" fill="#312D2A">JSON() Constructor: Text to OSON on INSERT</text>
+  <!-- JSON text input -->
+  <rect x="20" y="48" width="160" height="80" rx="8" fill="#fff" stroke="#E5E2DF" stroke-width="1.5"/>
+  <text x="100" y="66" text-anchor="middle" font-size="10" font-weight="600" fill="#312D2A">JSON Text Literal</text>
+  <text x="35" y="82" font-size="8.5" fill="#9B9590" font-family="Source Code Pro, monospace">'{"type": "call",</text>
+  <text x="35" y="94" font-size="8.5" fill="#9B9590" font-family="Source Code Pro, monospace"> "client_id": 5,</text>
+  <text x="35" y="106" font-size="8.5" fill="#9B9590" font-family="Source Code Pro, monospace"> "summary": "Review"}'</text>
+  <!-- Arrow: JSON() constructor -->
+  <line x1="182" y1="88" x2="240" y2="88" stroke="#C74634" stroke-width="2" marker-end="url(#arr1)"/>
+  <text x="211" y="80" text-anchor="middle" font-size="9" font-weight="600" fill="#C74634">JSON()</text>
+  <!-- Constructor box -->
+  <rect x="243" y="52" width="130" height="72" rx="8" fill="#312D2A"/>
+  <text x="308" y="74" text-anchor="middle" font-size="11" font-weight="700" fill="#fff">JSON Constructor</text>
+  <text x="308" y="91" text-anchor="middle" font-size="9" fill="rgba(255,255,255,0.6)">Validates syntax</text>
+  <text x="308" y="105" text-anchor="middle" font-size="9" fill="rgba(255,255,255,0.6)">Converts to OSON</text>
+  <!-- Arrow: to storage -->
+  <line x1="375" y1="88" x2="438" y2="88" stroke="#C74634" stroke-width="2" marker-end="url(#arr1)"/>
+  <text x="407" y="80" text-anchor="middle" font-size="9" font-weight="600" fill="#C74634">INSERT</text>
+  <!-- OSON storage -->
+  <rect x="440" y="48" width="140" height="80" rx="8" fill="#312D2A"/>
+  <text x="510" y="72" text-anchor="middle" font-size="11" font-weight="700" fill="#fff">OSON Binary</text>
+  <text x="510" y="90" text-anchor="middle" font-size="9" fill="rgba(255,255,255,0.6)">Collection Table</text>
+  <text x="510" y="104" text-anchor="middle" font-size="9" fill="#1B7D3A">O(1) field access</text>
+  <text x="510" y="118" text-anchor="middle" font-size="9" fill="rgba(255,255,255,0.6)">Hash-indexed fields</text>
+  <!-- SQL example -->
+  <rect x="30" y="148" width="540" height="36" rx="5" fill="#C74634" fill-opacity="0.08" stroke="#C74634" stroke-width="1"/>
+  <text x="300" y="163" text-anchor="middle" font-size="9" font-weight="600" fill="#C74634" font-family="Source Code Pro, monospace">INSERT INTO client_interactions VALUES (JSON('{"type":"call","client_id":5}'));</text>
+  <text x="300" y="178" text-anchor="middle" font-size="9" fill="#9B9590">Invalid JSON is rejected at insert time &#8212; no bad data in the collection</text>
+</svg>

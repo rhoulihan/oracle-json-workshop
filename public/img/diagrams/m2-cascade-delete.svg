@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 200" font-family="Source Sans Pro, -apple-system, sans-serif">
+  <defs>
+    <marker id="cdArr" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10" fill="#C74634"/></marker>
+  </defs>
+  <rect width="600" height="200" rx="8" fill="#F7F6F5"/>
+  <text x="300" y="22" text-anchor="middle" font-size="13" font-weight="700" fill="#312D2A">Cascade Delete — Document Removal</text>
+  <!-- DELETE statement at top -->
+  <rect x="140" y="36" width="320" height="24" rx="4" fill="#312D2A"/>
+  <text x="300" y="52" text-anchor="middle" font-size="10" font-family="Source Code Pro, monospace" fill="#fff">DELETE FROM client_portfolio_dv WHERE ...</text>
+  <!-- Arrow down -->
+  <line x1="300" y1="62" x2="300" y2="80" stroke="#C74634" stroke-width="2" marker-end="url(#cdArr)"/>
+  <!-- Three table boxes with X marks -->
+  <!-- clients -->
+  <rect x="30" y="85" width="150" height="50" rx="6" fill="#fff" stroke="#E5E2DF" stroke-width="1.5"/>
+  <text x="105" y="107" text-anchor="middle" font-size="10" font-weight="600" fill="#312D2A">clients</text>
+  <text x="105" y="122" text-anchor="middle" font-size="9" fill="#9B9590">client_id = 101</text>
+  <!-- Red X for clients -->
+  <text x="155" y="103" font-size="16" font-weight="700" fill="#C74634">X</text>
+  <!-- accounts -->
+  <rect x="220" y="85" width="150" height="50" rx="6" fill="#fff" stroke="#E5E2DF" stroke-width="1.5"/>
+  <text x="295" y="107" text-anchor="middle" font-size="10" font-weight="600" fill="#312D2A">accounts</text>
+  <text x="295" y="122" text-anchor="middle" font-size="9" fill="#9B9590">2 rows deleted</text>
+  <!-- Red X for accounts -->
+  <text x="345" y="103" font-size="16" font-weight="700" fill="#C74634">X</text>
+  <!-- holdings -->
+  <rect x="410" y="85" width="160" height="50" rx="6" fill="#fff" stroke="#E5E2DF" stroke-width="1.5"/>
+  <text x="490" y="107" text-anchor="middle" font-size="10" font-weight="600" fill="#312D2A">holdings</text>
+  <text x="490" y="122" text-anchor="middle" font-size="9" fill="#9B9590">5 rows deleted</text>
+  <!-- Red X for holdings -->
+  <text x="545" y="103" font-size="16" font-weight="700" fill="#C74634">X</text>
+  <!-- Cascade arrows between tables -->
+  <line x1="180" y1="110" x2="218" y2="110" stroke="#C74634" stroke-width="2" marker-end="url(#cdArr)"/>
+  <line x1="370" y1="110" x2="408" y2="110" stroke="#C74634" stroke-width="2" marker-end="url(#cdArr)"/>
+  <!-- Cascade label -->
+  <text x="200" y="100" text-anchor="middle" font-size="8" fill="#C74634">cascade</text>
+  <text x="390" y="100" text-anchor="middle" font-size="8" fill="#C74634">cascade</text>
+  <!-- Down arrows from DELETE -->
+  <line x1="200" y1="62" x2="105" y2="83" stroke="#C74634" stroke-width="1.5" stroke-dasharray="4,3"/>
+  <line x1="300" y1="62" x2="295" y2="83" stroke="#C74634" stroke-width="1.5" stroke-dasharray="4,3"/>
+  <line x1="400" y1="62" x2="490" y2="83" stroke="#C74634" stroke-width="1.5" stroke-dasharray="4,3"/>
+  <!-- Bottom summary -->
+  <rect x="120" y="150" width="360" height="28" rx="5" fill="#C74634" fill-opacity="0.08"/>
+  <text x="300" y="162" text-anchor="middle" font-size="10" font-weight="600" fill="#C74634">1 DELETE removes document + all child rows</text>
+  <text x="300" y="174" text-anchor="middle" font-size="9" fill="#9B9590">Referential integrity maintained automatically</text>
+</svg>

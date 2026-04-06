@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 200" font-family="Source Sans Pro, -apple-system, sans-serif">
+  <defs>
+    <marker id="mf1" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10" fill="#C74634"/></marker>
+  </defs>
+  <rect width="600" height="200" rx="8" fill="#F7F6F5"/>
+  <text x="300" y="24" text-anchor="middle" font-size="13" font-weight="700" fill="#312D2A">MongoDB Wire Protocol via ORDS</text>
+  <!-- mongosh client -->
+  <rect x="20" y="60" width="90" height="50" rx="6" fill="#C74634"/>
+  <text x="65" y="83" text-anchor="middle" font-size="11" font-weight="700" fill="#fff">mongosh</text>
+  <text x="65" y="99" text-anchor="middle" font-size="8" fill="rgba(255,255,255,0.7)">client</text>
+  <!-- Arrow 1 -->
+  <line x1="112" y1="85" x2="148" y2="85" stroke="#C74634" stroke-width="2" marker-end="url(#mf1)"/>
+  <text x="130" y="78" text-anchor="middle" font-size="7" fill="#9B9590">port 27017</text>
+  <!-- MongoDB Wire Protocol -->
+  <rect x="152" y="60" width="110" height="50" rx="6" fill="#fff" stroke="#E5E2DF" stroke-width="1.5"/>
+  <text x="207" y="80" text-anchor="middle" font-size="9" font-weight="600" fill="#312D2A">MongoDB Wire</text>
+  <text x="207" y="96" text-anchor="middle" font-size="9" font-weight="600" fill="#312D2A">Protocol</text>
+  <!-- Arrow 2 -->
+  <line x1="264" y1="85" x2="298" y2="85" stroke="#C74634" stroke-width="2" marker-end="url(#mf1)"/>
+  <!-- ORDS -->
+  <rect x="302" y="60" width="72" height="50" rx="6" fill="#fff" stroke="#E5E2DF" stroke-width="1.5"/>
+  <text x="338" y="83" text-anchor="middle" font-size="10" font-weight="700" fill="#312D2A">ORDS</text>
+  <text x="338" y="99" text-anchor="middle" font-size="8" fill="#9B9590">translate</text>
+  <!-- Arrow 3 -->
+  <line x1="376" y1="85" x2="412" y2="85" stroke="#C74634" stroke-width="2" marker-end="url(#mf1)"/>
+  <!-- Oracle SQL Engine -->
+  <rect x="416" y="45" width="164" height="80" rx="8" fill="#312D2A"/>
+  <text x="498" y="70" text-anchor="middle" font-size="11" font-weight="700" fill="#fff">Oracle SQL Engine</text>
+  <line x1="430" y1="80" x2="566" y2="80" stroke="rgba(255,255,255,0.15)" stroke-width="1"/>
+  <text x="498" y="96" text-anchor="middle" font-size="9" fill="rgba(255,255,255,0.6)">Same tables</text>
+  <text x="498" y="112" text-anchor="middle" font-size="9" fill="rgba(255,255,255,0.6)">Same indexes</text>
+  <!-- Mongo command example -->
+  <rect x="20" y="125" width="260" height="28" rx="5" fill="#C74634" fill-opacity="0.08" stroke="#C74634" stroke-width="1"/>
+  <text x="150" y="143" text-anchor="middle" font-size="9" fill="#C74634" font-family="Source Code Pro, monospace">db.clients.find({name:"Emily"})</text>
+  <!-- Translated SQL -->
+  <rect x="320" y="125" width="260" height="28" rx="5" fill="#1B7D3A" fill-opacity="0.08" stroke="#1B7D3A" stroke-width="1"/>
+  <text x="450" y="143" text-anchor="middle" font-size="9" fill="#1B7D3A" font-family="Source Code Pro, monospace">SELECT ... WHERE name = 'Emily'</text>
+  <!-- Arrow between examples -->
+  <line x1="282" y1="139" x2="318" y2="139" stroke="#9B9590" stroke-width="1" marker-end="url(#mf1)" stroke-dasharray="3,3"/>
+  <!-- Bottom label -->
+  <rect x="100" y="166" width="400" height="26" rx="6" fill="#312D2A"/>
+  <text x="300" y="183" text-anchor="middle" font-size="10" font-weight="600" fill="#fff">Same optimizer, different protocol — zero data duplication</text>
+</svg>

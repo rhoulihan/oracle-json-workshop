@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 200" font-family="Source Sans Pro, -apple-system, sans-serif">
+  <defs>
+    <marker id="cm1" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10" fill="#C74634"/></marker>
+  </defs>
+  <rect width="600" height="200" rx="8" fill="#F7F6F5"/>
+  <text x="300" y="24" text-anchor="middle" font-size="13" font-weight="700" fill="#312D2A">Cross-Model JOIN — JSON + Relational</text>
+  <!-- JSON Collection side -->
+  <rect x="20" y="45" width="180" height="110" rx="8" fill="#C74634" fill-opacity="0.06" stroke="#C74634" stroke-width="1.5"/>
+  <text x="110" y="65" text-anchor="middle" font-size="10" font-weight="700" fill="#C74634">JSON Collection</text>
+  <text x="110" y="80" text-anchor="middle" font-size="9" fill="#9B9590">client_interactions</text>
+  <text x="38" y="98" font-size="8" fill="#312D2A" font-family="Source Code Pro, monospace">{</text>
+  <text x="46" y="111" font-size="8" fill="#312D2A" font-family="Source Code Pro, monospace">"clientId": 101,</text>
+  <text x="46" y="124" font-size="8" fill="#312D2A" font-family="Source Code Pro, monospace">"type": "meeting",</text>
+  <text x="46" y="137" font-size="8" fill="#312D2A" font-family="Source Code Pro, monospace">"notes": "Review..."</text>
+  <text x="38" y="150" font-size="8" fill="#312D2A" font-family="Source Code Pro, monospace">}</text>
+  <!-- Relational Table side -->
+  <rect x="400" y="45" width="180" height="110" rx="8" fill="#1B7D3A" fill-opacity="0.06" stroke="#1B7D3A" stroke-width="1.5"/>
+  <text x="490" y="65" text-anchor="middle" font-size="10" font-weight="700" fill="#1B7D3A">Relational Table</text>
+  <text x="490" y="80" text-anchor="middle" font-size="9" fill="#9B9590">clients</text>
+  <!-- Mini table -->
+  <rect x="415" y="90" width="150" height="16" rx="3" fill="#312D2A"/>
+  <text x="450" y="101" text-anchor="middle" font-size="7" font-weight="600" fill="#fff">client_id</text>
+  <text x="530" y="101" text-anchor="middle" font-size="7" font-weight="600" fill="#fff">first_name</text>
+  <rect x="415" y="106" width="150" height="16" fill="#1B7D3A" fill-opacity="0.06"/>
+  <text x="450" y="117" text-anchor="middle" font-size="7" fill="#312D2A" font-family="Source Code Pro, monospace">101</text>
+  <text x="530" y="117" text-anchor="middle" font-size="7" fill="#312D2A" font-family="Source Code Pro, monospace">Emily</text>
+  <rect x="415" y="122" width="150" height="16" fill="#fff"/>
+  <text x="450" y="133" text-anchor="middle" font-size="7" fill="#312D2A" font-family="Source Code Pro, monospace">102</text>
+  <text x="530" y="133" text-anchor="middle" font-size="7" fill="#312D2A" font-family="Source Code Pro, monospace">James</text>
+  <!-- JOIN connector -->
+  <line x1="202" y1="112" x2="260" y2="100" stroke="#C74634" stroke-width="2" marker-end="url(#cm1)"/>
+  <line x1="398" y1="112" x2="340" y2="100" stroke="#C74634" stroke-width="2" marker-end="url(#cm1)"/>
+  <!-- JOIN box -->
+  <rect x="262" y="80" width="76" height="42" rx="6" fill="#312D2A"/>
+  <text x="300" y="98" text-anchor="middle" font-size="9" font-weight="700" fill="#fff">JOIN ON</text>
+  <text x="300" y="114" text-anchor="middle" font-size="7" fill="rgba(255,255,255,0.6)" font-family="Source Code Pro, monospace">clientId = client_id</text>
+  <!-- Bottom result -->
+  <rect x="120" y="166" width="360" height="26" rx="6" fill="#312D2A"/>
+  <text x="300" y="183" text-anchor="middle" font-size="10" font-weight="600" fill="#fff">SELECT c.first_name, i.data.type FROM interactions i JOIN clients c</text>
+</svg>

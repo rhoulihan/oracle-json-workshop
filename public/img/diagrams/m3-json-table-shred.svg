@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 200" font-family="Source Sans Pro, -apple-system, sans-serif">
+  <defs>
+    <marker id="jt1" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10" fill="#C74634"/></marker>
+  </defs>
+  <rect width="600" height="200" rx="8" fill="#F7F6F5"/>
+  <text x="300" y="24" text-anchor="middle" font-size="13" font-weight="700" fill="#312D2A">JSON_TABLE — Shred Arrays into Rows</text>
+  <!-- JSON document -->
+  <rect x="20" y="42" width="150" height="105" rx="8" fill="#fff" stroke="#E5E2DF" stroke-width="1.5"/>
+  <text x="95" y="60" text-anchor="middle" font-size="10" font-weight="600" fill="#312D2A">JSON Document</text>
+  <text x="34" y="78" font-size="9" fill="#312D2A" font-family="Source Code Pro, monospace">{</text>
+  <text x="42" y="92" font-size="9" fill="#9B9590" font-family="Source Code Pro, monospace">"pk": "ADV#5",</text>
+  <text x="42" y="106" font-size="9" fill="#C74634" font-weight="600" font-family="Source Code Pro, monospace">"tags": [</text>
+  <text x="50" y="118" font-size="9" fill="#C74634" font-family="Source Code Pro, monospace">"div","sp500","grw"</text>
+  <text x="42" y="132" font-size="9" fill="#C74634" font-weight="600" font-family="Source Code Pro, monospace">]</text>
+  <text x="34" y="144" font-size="9" fill="#312D2A" font-family="Source Code Pro, monospace">}</text>
+  <!-- Arrow to JSON_TABLE -->
+  <line x1="172" y1="95" x2="210" y2="95" stroke="#C74634" stroke-width="2" marker-end="url(#jt1)"/>
+  <!-- JSON_TABLE box -->
+  <rect x="213" y="72" width="110" height="48" rx="6" fill="#312D2A"/>
+  <text x="268" y="93" text-anchor="middle" font-size="10" font-weight="700" fill="#fff">JSON_TABLE</text>
+  <text x="268" y="110" text-anchor="middle" font-size="8" fill="rgba(255,255,255,0.6)">NESTED PATH</text>
+  <!-- Arrow to rows -->
+  <line x1="325" y1="95" x2="365" y2="95" stroke="#C74634" stroke-width="2" marker-end="url(#jt1)"/>
+  <!-- Relational rows -->
+  <rect x="370" y="42" width="210" height="105" rx="8" fill="#fff" stroke="#E5E2DF" stroke-width="1.5"/>
+  <text x="475" y="60" text-anchor="middle" font-size="10" font-weight="600" fill="#312D2A">Shredded Rows</text>
+  <!-- Table header -->
+  <rect x="382" y="68" width="186" height="18" rx="3" fill="#312D2A"/>
+  <text x="420" y="80" text-anchor="middle" font-size="8" font-weight="600" fill="#fff">pk</text>
+  <text x="520" y="80" text-anchor="middle" font-size="8" font-weight="600" fill="#fff">tag</text>
+  <!-- Row 1 -->
+  <rect x="382" y="86" width="186" height="18" fill="#C74634" fill-opacity="0.06"/>
+  <text x="420" y="98" text-anchor="middle" font-size="8" fill="#312D2A" font-family="Source Code Pro, monospace">ADV#5</text>
+  <text x="520" y="98" text-anchor="middle" font-size="8" fill="#C74634" font-family="Source Code Pro, monospace">dividend</text>
+  <!-- Row 2 -->
+  <rect x="382" y="104" width="186" height="18" fill="#fff"/>
+  <text x="420" y="116" text-anchor="middle" font-size="8" fill="#312D2A" font-family="Source Code Pro, monospace">ADV#5</text>
+  <text x="520" y="116" text-anchor="middle" font-size="8" fill="#C74634" font-family="Source Code Pro, monospace">sp500</text>
+  <!-- Row 3 -->
+  <rect x="382" y="122" width="186" height="18" rx="0 0 3 3" fill="#C74634" fill-opacity="0.06"/>
+  <text x="420" y="134" text-anchor="middle" font-size="8" fill="#312D2A" font-family="Source Code Pro, monospace">ADV#5</text>
+  <text x="520" y="134" text-anchor="middle" font-size="8" fill="#C74634" font-family="Source Code Pro, monospace">growth</text>
+  <!-- Arrow to GROUP BY -->
+  <line x1="475" y1="150" x2="475" y2="170" stroke="#C74634" stroke-width="2" marker-end="url(#jt1)"/>
+  <rect x="415" y="172" width="120" height="22" rx="5" fill="#312D2A"/>
+  <text x="475" y="187" text-anchor="middle" font-size="9" font-weight="600" fill="#fff">GROUP BY tag</text>
+  <!-- Bottom label -->
+  <text x="190" y="188" text-anchor="middle" font-size="10" fill="#9B9590">1 array → N relational rows → aggregate</text>
+</svg>

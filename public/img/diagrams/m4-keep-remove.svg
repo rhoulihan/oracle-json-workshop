@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 200" font-family="Source Sans Pro, -apple-system, sans-serif">
+  <defs>
+    <marker id="kr1" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10" fill="#C74634"/></marker>
+  </defs>
+  <rect width="600" height="200" rx="8" fill="#F7F6F5"/>
+  <text x="300" y="24" text-anchor="middle" font-size="13" font-weight="700" fill="#312D2A">JSON_TRANSFORM — KEEP vs REMOVE</text>
+  <!-- Full document -->
+  <rect x="20" y="42" width="165" height="140" rx="8" fill="#fff" stroke="#E5E2DF" stroke-width="1.5"/>
+  <text x="102" y="60" text-anchor="middle" font-size="10" font-weight="600" fill="#312D2A">Full Document</text>
+  <text x="36" y="78" font-size="9" fill="#1B7D3A" font-weight="600" font-family="Source Code Pro, monospace">"name": "Emily"</text>
+  <text x="36" y="94" font-size="9" fill="#1B7D3A" font-weight="600" font-family="Source Code Pro, monospace">"email": "e@..."</text>
+  <text x="36" y="110" font-size="9" fill="#1B7D3A" font-weight="600" font-family="Source Code Pro, monospace">"risk": "moderate"</text>
+  <text x="36" y="130" font-size="9" fill="#C74634" font-family="Source Code Pro, monospace">"ssn": "***-**-1234"</text>
+  <text x="36" y="146" font-size="9" fill="#C74634" font-family="Source Code Pro, monospace">"internal_id": 99</text>
+  <line x1="30" y1="122" x2="175" y2="122" stroke="#E5E2DF" stroke-width="1" stroke-dasharray="3,3"/>
+  <text x="102" y="168" text-anchor="middle" font-size="8" fill="#9B9590">5 fields</text>
+  <!-- KEEP path -->
+  <line x1="188" y1="82" x2="230" y2="62" stroke="#1B7D3A" stroke-width="2" marker-end="url(#kr1)"/>
+  <rect x="234" y="42" width="140" height="62" rx="6" fill="#1B7D3A" fill-opacity="0.08" stroke="#1B7D3A" stroke-width="1.5"/>
+  <text x="304" y="60" text-anchor="middle" font-size="10" font-weight="700" fill="#1B7D3A">KEEP</text>
+  <text x="304" y="76" text-anchor="middle" font-size="8" fill="#312D2A" font-family="Source Code Pro, monospace">$.name</text>
+  <text x="304" y="89" text-anchor="middle" font-size="8" fill="#312D2A" font-family="Source Code Pro, monospace">$.email, $.risk</text>
+  <text x="304" y="100" text-anchor="middle" font-size="8" fill="#1B7D3A">select 3 fields</text>
+  <!-- REMOVE path -->
+  <line x1="188" y1="136" x2="230" y2="148" stroke="#C74634" stroke-width="2" marker-end="url(#kr1)"/>
+  <rect x="234" y="118" width="140" height="62" rx="6" fill="#C74634" fill-opacity="0.08" stroke="#C74634" stroke-width="1.5"/>
+  <text x="304" y="136" text-anchor="middle" font-size="10" font-weight="700" fill="#C74634">REMOVE</text>
+  <text x="304" y="152" text-anchor="middle" font-size="8" fill="#312D2A" font-family="Source Code Pro, monospace">$.ssn</text>
+  <text x="304" y="165" text-anchor="middle" font-size="8" fill="#312D2A" font-family="Source Code Pro, monospace">$.internal_id</text>
+  <text x="304" y="176" text-anchor="middle" font-size="8" fill="#C74634">strip 2 fields</text>
+  <!-- Result arrows -->
+  <line x1="376" y1="73" x2="418" y2="73" stroke="#1B7D3A" stroke-width="2" marker-end="url(#kr1)"/>
+  <line x1="376" y1="148" x2="418" y2="148" stroke="#C74634" stroke-width="2" marker-end="url(#kr1)"/>
+  <!-- Result: same output -->
+  <rect x="422" y="62" width="158" height="110" rx="8" fill="#312D2A"/>
+  <text x="501" y="82" text-anchor="middle" font-size="10" font-weight="700" fill="#fff">Same Result</text>
+  <line x1="436" y1="90" x2="566" y2="90" stroke="rgba(255,255,255,0.15)" stroke-width="1"/>
+  <text x="501" y="110" text-anchor="middle" font-size="9" fill="#fff" font-family="Source Code Pro, monospace">"name": "Emily"</text>
+  <text x="501" y="126" text-anchor="middle" font-size="9" fill="#fff" font-family="Source Code Pro, monospace">"email": "e@..."</text>
+  <text x="501" y="142" text-anchor="middle" font-size="9" fill="#fff" font-family="Source Code Pro, monospace">"risk": "moderate"</text>
+  <text x="501" y="162" text-anchor="middle" font-size="9" fill="rgba(255,255,255,0.5)">3 fields only</text>
+  <!-- Bottom note -->
+  <text x="300" y="194" text-anchor="middle" font-size="10" fill="#9B9590">KEEP for whitelisting, REMOVE for redaction — same effect, different intent</text>
+</svg>

@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 200" font-family="Source Sans Pro, -apple-system, sans-serif">
+  <defs>
+    <marker id="arr1" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10" fill="#C74634"/></marker>
+  </defs>
+  <rect width="600" height="200" rx="8" fill="#F7F6F5"/>
+  <text x="300" y="24" text-anchor="middle" font-size="13" font-weight="700" fill="#312D2A">Dot Notation with Type-Safe Accessors</text>
+  <!-- JSON document box -->
+  <rect x="20" y="40" width="200" height="130" rx="8" fill="#fff" stroke="#E5E2DF" stroke-width="1.5"/>
+  <text x="120" y="58" text-anchor="middle" font-size="10" font-weight="600" fill="#312D2A">JSON Document (data column)</text>
+  <text x="35" y="76" font-size="9" fill="#9B9590" font-family="Source Code Pro, monospace">{</text>
+  <text x="43" y="90" font-size="9" fill="#312D2A" font-family="Source Code Pro, monospace">"type": "meeting",</text>
+  <text x="43" y="104" font-size="9" fill="#312D2A" font-family="Source Code Pro, monospace">"client_id": 3,</text>
+  <text x="43" y="118" font-size="9" fill="#312D2A" font-family="Source Code Pro, monospace">"follow_up": true,</text>
+  <text x="43" y="132" font-size="9" fill="#312D2A" font-family="Source Code Pro, monospace">"sentiment": "positive"</text>
+  <text x="35" y="146" font-size="9" fill="#9B9590" font-family="Source Code Pro, monospace">}</text>
+  <!-- Arrows pointing to type accessor labels -->
+  <line x1="195" y1="88" x2="280" y2="65" stroke="#C74634" stroke-width="1.5" marker-end="url(#arr1)"/>
+  <line x1="165" y1="104" x2="280" y2="95" stroke="#C74634" stroke-width="1.5" marker-end="url(#arr1)"/>
+  <line x1="168" y1="118" x2="280" y2="125" stroke="#C74634" stroke-width="1.5" marker-end="url(#arr1)"/>
+  <line x1="200" y1="132" x2="280" y2="155" stroke="#C74634" stroke-width="1.5" marker-end="url(#arr1)"/>
+  <!-- Accessor labels -->
+  <rect x="283" y="50" width="290" height="22" rx="5" fill="#C74634" fill-opacity="0.08"/>
+  <text x="290" y="65" font-size="10" font-weight="600" fill="#C74634" font-family="Source Code Pro, monospace">ci.data.type.string()</text>
+  <text x="490" y="65" font-size="9" fill="#9B9590">&#8594; VARCHAR2</text>
+  <rect x="283" y="80" width="290" height="22" rx="5" fill="#C74634" fill-opacity="0.08"/>
+  <text x="290" y="95" font-size="10" font-weight="600" fill="#C74634" font-family="Source Code Pro, monospace">ci.data.client_id.number()</text>
+  <text x="510" y="95" font-size="9" fill="#9B9590">&#8594; NUMBER</text>
+  <rect x="283" y="110" width="290" height="22" rx="5" fill="#C74634" fill-opacity="0.08"/>
+  <text x="290" y="125" font-size="10" font-weight="600" fill="#C74634" font-family="Source Code Pro, monospace">ci.data.follow_up.boolean()</text>
+  <text x="518" y="125" font-size="9" fill="#9B9590">&#8594; BOOLEAN</text>
+  <rect x="283" y="140" width="290" height="22" rx="5" fill="#C74634" fill-opacity="0.08"/>
+  <text x="290" y="155" font-size="10" font-weight="600" fill="#C74634" font-family="Source Code Pro, monospace">ci.data.sentiment.string()</text>
+  <text x="510" y="155" font-size="9" fill="#9B9590">&#8594; VARCHAR2</text>
+  <!-- Bottom note -->
+  <rect x="130" y="172" width="340" height="22" rx="5" fill="#1B7D3A" fill-opacity="0.08" stroke="#1B7D3A" stroke-width="1"/>
+  <text x="300" y="187" text-anchor="middle" font-size="10" font-weight="600" fill="#1B7D3A">Missing path returns NULL &#8212; safe for heterogeneous collections</text>
+</svg>

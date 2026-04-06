@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 200" font-family="Source Sans Pro, -apple-system, sans-serif">
+  <defs>
+    <marker id="ufArr" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10" fill="#C74634"/></marker>
+  </defs>
+  <rect width="600" height="200" rx="8" fill="#F7F6F5"/>
+  <text x="300" y="22" text-anchor="middle" font-size="13" font-weight="700" fill="#312D2A">UNNEST — Flatten Nested Objects</text>
+  <!-- Nested JSON on left -->
+  <rect x="15" y="38" width="200" height="130" rx="8" fill="#C74634" fill-opacity="0.06" stroke="#C74634" stroke-width="1.5"/>
+  <text x="115" y="56" text-anchor="middle" font-size="10" font-weight="700" fill="#C74634">Nested (default)</text>
+  <text x="28" y="73" font-size="9" fill="#312D2A" font-family="Source Code Pro, monospace">{ "clientId": 1,</text>
+  <text x="36" y="87" font-size="9" fill="#312D2A" font-family="Source Code Pro, monospace">"accounts": [{</text>
+  <text x="44" y="101" font-size="9" fill="#1B7D3A" font-family="Source Code Pro, monospace">"accountId": 501,</text>
+  <text x="44" y="115" font-size="9" fill="#1B7D3A" font-family="Source Code Pro, monospace">"type": "BROKERAGE",</text>
+  <text x="44" y="129" font-size="9" fill="#1B7D3A" font-family="Source Code Pro, monospace">"balance": 50000</text>
+  <text x="36" y="143" font-size="9" fill="#312D2A" font-family="Source Code Pro, monospace">}]</text>
+  <text x="28" y="157" font-size="9" fill="#312D2A" font-family="Source Code Pro, monospace">}</text>
+  <!-- Arrow -->
+  <line x1="220" y1="100" x2="275" y2="100" stroke="#C74634" stroke-width="2" marker-end="url(#ufArr)"/>
+  <text x="248" y="93" text-anchor="middle" font-size="9" font-weight="600" fill="#C74634">UNNEST</text>
+  <!-- Flattened JSON on right -->
+  <rect x="280" y="38" width="300" height="130" rx="8" fill="#1B7D3A" fill-opacity="0.06" stroke="#1B7D3A" stroke-width="1.5"/>
+  <text x="430" y="56" text-anchor="middle" font-size="10" font-weight="700" fill="#1B7D3A">Flattened (UNNEST)</text>
+  <text x="295" y="75" font-size="9" fill="#312D2A" font-family="Source Code Pro, monospace">{ "clientId": 1,</text>
+  <text x="303" y="91" font-size="9" fill="#1B7D3A" font-family="Source Code Pro, monospace">"accountId": 501,</text>
+  <text x="303" y="107" font-size="9" fill="#1B7D3A" font-family="Source Code Pro, monospace">"accountType": "BROKERAGE",</text>
+  <text x="303" y="123" font-size="9" fill="#1B7D3A" font-family="Source Code Pro, monospace">"balance": 50000</text>
+  <text x="295" y="139" font-size="9" fill="#312D2A" font-family="Source Code Pro, monospace">}</text>
+  <!-- Highlight bracket showing promotion -->
+  <rect x="290" y="83" width="245" height="45" rx="3" fill="#1B7D3A" fill-opacity="0.05" stroke="#1B7D3A" stroke-width="1" stroke-dasharray="4,3"/>
+  <text x="545" y="110" font-size="8" fill="#1B7D3A">promoted</text>
+  <!-- Bottom summary -->
+  <rect x="100" y="176" width="400" height="20" rx="4" fill="#312D2A"/>
+  <text x="300" y="190" text-anchor="middle" font-size="9" font-family="Source Code Pro, monospace" fill="#fff">UNNEST accounts WITH (INSERT, UPDATE, DELETE)</text>
+</svg>

@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 200" font-family="Source Sans Pro, -apple-system, sans-serif">
+  <rect width="600" height="200" rx="8" fill="#F7F6F5"/>
+  <text x="300" y="24" text-anchor="middle" font-size="13" font-weight="700" fill="#312D2A">One Collection, Four Entity Types</text>
+  <!-- Collection container -->
+  <rect x="30" y="42" width="540" height="110" rx="8" fill="#fff" stroke="#E5E2DF" stroke-width="1.5"/>
+  <text x="300" y="60" text-anchor="middle" font-size="10" font-weight="600" fill="#9B9590" font-family="Source Code Pro, monospace">advisory_entities</text>
+  <!-- Advisor doc -->
+  <rect x="50" y="72" width="110" height="68" rx="6" fill="#C74634" fill-opacity="0.08" stroke="#C74634" stroke-width="1"/>
+  <text x="105" y="90" text-anchor="middle" font-size="10" font-weight="600" fill="#C74634">advisor</text>
+  <text x="105" y="106" text-anchor="middle" font-size="8" fill="#9B9590" font-family="Source Code Pro, monospace">pk: ADVISOR#5</text>
+  <text x="105" y="118" text-anchor="middle" font-size="8" fill="#9B9590" font-family="Source Code Pro, monospace">sk: ADVISOR#5</text>
+  <text x="105" y="132" text-anchor="middle" font-size="8" fill="#312D2A">name, specialty</text>
+  <!-- Client doc -->
+  <rect x="175" y="72" width="110" height="68" rx="6" fill="#1B7D3A" fill-opacity="0.08" stroke="#1B7D3A" stroke-width="1"/>
+  <text x="230" y="90" text-anchor="middle" font-size="10" font-weight="600" fill="#1B7D3A">client</text>
+  <text x="230" y="106" text-anchor="middle" font-size="8" fill="#9B9590" font-family="Source Code Pro, monospace">pk: ADVISOR#5</text>
+  <text x="230" y="118" text-anchor="middle" font-size="8" fill="#9B9590" font-family="Source Code Pro, monospace">sk: CLIENT#101</text>
+  <text x="230" y="132" text-anchor="middle" font-size="8" fill="#312D2A">name, riskProfile</text>
+  <!-- Holding doc -->
+  <rect x="300" y="72" width="110" height="68" rx="6" fill="#996B00" fill-opacity="0.08" stroke="#996B00" stroke-width="1"/>
+  <text x="355" y="90" text-anchor="middle" font-size="10" font-weight="600" fill="#996B00">holding</text>
+  <text x="355" y="106" text-anchor="middle" font-size="8" fill="#9B9590" font-family="Source Code Pro, monospace">pk: ACCOUNT#1</text>
+  <text x="355" y="118" text-anchor="middle" font-size="8" fill="#9B9590" font-family="Source Code Pro, monospace">sk: HOLD#1001</text>
+  <text x="355" y="132" text-anchor="middle" font-size="8" fill="#312D2A">symbol, quantity</text>
+  <!-- Transaction doc -->
+  <rect x="425" y="72" width="130" height="68" rx="6" fill="#3B5998" fill-opacity="0.08" stroke="#3B5998" stroke-width="1"/>
+  <text x="490" y="90" text-anchor="middle" font-size="10" font-weight="600" fill="#3B5998">transaction</text>
+  <text x="490" y="106" text-anchor="middle" font-size="8" fill="#9B9590" font-family="Source Code Pro, monospace">pk: ACCOUNT#1</text>
+  <text x="490" y="118" text-anchor="middle" font-size="8" fill="#9B9590" font-family="Source Code Pro, monospace">sk: TXN#2001</text>
+  <text x="490" y="132" text-anchor="middle" font-size="8" fill="#312D2A">type, amount</text>
+  <!-- Grouping brackets -->
+  <line x1="50" y1="155" x2="280" y2="155" stroke="#C74634" stroke-width="2" stroke-linecap="round"/>
+  <text x="165" y="172" text-anchor="middle" font-size="9" font-weight="600" fill="#C74634">pk = ADVISOR#5 (co-located)</text>
+  <line x1="300" y1="155" x2="550" y2="155" stroke="#996B00" stroke-width="2" stroke-linecap="round"/>
+  <text x="425" y="172" text-anchor="middle" font-size="9" font-weight="600" fill="#996B00">pk = ACCOUNT#1 (co-located)</text>
+  <text x="300" y="192" text-anchor="middle" font-size="10" fill="#9B9590">Shared pk groups related entities for efficient access</text>
+</svg>

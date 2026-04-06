@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 200" font-family="Source Sans Pro, -apple-system, sans-serif">
+  <defs>
+    <marker id="ja1" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10" fill="#C74634"/></marker>
+  </defs>
+  <rect width="600" height="200" rx="8" fill="#F7F6F5"/>
+  <text x="300" y="24" text-anchor="middle" font-size="13" font-weight="700" fill="#312D2A">JSON_ARRAYAGG — SQL Rows to JSON Array</text>
+  <!-- Relational rows on left -->
+  <rect x="20" y="42" width="185" height="120" rx="8" fill="#fff" stroke="#E5E2DF" stroke-width="1.5"/>
+  <text x="112" y="60" text-anchor="middle" font-size="10" font-weight="600" fill="#312D2A">SQL Rows</text>
+  <!-- Table header -->
+  <rect x="32" y="68" width="162" height="18" rx="3" fill="#312D2A"/>
+  <text x="70" y="80" text-anchor="middle" font-size="8" font-weight="600" fill="#fff">client</text>
+  <text x="140" y="80" text-anchor="middle" font-size="8" font-weight="600" fill="#fff">symbol</text>
+  <!-- Row 1 -->
+  <rect x="32" y="86" width="162" height="18" fill="#1B7D3A" fill-opacity="0.06"/>
+  <text x="70" y="98" text-anchor="middle" font-size="8" fill="#312D2A" font-family="Source Code Pro, monospace">Emily</text>
+  <text x="140" y="98" text-anchor="middle" font-size="8" fill="#312D2A" font-family="Source Code Pro, monospace">AAPL</text>
+  <!-- Row 2 -->
+  <rect x="32" y="104" width="162" height="18" fill="#fff"/>
+  <text x="70" y="116" text-anchor="middle" font-size="8" fill="#312D2A" font-family="Source Code Pro, monospace">Emily</text>
+  <text x="140" y="116" text-anchor="middle" font-size="8" fill="#312D2A" font-family="Source Code Pro, monospace">GOOGL</text>
+  <!-- Row 3 -->
+  <rect x="32" y="122" width="162" height="18" fill="#1B7D3A" fill-opacity="0.06"/>
+  <text x="70" y="134" text-anchor="middle" font-size="8" fill="#312D2A" font-family="Source Code Pro, monospace">Emily</text>
+  <text x="140" y="134" text-anchor="middle" font-size="8" fill="#312D2A" font-family="Source Code Pro, monospace">MSFT</text>
+  <!-- Arrow -->
+  <line x1="208" y1="100" x2="260" y2="100" stroke="#C74634" stroke-width="2" marker-end="url(#ja1)"/>
+  <!-- ARRAYAGG box -->
+  <rect x="264" y="80" width="110" height="42" rx="6" fill="#312D2A"/>
+  <text x="319" y="98" text-anchor="middle" font-size="9" font-weight="700" fill="#fff">JSON_ARRAYAGG</text>
+  <text x="319" y="114" text-anchor="middle" font-size="8" fill="rgba(255,255,255,0.6)">GROUP BY client</text>
+  <!-- Arrow -->
+  <line x1="376" y1="100" x2="418" y2="100" stroke="#C74634" stroke-width="2" marker-end="url(#ja1)"/>
+  <!-- JSON output -->
+  <rect x="422" y="42" width="158" height="120" rx="8" fill="#fff" stroke="#E5E2DF" stroke-width="1.5"/>
+  <text x="501" y="60" text-anchor="middle" font-size="10" font-weight="600" fill="#312D2A">JSON Document</text>
+  <text x="436" y="80" font-size="9" fill="#312D2A" font-family="Source Code Pro, monospace">{</text>
+  <text x="444" y="94" font-size="9" fill="#312D2A" font-family="Source Code Pro, monospace">"client": "Emily",</text>
+  <text x="444" y="108" font-size="9" fill="#1B7D3A" font-weight="600" font-family="Source Code Pro, monospace">"holdings": [</text>
+  <text x="452" y="122" font-size="9" fill="#1B7D3A" font-family="Source Code Pro, monospace">"AAPL","GOOGL","MSFT"</text>
+  <text x="444" y="136" font-size="9" fill="#1B7D3A" font-weight="600" font-family="Source Code Pro, monospace">]</text>
+  <text x="436" y="150" font-size="9" fill="#312D2A" font-family="Source Code Pro, monospace">}</text>
+  <!-- Bottom label -->
+  <rect x="170" y="172" width="260" height="22" rx="5" fill="#1B7D3A" fill-opacity="0.08" stroke="#1B7D3A" stroke-width="1"/>
+  <text x="300" y="187" text-anchor="middle" font-size="10" font-weight="600" fill="#1B7D3A">SQL rows → JSON projection</text>
+</svg>

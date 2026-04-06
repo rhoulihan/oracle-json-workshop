@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 200" font-family="Source Sans Pro, -apple-system, sans-serif">
+  <defs>
+    <marker id="no1" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10" fill="#C74634"/></marker>
+  </defs>
+  <rect width="600" height="200" rx="8" fill="#F7F6F5"/>
+  <text x="300" y="24" text-anchor="middle" font-size="13" font-weight="700" fill="#312D2A">node-oracledb — 3 Access Patterns, 1 Database</text>
+  <!-- Pattern 1: SQL -->
+  <rect x="20" y="50" width="200" height="36" rx="6" fill="#C74634" fill-opacity="0.08" stroke="#C74634" stroke-width="1.5"/>
+  <text x="120" y="66" text-anchor="middle" font-size="10" font-weight="600" fill="#C74634">SQL Query</text>
+  <text x="120" y="80" text-anchor="middle" font-size="8" fill="#9B9590" font-family="Source Code Pro, monospace">conn.execute("SELECT ...")</text>
+  <!-- Pattern 2: JSON Type Binding -->
+  <rect x="20" y="96" width="200" height="36" rx="6" fill="#1B7D3A" fill-opacity="0.08" stroke="#1B7D3A" stroke-width="1.5"/>
+  <text x="120" y="112" text-anchor="middle" font-size="10" font-weight="600" fill="#1B7D3A">JSON Type Binding</text>
+  <text x="120" y="126" text-anchor="middle" font-size="8" fill="#9B9590" font-family="Source Code Pro, monospace">DB_TYPE_JSON → native JS</text>
+  <!-- Pattern 3: SODA API -->
+  <rect x="20" y="142" width="200" height="36" rx="6" fill="#996B00" fill-opacity="0.08" stroke="#996B00" stroke-width="1.5"/>
+  <text x="120" y="158" text-anchor="middle" font-size="10" font-weight="600" fill="#996B00">SODA API</text>
+  <text x="120" y="172" text-anchor="middle" font-size="8" fill="#9B9590" font-family="Source Code Pro, monospace">coll.find().filter({...})</text>
+  <!-- Arrows converging -->
+  <line x1="222" y1="68" x2="340" y2="100" stroke="#C74634" stroke-width="2" marker-end="url(#no1)"/>
+  <line x1="222" y1="114" x2="340" y2="114" stroke="#C74634" stroke-width="2" marker-end="url(#no1)"/>
+  <line x1="222" y1="160" x2="340" y2="128" stroke="#C74634" stroke-width="2" marker-end="url(#no1)"/>
+  <!-- Oracle Database -->
+  <rect x="345" y="50" width="235" height="130" rx="10" fill="#312D2A"/>
+  <text x="462" y="78" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">Oracle Database</text>
+  <line x1="360" y1="88" x2="566" y2="88" stroke="rgba(255,255,255,0.15)" stroke-width="1"/>
+  <text x="462" y="108" text-anchor="middle" font-size="9" fill="rgba(255,255,255,0.6)">Same tables + indexes</text>
+  <text x="462" y="124" text-anchor="middle" font-size="9" fill="rgba(255,255,255,0.6)">Same ACID transactions</text>
+  <text x="462" y="140" text-anchor="middle" font-size="9" fill="rgba(255,255,255,0.6)">Same optimizer</text>
+  <text x="462" y="160" text-anchor="middle" font-size="10" font-weight="600" fill="#C74634">Thin mode — no install needed</text>
+  <!-- Bottom label -->
+  <text x="300" y="195" text-anchor="middle" font-size="10" font-weight="600" fill="#312D2A">Choose the API that fits your use case — all hit the same engine</text>
+</svg>
