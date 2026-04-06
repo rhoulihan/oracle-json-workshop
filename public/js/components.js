@@ -10,8 +10,13 @@
 function labReturnUrl() {
   const pos = sessionStorage.getItem('labPosition');
   if (pos) {
-    const [mod, ex] = pos.split(':');
-    return `/lab.html?module=${mod}&exercise=${ex}&preserveData`;
+    const parts = pos.split(':');
+    const mod = parts[0];
+    const ex = parts[1];
+    const subtab = parts[2] || '';
+    let url = `/lab.html?module=${mod}&exercise=${ex}&preserveData`;
+    if (subtab) url += `&subtab=${subtab}`;
+    return url;
   }
   return '/lab.html?module=module-1';
 }

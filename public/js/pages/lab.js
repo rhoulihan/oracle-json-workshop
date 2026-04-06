@@ -207,13 +207,25 @@ async function init() {
       sessionStorage.setItem('labPosition', `${moduleId}:${idx}`);
     });
 
-    // Restore exercise tab from URL param or sessionStorage
+    // Restore exercise tab from URL param
     const requestedEx = params.get('exercise');
     if (requestedEx) {
       const tab = exerciseTabBar.querySelector(
         `.exercise-tab[data-exercise-index="${requestedEx}"]`,
       );
       if (tab) tab.click();
+
+      // Restore Learn sub-tab if requested
+      const subtab = params.get('subtab');
+      if (subtab === 'learn') {
+        const exerciseEl = panelsContainer.querySelector(
+          `.exercise[data-panel-index="${requestedEx}"]`,
+        );
+        if (exerciseEl) {
+          const learnBtn = exerciseEl.querySelector('.ex-tab[data-tab="learn"]');
+          if (learnBtn) learnBtn.click();
+        }
+      }
     }
   }
 
@@ -421,6 +433,10 @@ async function init() {
     if (e.target.classList.contains('btn-editor')) {
       const code = decodeURIComponent(e.target.dataset.code);
       const tab = e.target.dataset.tab || 'sql';
+      // Remember that we were on the Learn tab
+      const exerciseEl = e.target.closest('.exercise');
+      const idx = exerciseEl?.dataset.panelIndex || '0';
+      sessionStorage.setItem('labPosition', `${moduleId}:${idx}:learn`);
       window.open(`/editor.html?code=${encodeURIComponent(code)}&tab=${tab}`, '_blank');
       return;
     }

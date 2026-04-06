@@ -7,6 +7,24 @@ import { TabManager } from '../editor-setup.js';
 const tabManager = new TabManager();
 
 /**
+ * Light SQL formatter — adds line breaks before major clauses.
+ */
+function formatSql(sql) {
+  // Keywords that start a new line (not indented)
+  const majorClauses =
+    /\b(SELECT|FROM|WHERE|ORDER\s+BY|GROUP\s+BY|HAVING|FETCH|LIMIT|UNION|INSERT\s+INTO|UPDATE|DELETE\s+FROM|SET|VALUES|COMMIT)\b/gi;
+  // Keywords that start a new indented line
+  const subClauses = /\b(AND|OR|JOIN|LEFT\s+JOIN|RIGHT\s+JOIN|INNER\s+JOIN|CROSS\s+JOIN|ON)\b/gi;
+
+  let result = sql.trim();
+  // Add newline before major clauses (but not at the very start)
+  result = result.replace(majorClauses, (m, _kw, offset) => (offset === 0 ? m : '\n' + m));
+  // Add newline + indent before sub-clauses
+  result = result.replace(subClauses, (m, _kw, offset) => (offset === 0 ? m : '\n  ' + m));
+  return result;
+}
+
+/**
  * Execute a query based on the active tab type.
  * @param {string} tab - 'sql' | 'js' | 'mongo'
  * @param {string} content - query/code/command text
@@ -121,9 +139,10 @@ async function init() {
   if (preloadCode) {
     const targetTab =
       preloadTab && ['sql', 'js', 'mongo'].includes(preloadTab) ? preloadTab : 'sql';
+    const formatted = targetTab === 'sql' ? formatSql(preloadCode) : preloadCode;
     tabManager.switchTab(targetTab);
-    editorArea.value = preloadCode;
-    tabManager.setContent(targetTab, preloadCode);
+    editorArea.value = formatted;
+    tabManager.setContent(targetTab, formatted);
     editorArea.placeholder = tabManager.getPlaceholder(targetTab);
     tabButtons.forEach((b) => b.classList.toggle('active', b.dataset.tab === targetTab));
   }
