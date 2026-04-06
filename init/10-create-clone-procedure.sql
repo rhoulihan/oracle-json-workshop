@@ -139,15 +139,8 @@ BEGIN
     }
     FROM ' || v_username || '.transactions t WITH INSERT UPDATE DELETE';
 
-  -- Create indexes on single-table collection
-  EXECUTE IMMEDIATE 'CREATE INDEX ' || v_username || '.idx_pk_sk ON ' || v_username ||
-    '.advisory_entities (data.pk.string(), data.sk.string())';
-  EXECUTE IMMEDIATE 'CREATE INDEX ' || v_username || '.idx_gsi1 ON ' || v_username ||
-    '.advisory_entities (data.gsi1pk.string(), data.gsi1sk.string())';
-  EXECUTE IMMEDIATE 'CREATE MULTIVALUE INDEX ' || v_username || '.idx_tags ON ' || v_username ||
-    '.advisory_entities ae (ae.data.data.tags.string())';
-  EXECUTE IMMEDIATE 'CREATE MULTIVALUE INDEX ' || v_username || '.idx_sectors ON ' || v_username ||
-    '.advisory_entities ae (ae.data.data.sectors.string())';
+  -- advisory_entities indexes are created by Module 3 exercises (3.2 and 3.3)
+  -- so users learn to build them incrementally
 
   -- Record workspace
   INSERT INTO workshop_admin.workshop_users (schema_name, status, created_at, last_active)

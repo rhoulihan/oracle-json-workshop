@@ -4,25 +4,17 @@
 ALTER SESSION SET CONTAINER = FREEPDB1;
 ALTER SESSION SET CURRENT_SCHEMA = WORKSHOP_ADMIN;
 
--- Single-table design: primary access pattern (pk + sk)
-CREATE INDEX idx_pk_sk ON advisory_entities (
-    data.pk.string(),
-    data.sk.string()
-);
+-- Advisory entities: compound indexes on natural grouping attributes
+CREATE INDEX idx_advisor ON advisory_entities (data.advisorId.number());
+CREATE INDEX idx_account ON advisory_entities (data.accountId.number());
+CREATE INDEX idx_symbol ON advisory_entities (data.symbol.string());
 
--- Single-table design: GSI equivalent
-CREATE INDEX idx_gsi1 ON advisory_entities (
-    data.gsi1pk.string(),
-    data.gsi1sk.string()
-);
-
--- Multi-value index on tags array
+-- Multi-value indexes on array attributes
 CREATE MULTIVALUE INDEX idx_tags ON advisory_entities ae
-    (ae.data.data.tags.string());
+    (ae.data.tags.string());
 
--- Multi-value index on sectors array
 CREATE MULTIVALUE INDEX idx_sectors ON advisory_entities ae
-    (ae.data.data.sectors.string());
+    (ae.data.sectors.string());
 
 -- Full-text search index on client_interactions
 CREATE SEARCH INDEX idx_interactions_search

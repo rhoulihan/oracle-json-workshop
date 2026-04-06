@@ -1,5 +1,6 @@
 -- 08-load-single-table-data.sql
--- Generates 3000 advisory_entities documents in single-table design format.
+-- Generates 3000 advisory_entities documents with natural domain attributes.
+-- Four entity types co-located in one collection, grouped by shared attributes.
 
 ALTER SESSION SET CONTAINER = FREEPDB1;
 ALTER SESSION SET CURRENT_SCHEMA = WORKSHOP_ADMIN;
@@ -67,97 +68,79 @@ DECLARE
   END;
 
 BEGIN
-  -- 20 Advisor entities
+  -- 20 Advisor entities (grouped by advisorId)
   FOR i IN 1..20 LOOP
     v_region := v_regions(MOD(i-1, 4)+1);
     v_doc := '{' ||
-      '"pk":"ADVISOR#' || i || '",' ||
-      '"sk":"PROFILE",' ||
       '"entityType":"advisor",' ||
-      '"gsi1pk":"REGION#' || v_region || '",' ||
-      '"gsi1sk":"ADVISOR#' || i || '",' ||
-      '"data":{' ||
-        '"firstName":"Advisor' || i || '",' ||
-        '"lastName":"Name' || i || '",' ||
-        '"email":"advisor' || i || '@firm.com",' ||
-        '"licenseType":"Series 7",' ||
-        '"region":"' || v_region || '",' ||
-        '"hireDate":"20' || (15 + rr(10)) || '-' || LPAD(rr(12), 2, '0') || '-15"' ||
-      '}' ||
+      '"advisorId":' || i || ',' ||
+      '"region":"' || v_region || '",' ||
+      '"firstName":"Advisor' || i || '",' ||
+      '"lastName":"Name' || i || '",' ||
+      '"email":"advisor' || i || '@firm.com",' ||
+      '"licenseType":"Series 7",' ||
+      '"hireDate":"20' || (15 + rr(10)) || '-' || LPAD(rr(12), 2, '0') || '-15"' ||
     '}';
     INSERT INTO advisory_entities (data) VALUES (JSON(v_doc));
     v_total := v_total + 1;
   END LOOP;
 
-  -- 200 Client entities
+  -- 200 Client entities (grouped by advisorId — same attribute as advisor)
   FOR i IN 1..200 LOOP
     v_adv_id := MOD(i-1, 20) + 1;
     v_risk_val := v_risk(rr(v_risk.COUNT));
     v_doc := '{' ||
-      '"pk":"ADVISOR#' || v_adv_id || '",' ||
-      '"sk":"CLIENT#' || (1000 + i) || '",' ||
       '"entityType":"client",' ||
-      '"gsi1pk":"CLIENT#' || (1000 + i) || '",' ||
-      '"gsi1sk":"ACCOUNT_SUMMARY",' ||
-      '"data":{' ||
-        '"firstName":"Client' || i || '",' ||
-        '"lastName":"Person' || i || '",' ||
-        '"email":"client' || i || '@email.com",' ||
-        '"riskProfile":"' || v_risk_val || '",' ||
-        '"totalValue":' || (rr(900000) + 100000) || ',' ||
-        '"accountCount":' || rr(4) ||
-      '}' ||
+      '"advisorId":' || v_adv_id || ',' ||
+      '"clientId":' || (1000 + i) || ',' ||
+      '"firstName":"Client' || i || '",' ||
+      '"lastName":"Person' || i || '",' ||
+      '"email":"client' || i || '@email.com",' ||
+      '"riskProfile":"' || v_risk_val || '",' ||
+      '"totalValue":' || (rr(900000) + 100000) || ',' ||
+      '"accountCount":' || rr(4) ||
     '}';
     INSERT INTO advisory_entities (data) VALUES (JSON(v_doc));
     v_total := v_total + 1;
   END LOOP;
 
-  -- 2000 Holding entities with tags and sectors
+  -- 2000 Holding entities (grouped by accountId, queryable by symbol)
   FOR i IN 1..2000 LOOP
-    v_acct_id := rr(500) + 2000;
+    v_acct_id := rr(500);
     v_sym := v_symbols(rr(v_symbols.COUNT));
     v_arr := rand_arr(v_sectors, rr(4));
     v_doc := '{' ||
-      '"pk":"ACCOUNT#' || v_acct_id || '",' ||
-      '"sk":"HOLDING#' || v_sym || '#' || i || '",' ||
       '"entityType":"holding",' ||
-      '"gsi1pk":"SYMBOL#' || v_sym || '",' ||
-      '"gsi1sk":"ACCOUNT#' || v_acct_id || '",' ||
-      '"data":{' ||
-        '"symbol":"' || v_sym || '",' ||
-        '"quantity":' || rr(500) || ',' ||
-        '"costBasis":' || (rr(50000) + 1000) || ',' ||
-        '"marketValue":' || (rr(60000) + 1000) || ',' ||
-        '"sectors":' || v_arr || ',' ||
-        '"tags":' || rand_arr(v_tags, rr(5)) || ',' ||
-        '"lastUpdated":"2026-03-' || LPAD(rr(28), 2, '0') || 'T16:00:00Z"' ||
-      '}' ||
+      '"accountId":' || v_acct_id || ',' ||
+      '"symbol":"' || v_sym || '",' ||
+      '"quantity":' || rr(500) || ',' ||
+      '"costBasis":' || (rr(50000) + 1000) || ',' ||
+      '"marketValue":' || (rr(60000) + 1000) || ',' ||
+      '"sectors":' || v_arr || ',' ||
+      '"tags":' || rand_arr(v_tags, rr(5)) || ',' ||
+      '"lastUpdated":"2026-03-' || LPAD(rr(28), 2, '0') || 'T16:00:00Z"' ||
     '}';
     INSERT INTO advisory_entities (data) VALUES (JSON(v_doc));
     v_total := v_total + 1;
   END LOOP;
 
-  -- Fill remaining to 3000 with transaction entities
+  -- Fill remaining to 3000 with transaction entities (grouped by accountId)
   WHILE v_total < 3000 LOOP
-    v_acct_id := rr(500) + 2000;
+    v_acct_id := rr(500);
     v_sym := v_symbols(rr(v_symbols.COUNT));
     v_day := rr(28);
     v_hour := rr(12) + 8;
     v_min := rr(59);
     v_doc := '{' ||
-      '"pk":"ACCOUNT#' || v_acct_id || '",' ||
-      '"sk":"TXN#2026-03-' || LPAD(v_day, 2, '0') || 'T' || LPAD(v_hour, 2, '0') || ':' || LPAD(v_min, 2, '0') || ':00Z#' || v_total || '",' ||
       '"entityType":"transaction",' ||
-      '"gsi1pk":"SYMBOL#' || v_sym || '",' ||
-      '"gsi1sk":"TXN#2026-03-' || LPAD(v_day, 2, '0') || 'T' || LPAD(v_hour, 2, '0') || ':' || LPAD(v_min, 2, '0') || ':00Z",' ||
-      '"data":{' ||
-        '"txnType":"' || v_txn_types(rr(v_txn_types.COUNT)) || '",' ||
-        '"symbol":"' || v_sym || '",' ||
-        '"quantity":' || rr(200) || ',' ||
-        '"price":' || (rr(500) + 10) || ',' ||
-        '"totalAmount":' || (rr(100000) + 500) || ',' ||
-        '"tags":' || rand_arr(v_txn_tags, rr(3)) ||
-      '}' ||
+      '"accountId":' || v_acct_id || ',' ||
+      '"symbol":"' || v_sym || '",' ||
+      '"txnType":"' || v_txn_types(rr(v_txn_types.COUNT)) || '",' ||
+      '"quantity":' || rr(200) || ',' ||
+      '"price":' || (rr(500) + 10) || ',' ||
+      '"totalAmount":' || (rr(100000) + 500) || ',' ||
+      '"txnDate":"2026-03-' || LPAD(v_day, 2, '0') || 'T' || LPAD(v_hour, 2, '0') || ':' || LPAD(v_min, 2, '0') || ':00Z",' ||
+      '"tags":' || rand_arr(v_txn_tags, rr(3)) ||
     '}';
     INSERT INTO advisory_entities (data) VALUES (JSON(v_doc));
     v_total := v_total + 1;
