@@ -122,6 +122,19 @@ export function renderExercise(exercise, isComplete) {
   const runBtnText = hasSteps ? `Run Step 1/${exercise.steps.length}` : 'Run';
   const runBtnClass = hasSteps ? 'btn-primary btn-run btn-step' : 'btn-primary btn-run';
 
+  // Split explanation at "Try this" boundary
+  let mainExplanationHtml = '';
+  let tryThisHtml = '';
+  if (hasExplanation) {
+    const tryThisIdx = exercise.explanation.search(/\n\n\*\*Try this/);
+    if (tryThisIdx !== -1) {
+      mainExplanationHtml = formatExplanation(exercise.explanation.slice(0, tryThisIdx));
+      tryThisHtml = formatExplanation(exercise.explanation.slice(tryThisIdx));
+    } else {
+      mainExplanationHtml = formatExplanation(exercise.explanation);
+    }
+  }
+
   div.innerHTML = `
     <div class="exercise-header">
       <h4 class="exercise-title">
@@ -131,15 +144,23 @@ export function renderExercise(exercise, isComplete) {
       ${
         hasExplanation
           ? `<div class="exercise-tabs">
-        <button class="ex-tab active" data-tab="code">Code</button>
-        <button class="ex-tab" data-tab="learn">Learn</button>
+        <button class="ex-tab" data-tab="code">Code</button>
+        <button class="ex-tab active" data-tab="learn">Learn</button>
       </div>`
           : ''
       }
     </div>
     ${exercise.description ? `<p class="exercise-desc">${exercise.description}</p>` : ''}
-    ${hasExplanation ? `<div class="exercise-explanation" style="display:none;">${formatExplanation(exercise.explanation)}</div>` : ''}
-    <div class="exercise-code-panel">
+    ${
+      hasExplanation
+        ? `<div class="exercise-explanation">
+        ${mainExplanationHtml}
+        <div class="learn-actions"><button class="btn-primary btn-run-code">Run the Code</button></div>
+        ${tryThisHtml ? `<div class="try-this-section" style="display:none">${tryThisHtml}</div>` : ''}
+      </div>`
+        : ''
+    }
+    <div class="exercise-code-panel"${hasExplanation ? ' style="display:none;"' : ''}>
       ${stepLabel}
       <div class="code-block">
         <div class="code-toolbar">
@@ -171,6 +192,10 @@ function formatExplanation(text) {
   const mongoPattern = /^(db\.|show )/i;
 
   return text
+    .replace(
+      /\[svg:([^\]]+)\]/g,
+      '<img src="/img/diagrams/$1" class="explain-diagram-svg" alt="Diagram">',
+    )
     .replace(/`([^`]+)`/g, (_match, code) => {
       const safe = escapeHtml(code);
       const encoded = encodeURIComponent(code);

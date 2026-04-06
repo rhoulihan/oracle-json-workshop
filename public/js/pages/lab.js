@@ -310,6 +310,27 @@ async function init() {
       return;
     }
 
+    // "Run the Code" button in Learn tab → switch to Code tab
+    if (e.target.classList.contains('btn-run-code')) {
+      const exerciseEl = e.target.closest('.exercise');
+      const codeTab = exerciseEl.querySelector('.ex-tab[data-tab="code"]');
+      if (codeTab) codeTab.click();
+      return;
+    }
+
+    // "More Examples" button → switch to Learn tab and show Try-this section
+    if (e.target.classList.contains('btn-more-examples')) {
+      const exerciseEl = e.target.closest('.exercise');
+      const learnTab = exerciseEl.querySelector('.ex-tab[data-tab="learn"]');
+      if (learnTab) learnTab.click();
+      const tryThis = exerciseEl.querySelector('.try-this-section');
+      if (tryThis) {
+        tryThis.style.display = '';
+        tryThis.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+      return;
+    }
+
     // Run / Run Step button
     if (e.target.classList.contains('btn-run')) {
       const exerciseEl = e.target.closest('.exercise');
@@ -367,6 +388,16 @@ async function init() {
 
         if (runner.isComplete()) {
           e.target.textContent = 'Run Again';
+          // Add "More Examples" button if try-this section exists
+          if (
+            exerciseEl.querySelector('.try-this-section') &&
+            !exerciseEl.querySelector('.btn-more-examples')
+          ) {
+            const moreBtn = document.createElement('button');
+            moreBtn.className = 'btn-secondary btn-more-examples';
+            moreBtn.textContent = 'More Examples';
+            e.target.parentElement.appendChild(moreBtn);
+          }
           markExerciseRun(exerciseId);
           // Auto-validate
           const validation = await api.checkExercise(moduleId, exerciseId);
@@ -421,6 +452,16 @@ async function init() {
         meta.textContent = `${results.length} statement${results.length > 1 ? 's' : ''} · ${totalDuration}ms`;
         resultContainer.prepend(meta);
 
+        // Add "More Examples" button if try-this section exists
+        if (
+          exerciseEl.querySelector('.try-this-section') &&
+          !exerciseEl.querySelector('.btn-more-examples')
+        ) {
+          const moreBtn = document.createElement('button');
+          moreBtn.className = 'btn-secondary btn-more-examples';
+          moreBtn.textContent = 'More Examples';
+          exerciseEl.querySelector('.exercise-actions').appendChild(moreBtn);
+        }
         markExerciseRun(exerciseId);
         const validation = await api.checkExercise(moduleId, exerciseId);
         if (validation.valid) {

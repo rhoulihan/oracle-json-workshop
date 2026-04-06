@@ -116,13 +116,12 @@ describe('shared components', () => {
       };
       const el = renderExercise(exercise, false);
       expect(el.querySelector('.ex-tab[data-tab="learn"]')).toBeTruthy();
-      expect(el.querySelector('.ex-tab[data-tab="code"]').classList.contains('active')).toBe(true);
-      expect(el.querySelector('.ex-tab[data-tab="learn"]').classList.contains('active')).toBe(
-        false,
-      );
+      expect(el.querySelector('.ex-tab[data-tab="learn"]').classList.contains('active')).toBe(true);
+      expect(el.querySelector('.ex-tab[data-tab="code"]').classList.contains('active')).toBe(false);
       expect(el.querySelector('.exercise-explanation')).toBeTruthy();
-      expect(el.querySelector('.exercise-explanation').style.display).toBe('none');
+      expect(el.querySelector('.exercise-explanation').style.display).toBe('');
       expect(el.querySelector('.exercise-explanation').textContent).toContain('JSON_SERIALIZE');
+      expect(el.querySelector('.exercise-code-panel').style.display).toBe('none');
     });
 
     it('does not show Learn tab without explanation', () => {
