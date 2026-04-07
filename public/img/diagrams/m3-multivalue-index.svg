@@ -8,7 +8,7 @@
   <rect x="20" y="42" width="190" height="110" rx="8" fill="#fff" stroke="#E5E2DF" stroke-width="1.5"/>
   <text x="115" y="62" text-anchor="middle" font-size="10" font-weight="600" fill="#312D2A">Document</text>
   <text x="36" y="80" font-size="9" fill="#312D2A" font-family="Source Code Pro, monospace">{</text>
-  <text x="46" y="94" font-size="9" fill="#312D2A" font-family="Source Code Pro, monospace">"pk": "ADVISOR#5",</text>
+  <text x="46" y="94" font-size="9" fill="#312D2A" font-family="Source Code Pro, monospace">"symbol": "AAPL",</text>
   <text x="46" y="108" font-size="9" fill="#C74634" font-weight="600" font-family="Source Code Pro, monospace">"tags": [</text>
   <text x="56" y="122" font-size="9" fill="#C74634" font-family="Source Code Pro, monospace">"dividend","sp500","growth"</text>
   <text x="46" y="136" font-size="9" fill="#C74634" font-weight="600" font-family="Source Code Pro, monospace">]</text>

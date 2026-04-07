@@ -8,7 +8,7 @@
   <rect x="20" y="42" width="150" height="105" rx="8" fill="#fff" stroke="#E5E2DF" stroke-width="1.5"/>
   <text x="95" y="60" text-anchor="middle" font-size="10" font-weight="600" fill="#312D2A">JSON Document</text>
   <text x="34" y="78" font-size="9" fill="#312D2A" font-family="Source Code Pro, monospace">{</text>
-  <text x="42" y="92" font-size="9" fill="#9B9590" font-family="Source Code Pro, monospace">"pk": "ADV#5",</text>
+  <text x="42" y="92" font-size="9" fill="#9B9590" font-family="Source Code Pro, monospace">"symbol": "AAPL",</text>
   <text x="42" y="106" font-size="9" fill="#C74634" font-weight="600" font-family="Source Code Pro, monospace">"tags": [</text>
   <text x="50" y="118" font-size="9" fill="#C74634" font-family="Source Code Pro, monospace">"div","sp500","grw"</text>
   <text x="42" y="132" font-size="9" fill="#C74634" font-weight="600" font-family="Source Code Pro, monospace">]</text>
@@ -26,19 +26,19 @@
   <text x="475" y="60" text-anchor="middle" font-size="10" font-weight="600" fill="#312D2A">Shredded Rows</text>
   <!-- Table header -->
   <rect x="382" y="68" width="186" height="18" rx="3" fill="#312D2A"/>
-  <text x="420" y="80" text-anchor="middle" font-size="8" font-weight="600" fill="#fff">pk</text>
+  <text x="420" y="80" text-anchor="middle" font-size="8" font-weight="600" fill="#fff">symbol</text>
   <text x="520" y="80" text-anchor="middle" font-size="8" font-weight="600" fill="#fff">tag</text>
   <!-- Row 1 -->
   <rect x="382" y="86" width="186" height="18" fill="#C74634" fill-opacity="0.06"/>
-  <text x="420" y="98" text-anchor="middle" font-size="8" fill="#312D2A" font-family="Source Code Pro, monospace">ADV#5</text>
+  <text x="420" y="98" text-anchor="middle" font-size="8" fill="#312D2A" font-family="Source Code Pro, monospace">AAPL</text>
   <text x="520" y="98" text-anchor="middle" font-size="8" fill="#C74634" font-family="Source Code Pro, monospace">dividend</text>
   <!-- Row 2 -->
   <rect x="382" y="104" width="186" height="18" fill="#fff"/>
-  <text x="420" y="116" text-anchor="middle" font-size="8" fill="#312D2A" font-family="Source Code Pro, monospace">ADV#5</text>
+  <text x="420" y="116" text-anchor="middle" font-size="8" fill="#312D2A" font-family="Source Code Pro, monospace">AAPL</text>
   <text x="520" y="116" text-anchor="middle" font-size="8" fill="#C74634" font-family="Source Code Pro, monospace">sp500</text>
   <!-- Row 3 -->
   <rect x="382" y="122" width="186" height="18" rx="0 0 3 3" fill="#C74634" fill-opacity="0.06"/>
-  <text x="420" y="134" text-anchor="middle" font-size="8" fill="#312D2A" font-family="Source Code Pro, monospace">ADV#5</text>
+  <text x="420" y="134" text-anchor="middle" font-size="8" fill="#312D2A" font-family="Source Code Pro, monospace">AAPL</text>
   <text x="520" y="134" text-anchor="middle" font-size="8" fill="#C74634" font-family="Source Code Pro, monospace">growth</text>
   <!-- Arrow to GROUP BY -->
   <line x1="475" y1="150" x2="475" y2="170" stroke="#C74634" stroke-width="2" marker-end="url(#jt1)"/>
