@@ -15,7 +15,7 @@
   <!-- PRETTY output box -->
   <rect x="218" y="42" width="170" height="88" rx="8" fill="#fff" stroke="#E5E2DF" stroke-width="1.5"/>
   <text x="303" y="60" text-anchor="middle" font-size="10" font-weight="600" fill="#1B7D3A">PRETTY</text>
-  <text x="303" y="76" text-anchor="start" font-size="8.5" fill="#9B9590" font-family="Source Code Pro, monospace" x="235">{</text>
+  <text x="235" y="76" text-anchor="start" font-size="8.5" fill="#9B9590" font-family="Source Code Pro, monospace">{</text>
   <text x="243" y="88" text-anchor="start" font-size="8.5" fill="#9B9590" font-family="Source Code Pro, monospace">  "type": "meeting",</text>
   <text x="243" y="100" text-anchor="start" font-size="8.5" fill="#9B9590" font-family="Source Code Pro, monospace">  "client_id": 3,</text>
   <text x="243" y="112" text-anchor="start" font-size="8.5" fill="#9B9590" font-family="Source Code Pro, monospace">  "sentiment": "positive"</text>
