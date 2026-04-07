@@ -14,7 +14,8 @@ Interactive, containerized developer workshop teaching Oracle's full JSON techno
 - **Frontend:** Vanilla HTML/CSS/JS — zero build step. 5 pages (landing, dashboard, lab, editor, admin). Oracle-branded CSS design system. ES modules in browser.
 - **No ADB-Free** — requires `--cap-add SYS_ADMIN` + `/dev/fuse`, too heavy, not offline-friendly.
 - **No separate ORDS container** — ORDS is baked into the Oracle image for self-containment.
-- **Offline deployment:** `docker compose build` produces everything. `scripts/bundle.sh` saves images to tarball.
+- **Container runtime:** Supports both Docker and Podman. `scripts/run.sh` auto-detects available runtime. Podman required on Oracle corporate laptops where Docker Desktop is prohibited.
+- **Offline deployment:** `./scripts/run.sh build` produces everything. `scripts/bundle.sh` saves images to tarball.
 
 ## Key Technical Decisions
 

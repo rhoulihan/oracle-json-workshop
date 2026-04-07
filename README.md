@@ -19,7 +19,7 @@ A self-contained, containerized developer workshop that teaches Oracle's full JS
 
 ## Architecture
 
-Two Docker containers, fully self-contained:
+Two containers (Docker or Podman), fully self-contained:
 
 ```
 ┌──────────────────┐  ┌──────────────────────────────────────┐
@@ -40,7 +40,7 @@ Two Docker containers, fully self-contained:
 
 **Why this architecture:**
 
-- `docker compose build` produces everything — zero runtime downloads
+- `./scripts/run.sh build` produces everything — zero runtime downloads (auto-detects Docker or Podman)
 - No `--cap-add SYS_ADMIN` or `/dev/fuse` required (unlike ADB-Free)
 - 2 CPU / 4GB RAM minimum (instructor laptop friendly)
 - Fully offline deployment via `scripts/bundle.sh` image tarball
@@ -49,17 +49,27 @@ Two Docker containers, fully self-contained:
 
 ### Prerequisites
 
-- Docker Desktop (4.0+) with Docker Compose
+- **Docker Desktop** (4.0+) with Docker Compose, **or**
+- **Podman** (4.0+) with `podman-compose` (`pip install podman-compose`)
 - 4GB+ RAM available for containers
 - Node.js 22 LTS (for development only — not needed to run the workshop)
+
+> **Oracle corporate laptops:** Docker Desktop is not permitted. Use Podman instead — all scripts auto-detect the available runtime.
 
 ### Run the Workshop
 
 ```bash
 git clone https://github.com/rhoulihan/oracle-json-workshop.git
 cd oracle-json-workshop
-docker compose build    # ~3 min first time (downloads Oracle 26ai + ORDS)
-docker compose up       # Starts Oracle + ORDS + Workshop App
+./scripts/run.sh build   # ~3 min first time (downloads Oracle 26ai + ORDS)
+./scripts/run.sh up      # Starts Oracle + ORDS + Workshop App
+```
+
+Or use Docker/Podman directly:
+
+```bash
+docker compose build && docker compose up       # Docker
+podman-compose build && podman-compose up        # Podman
 ```
 
 Then open `http://localhost:3000` in a browser.
@@ -68,26 +78,26 @@ Then open `http://localhost:3000` in a browser.
 
 ```bash
 # On a machine with internet:
-docker compose build
+./scripts/run.sh build
 ./scripts/bundle.sh     # Creates workshop-images.tar.gz (~4-5GB)
 
 # On the air-gapped instructor laptop:
-docker load < workshop-images.tar.gz
-docker compose up
+docker load < workshop-images.tar.gz    # or: podman load < workshop-images.tar.gz
+./scripts/run.sh up
 ```
 
 ## Workshop Modules (90 Minutes)
 
-| Time      | Module                  | Focus                                                  |
-| --------- | ----------------------- | ------------------------------------------------------ |
-| 0:00-0:05 | Setup                   | Connect, create workspace                              |
-| 0:05-0:10 | M0: The Big Picture     | Architecture overview, data model                      |
-| 0:10-0:25 | M1: JSON Collections    | Insert, query, JSON_TRANSFORM, search indexes          |
-| 0:25-0:45 | M2: Duality Views       | Read/write through documents, verify relational tables |
-| 0:45-1:05 | M3: Single-Table Design | pk/sk patterns, multi-value indexes, cross-entity SQL  |
-| 1:05-1:20 | M4: Hybrid Queries      | The 90/10 problem, JSON_TABLE, cross-model joins       |
-| 1:20-1:27 | M5: Multi-Protocol      | mongosh to Oracle, node-oracledb, SODA                 |
-| 1:27-1:30 | Wrap-up                 | Summary, next steps                                    |
+| Time      | Module                | Focus                                                   |
+| --------- | --------------------- | ------------------------------------------------------- |
+| 0:00-0:05 | Setup                 | Connect, create workspace                               |
+| 0:05-0:10 | M0: The Big Picture   | Architecture overview, data model                       |
+| 0:10-0:25 | M1: JSON Collections  | Insert, query, JSON_TRANSFORM, search indexes           |
+| 0:25-0:45 | M2: Duality Views     | Read/write through documents, verify relational tables  |
+| 0:45-1:05 | M3: Single-Collection | Compound indexes, multi-value indexes, cross-entity SQL |
+| 1:05-1:20 | M4: Hybrid Queries    | The 90/10 problem, JSON_TABLE, cross-model joins        |
+| 1:20-1:27 | M5: Multi-Protocol    | mongosh to Oracle, node-oracledb, SODA                  |
+| 1:27-1:30 | Wrap-up               | Summary, next steps                                     |
 
 ## Data Model
 
@@ -122,7 +132,7 @@ Financial services advisory platform — advisors, clients, accounts, holdings, 
 | JSON Duality Views     | M2     | Bidirectional document-relational mapping |
 | UNNEST / NOCHECK       | M2     | Flatten nested objects, skip etag checks  |
 | Multi-Value Indexes    | M3     | `CREATE MULTIVALUE INDEX` on JSON arrays  |
-| Single-Table Design    | M3     | pk/sk/gsi patterns with SQL superpowers   |
+| Single-Collection      | M3     | Compound indexes on natural attributes    |
 | MongoDB API (ORDS)     | M5     | `mongosh` to Oracle via wire protocol     |
 | node-oracledb          | M5     | JavaScript thin driver, JSON type binding |
 | JSON Search Index      | M1     | Full-text search over JSON documents      |
@@ -144,11 +154,11 @@ cp .env.example .env    # Edit as needed
 npm run test:unit
 
 # Integration tests (requires running Oracle container)
-docker compose -f docker-compose.test.yml build
-docker compose -f docker-compose.test.yml up -d
+./scripts/run.sh -f docker-compose.test.yml build
+./scripts/run.sh -f docker-compose.test.yml up -d
 # Wait ~60s for Oracle + ORDS to start
 DB_USER=WORKSHOP_ADMIN DB_PASSWORD=TestApp2026 DB_CONNECT_STRING=localhost:1521/FREEPDB1 npm run test:integration
-docker compose -f docker-compose.test.yml down
+./scripts/run.sh -f docker-compose.test.yml down
 
 # All tests
 npm test
@@ -258,7 +268,7 @@ All 9 phases complete. **287 unit tests (213 backend + 74 frontend) + 48 integra
 
 #### Before the Workshop
 
-1. **Start the environment** — `docker compose up -d` (allow 2-3 minutes for Oracle + ORDS startup)
+1. **Start the environment** — `./scripts/run.sh up -d` (allow 2-3 minutes for Oracle + ORDS startup)
 2. **Verify health** — `curl http://localhost:3000/health` should return `{"status":"ok"}`
 3. **Set your admin password** — edit `ADMIN_PASSWORD` in `.env` (default: `instructor2026`)
 4. **Share the URL** — tell developers to open `http://localhost:3000` in their browser
@@ -303,10 +313,10 @@ curl -X POST http://localhost:3000/api/admin/login \
 curl -X DELETE http://localhost:3000/api/admin/workspaces -b /tmp/admin.txt
 
 # Stop the environment
-docker compose down
+./scripts/run.sh down
 
 # Full reset (removes Oracle data volume — next startup re-runs all init scripts)
-docker compose down -v
+./scripts/run.sh down -v
 ```
 
 ### Troubleshooting
@@ -314,11 +324,11 @@ docker compose down -v
 | Issue                                        | Solution                                                                                                                    |
 | -------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
 | Oracle container stuck on "health: starting" | Wait up to 3 minutes on first run. Oracle + ORDS + init scripts take time.                                                  |
-| App container exits immediately              | Check Oracle is healthy first: `docker compose ps`. App waits for Oracle.                                                   |
+| App container exits immediately              | Check Oracle is healthy first: `./scripts/run.sh ps`. App waits for Oracle.                                                 |
 | "Workspace creation failed" on register      | Verify init script 10 ran: `docker exec workshop-oracle sqlplus -s / as sysdba` → check `SYS.WORKSHOP_CLONE_SCHEMA` exists. |
 | Duplicate email error on register            | Use "Reconnect" form with your existing schema name and password.                                                           |
 | Stale workspaces from testing                | Use admin dashboard (`/admin.html`) → "Tear Down All" button.                                                               |
-| ORDS crashing in loop                        | Rebuild Oracle image: `docker compose down -v && docker compose build oracle && docker compose up -d`                       |
+| ORDS crashing in loop                        | Rebuild Oracle image: `./scripts/run.sh down -v && ./scripts/run.sh build oracle && ./scripts/run.sh up -d`                 |
 
 ## Configuration
 
